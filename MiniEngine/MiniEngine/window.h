@@ -5,6 +5,12 @@
 #include <windows.h>
 #include <WinBase.h>
 #include <gdiplus.h>
+#include <random>
+#include <cstdlib>
+#include <ctime>
+#include <WinUser.h>
+
+#include "framebuffer.h"
 
 class Window
 {
@@ -16,12 +22,17 @@ public:
     void show();
     bool shouldClose();
     void pollEvents();
+    void swapFramebuffers();
+    //void redraw();
     HWND hwnd();
 
+private:
     // Properties
     MSG _msg = { };
-
-private:
     HWND _hwnd;
+
+    Framebuffer currentBuffer;
+    Framebuffer frontBuffer;
+    Framebuffer backBuffer;
 };
 
