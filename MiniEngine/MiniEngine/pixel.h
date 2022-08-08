@@ -2,17 +2,22 @@
 #define PIXEL_H
 #endif
 
+#include <cstddef>
+#include <cstdint>
+
 class Pixel
 {
 public:
-    Pixel(float r, float g, float b) : _r(r), _g(g), _b(b) {};
+    Pixel(int r, int g, int b) : _r(r), _g(g), _b(b) {};
 
-    float r() { return _r; }
-    float g() { return _g; }
-    float b() { return _b; }
+    int r() { return _r; }
+    int g() { return _g; }
+    int b() { return _b; }
+
+    int hex();
 
 private:
-    float _r;
-    float _g;
-    float _b;
+    int _r;
+    int _g;
+    int _b;
 };

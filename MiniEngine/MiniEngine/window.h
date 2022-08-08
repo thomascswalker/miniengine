@@ -1,38 +1,28 @@
 #ifndef WINDOW_H
 #define WINDOW_H
-#endif
 
 #include <windows.h>
-#include <WinBase.h>
 #include <gdiplus.h>
-#include <random>
-#include <cstdlib>
-#include <ctime>
-#include <WinUser.h>
 
 #include "framebuffer.h"
 
 class Window
 {
-public:
-    // Constructor
-    Window(HINSTANCE hInstance);
+protected:
+    static Window *instance;
+    Window();
 
+public:
     // Methods
-    void show();
-    bool shouldClose();
-    void pollEvents();
+    static Window* getInstance();
     void swapFramebuffers();
-    //void redraw();
-    HWND hwnd();
+    Framebuffer getCurrentBuffer();
 
 private:
     // Properties
-    MSG _msg = { };
-    HWND _hwnd;
-
-    Framebuffer currentBuffer;
+    char* currentBuffer;
     Framebuffer frontBuffer;
     Framebuffer backBuffer;
 };
 
+#endif
