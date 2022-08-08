@@ -1,8 +1,15 @@
 #include <string>
 #include "window.h"
 
+#ifndef MAIN_WINDOW_TIMER_ID
+    #define MAIN_WINDOW_TIMER_ID 1001
+#endif
+
+#ifndef MAIN_WINDOW_TIMER
+    #define MAIN_WINDOW_TIMER 1
+#endif
+
 static bool bQuit = false;
-//static bool bFlipFlop = false;
 
 int getRefreshRate()
 {
@@ -16,7 +23,10 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 {
     
     auto w = Window::getInstance();
+
+    // Swap the current framebuffer
     auto currentBuffer = w->getCurrentBuffer();
+    w->swapFramebuffers();
 
     // Get current frame size
     UINT width = LOWORD(lParam);
@@ -27,6 +37,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
     {
         case WM_CREATE:
         {
+            SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, MAIN_WINDOW_TIMER, NULL);
             return 0;
         }
 
@@ -35,6 +46,17 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         {
             bQuit = true;
             return 0;
+        }
+
+        case WM_ERASEBKGND:
+        {
+            return TRUE;
+        }
+
+        case WM_TIMER:
+        {
+            InvalidateRect(hwnd, NULL, FALSE);
+            UpdateWindow(hwnd);
         }
 
         case WM_SIZE:
@@ -72,8 +94,6 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
             DeleteDC(sourceDc);
 
             // At the end of painting, swap buffers
-            w->swapFramebuffers();
-
             break;
         }
     }

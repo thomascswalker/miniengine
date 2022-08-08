@@ -20,9 +20,9 @@ public:
 
 private:
     // Properties
-    char* currentBuffer;
-    Framebuffer frontBuffer;
-    Framebuffer backBuffer;
+    Framebuffer* currentBuffer;
+    Framebuffer* frontBuffer;
+    Framebuffer* backBuffer;
 };
 
 #endif

@@ -3,10 +3,12 @@
 Window::Window()
 {
     // Create the framebuffer
-    frontBuffer = Framebuffer();
-    frontBuffer._redColor = 255;
-    backBuffer = Framebuffer();
-    backBuffer._redColor = 150;
+    frontBuffer = new Framebuffer();
+    frontBuffer->_redColor = 255;
+    backBuffer = new Framebuffer();
+    backBuffer->_redColor = 50;
+
+    currentBuffer = frontBuffer;
 }
 
 Window* Window::getInstance()
@@ -20,19 +22,19 @@ Window* Window::getInstance()
 
 void Window::swapFramebuffers()
 {
-    //if (currentBuffer != &frontBuffer)
-    //{
-    //    currentBuffer = &frontBuffer;
-    //}
-    //else
-    //{
-    //    currentBuffer = &backBuffer;
-    //}
+    if (currentBuffer != frontBuffer)
+    {
+        currentBuffer = frontBuffer;
+    }
+    else
+    {
+        currentBuffer = backBuffer;
+    }
 }
 
 Framebuffer Window::getCurrentBuffer()
 {
-    return frontBuffer;
+    return *currentBuffer;
 }
 
 Window *Window::instance = 0;

@@ -28,9 +28,11 @@ void Framebuffer::createFrameBitmap()
         _pixelBuffer[i + 3] = unsigned char(0);     // Alpha
     }
 
-    //char buffer[100];
-    //sprintf_s(buffer, "Pixel count: %i\n", _pixelBuffer.size());
-    //OutputDebugStringA(buffer);
+    /*
+    char buffer[100];
+    sprintf_s(buffer, "Pixel count: %i\n", _pixelBuffer.size());
+    OutputDebugStringA(buffer);
+    */
 
     frameBitmap = CreateBitmap(_width, _height, 1, 32, _pixelBuffer.data());
     _pixelBuffer.clear();
