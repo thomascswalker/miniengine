@@ -1,10 +1,12 @@
 #ifndef CORE_H
 #define CORE_H
-#endif
 
 #ifndef MAIN_WINDOW_TIMER_ID
     #define MAIN_WINDOW_TIMER_ID 1001
 #endif
+
+#include <windows.h>
+#include <windowsx.h>
 
 class MSize
 {
@@ -51,3 +53,5 @@ MSize getScreenSize()
 
     return MSize(desktop.right, desktop.bottom);
 }
+
+#endif

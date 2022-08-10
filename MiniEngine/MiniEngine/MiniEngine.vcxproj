@@ -147,14 +147,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pixel.cpp" />
     <ClCompile Include="vector.cpp" />
-    <ClCompile Include="window.cpp" />
+    <ClCompile Include="application.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core.h" />
     <ClInclude Include="framebuffer.h" />
     <ClInclude Include="pixel.h" />
     <ClInclude Include="vector.h" />
-    <ClInclude Include="window.h" />
+    <ClInclude Include="application.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
