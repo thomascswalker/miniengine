@@ -1,101 +1,109 @@
 #include <string>
-#include "window.h"
-
-#ifndef MAIN_WINDOW_TIMER_ID
-    #define MAIN_WINDOW_TIMER_ID 1001
-#endif
-
-#ifndef MAIN_WINDOW_TIMER
-    #define MAIN_WINDOW_TIMER 1
-#endif
+#include <windows.h>
+#include <windowsx.h>
+#include <wtypes.h>
+//#include "window.h"
+#include "core.h"
 
 static bool bQuit = false;
+void* bufferMemory;
+int bufferWidth;
+int bufferHeight;
+int mouseX;
+int mouseY;
+BITMAPINFO bufferBmi;
 
-int getRefreshRate()
+int xOffset;
+
+void fillColor(int color)
 {
-    DEVMODE screen;
-    memset(&screen, 0, sizeof(DEVMODE));
-    int refreshRate = screen.dmDisplayFrequency;
-    return refreshRate;
+    auto pixelPtr = (unsigned int*) bufferMemory;
+    for (int y = 0; y < bufferHeight; y++)
+    {
+        for (int x = 0; x < bufferWidth; x++)
+        {
+            *pixelPtr = color;
+            (pixelPtr)++;
+        }
+    }
+}
+
+void drawRect(int xPos, int yPos, int w, int h, int color)
+{
+    clamp(&xPos, 0, bufferWidth);
+    clamp(&yPos, 0, bufferHeight);
+
+    if (xPos + w > bufferWidth)
+    {
+        w = bufferWidth - xPos;
+    }
+    if (yPos + h > bufferHeight)
+    {
+        h = bufferHeight - yPos;
+    }
+
+    for (int y = yPos; y < yPos + h; y++)
+    {
+        auto pixelPtr = (unsigned int*) bufferMemory + xPos + (y * bufferWidth);
+        for (int x = xPos; x < xPos + w; x++)
+        {
+            *pixelPtr = color;
+            (pixelPtr)++;
+        }
+    }
 }
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    
-    auto w = Window::getInstance();
-
-    // Swap the current framebuffer
-    auto currentBuffer = w->getCurrentBuffer();
-    w->swapFramebuffers();
-
-    // Get current frame size
-    UINT width = LOWORD(lParam);
-    UINT height = HIWORD(lParam);
-
     // Switch on message typew
     switch (uMsg)
     {
         case WM_CREATE:
         {
-            SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, MAIN_WINDOW_TIMER, NULL);
+            SetTimer(hwnd, 0, getRefreshRate(), NULL);
             return 0;
         }
-
         case WM_QUIT:
         case WM_DESTROY:
         {
             bQuit = true;
-            return 0;
+            break;
         }
-
-        case WM_ERASEBKGND:
+        case WM_MOUSEMOVE:
         {
-            return TRUE;
+            mouseX = GET_X_LPARAM(lParam);
+            mouseY = GET_Y_LPARAM(lParam);
         }
-
         case WM_TIMER:
         {
+            RECT rect;
+            GetClientRect(hwnd, &rect);
+            bufferWidth = rect.right - rect.left;
+            bufferHeight = rect.bottom - rect.top;
+
+            int bufferSize = bufferWidth * bufferHeight * sizeof(unsigned int);
+
+            if (bufferMemory)
+            {
+                VirtualFree(bufferMemory, 0, MEM_RELEASE);
+            }
+            bufferMemory = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+            bufferBmi.bmiHeader.biSize = sizeof(bufferBmi.bmiHeader);
+            bufferBmi.bmiHeader.biWidth = bufferWidth;
+            bufferBmi.bmiHeader.biHeight = bufferHeight;
+            bufferBmi.bmiHeader.biPlanes = 1;
+            bufferBmi.bmiHeader.biBitCount = 32;
+            bufferBmi.bmiHeader.biCompression = BI_RGB;
+
             InvalidateRect(hwnd, NULL, FALSE);
             UpdateWindow(hwnd);
         }
-
         case WM_SIZE:
         {
-            // Resize the framebuffer
-            currentBuffer.setSize(width, height);
-        }
-
-        case WM_PAINT:
-        {
-            // Get the current framebuffer's bitmap
-            currentBuffer.createFrameBitmap();
-            auto newBitmap = currentBuffer.getFrameBitmap();
-
-            // Create our source and target device contexts
-            auto targetHdc = GetDC(hwnd);
-            HDC sourceDc = CreateCompatibleDC(targetHdc);
-
-            // Select our new bitmap object
-            HBITMAP oldbitmap = (HBITMAP) SelectObject(sourceDc, newBitmap);
-            GetObject(newBitmap, sizeof(newBitmap), &newBitmap);
-
-            // Copy from source context to target context
-            BitBlt(
-                targetHdc,      // Target device context
-                0, 0,           // Target position
-                width, height,  // Target width + height
-                sourceDc,       // Source device context
-                0, 0,           // Source position
-                SRCCOPY
-            );
-
-            // Delete the old bitmap object
-            SelectObject(sourceDc, oldbitmap);
-            DeleteDC(sourceDc);
-
-            // At the end of painting, swap buffers
-            break;
-        }
+            InvalidateRect(hwnd, NULL, FALSE);
+            UpdateWindow(hwnd);
+        } 
     }
 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -113,40 +121,67 @@ int WINAPI wWinMain(
     WNDCLASS wc = { };
 
     wc.lpfnWndProc   = windowProcessMessage;
+    wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.hInstance     = hInstance;
     wc.lpszClassName = CLASS_NAME;
 
     RegisterClass(&wc);
 
     // Create the window.
-    auto hwnd = CreateWindowEx(
-        0,                                // Optional window styles.
-        CLASS_NAME,                       // Window class
-        L"MiniEngine",                    // Window text
-        WS_OVERLAPPEDWINDOW | WS_VISIBLE, // Window style
+    auto size = getScreenSize();
+    auto hwnd = CreateWindow(
+        CLASS_NAME,                         // Window class
+        L"MiniEngine",                      // Window text
+        WS_OVERLAPPEDWINDOW | WS_VISIBLE,   // Window style
 
-        0,      // X position
-        0,      // Y position
-        100,    // Width
-        100,    // Height
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        640,                                // Width
+        480,                                // Height
 
-        NULL,       // Parent window    
-        NULL,       // Menu
-        hInstance,  // Instance handle
-        NULL        // Additional application data
+        NULL,                               // Parent window    
+        NULL,                               // Menu
+        hInstance,                          // Instance handle
+        NULL                                // Additional application data
     );
 
     // Show the window
     ShowWindow(hwnd, 1);
 
+    HDC hdc = GetDC(hwnd);
+
     // Run the message loop.
     while (!bQuit)
     {
         static MSG message = { 0 };
-        while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
+        while (PeekMessage(&message, hwnd, 0, 0, PM_REMOVE))
         {
+            TranslateMessage(&message);
             DispatchMessage(&message);
         }
+
+        fillColor(0x00796B);
+
+        int staticPos = 100 + xOffset;
+        if (staticPos > bufferWidth)
+        {
+            staticPos = staticPos % bufferWidth;
+        }
+        xOffset++;
+        drawRect(staticPos, 50, 100, 100, 0xF57C00);
+        drawRect(mouseX, bufferHeight - mouseY, 100, 100, 0xFDD835);
+
+        StretchDIBits(
+            hdc,
+            0, 0,
+            bufferWidth, bufferHeight,
+            0, 0,
+            bufferWidth, bufferHeight,
+            bufferMemory,
+            &bufferBmi,
+            DIB_RGB_COLORS,
+            SRCCOPY
+        );
     };
 
     return 0;
