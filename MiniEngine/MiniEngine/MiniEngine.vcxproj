@@ -150,6 +150,7 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="core.h" />
     <ClInclude Include="framebuffer.h" />
     <ClInclude Include="pixel.h" />
     <ClInclude Include="vector.h" />
