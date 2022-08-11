@@ -1,8 +1,19 @@
 #include "framebuffer.h"
 
-Framebuffer::Framebuffer()
+#ifndef BUFFER_TYPE
+    #define BUFFER_TYPE unsigned int
+#endif
+
+Framebuffer::Framebuffer(HWND hwnd)
+    : m_hwnd(hwnd)
 {
-    
+    // Set BitmapInfo struct default values
+    m_bufferBmi.bmiHeader.biPlanes = 1;
+    m_bufferBmi.bmiHeader.biBitCount = 32;
+    m_bufferBmi.bmiHeader.biCompression = BI_RGB;
+
+    // Do an initial allocation of the framebuffer
+    allocate();
 }
 
 Framebuffer::~Framebuffer()
@@ -10,48 +21,61 @@ Framebuffer::~Framebuffer()
 
 }
 
-HBITMAP Framebuffer::getFrameBitmap()
+void Framebuffer::allocate()
 {
-    return frameBitmap;
-}
-
-void Framebuffer::createFrameBitmap()
-{
-    int bufferSize = _width * _height * 4;
-    _pixelBuffer = std::vector<unsigned char> (bufferSize, unsigned char(0));
-
-    for (int i = 0; i < bufferSize; i += 4)
+    // Clear the memory buffer
+    if (m_memoryBuffer)
     {
-        _pixelBuffer[i]     = unsigned char(0);     // Blue
-        _pixelBuffer[i + 1] = unsigned char(150);   // Green
-        _pixelBuffer[i + 2] = _redColor;            // Red
-        _pixelBuffer[i + 3] = unsigned char(0);     // Alpha
+        VirtualFree(m_memoryBuffer, 0, MEM_RELEASE);
+        m_memoryBuffer = nullptr;
     }
 
-    /*
-    char buffer[100];
-    sprintf_s(buffer, "Pixel count: %i\n", _pixelBuffer.size());
-    OutputDebugStringA(buffer);
-    */
+    // Calculate the new buffer size and allocate memory of that size
+    int bufferSize = m_width * m_height * sizeof(BUFFER_TYPE);
 
-    frameBitmap = CreateBitmap(_width, _height, 1, 32, _pixelBuffer.data());
-    _pixelBuffer.clear();
+    // Allocate the memory buffer
+    m_memoryBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+    // Update the buffer BitmapInfo struct with the updated buffer size,
+    // and width and height
+    m_bufferBmi.bmiHeader.biSize = sizeof(m_bufferBmi.bmiHeader);
+    m_bufferBmi.bmiHeader.biWidth = m_width;
+    m_bufferBmi.bmiHeader.biHeight = m_height;
 }
 
-void Framebuffer::setWidth(int width)
+void Framebuffer::setSize(MCore::MSize size)
 {
-    _width = width;
-}
-
-void Framebuffer::setHeight(int height)
-{
-    _height = height;
+    m_width = size.width();
+    m_height = size.height();
+    allocate();
 }
 
 void Framebuffer::setSize(int width, int height)
 {
-    setWidth(width);
-    setHeight(height);
+    m_width = width;
+    m_height = height;
+    allocate();
+}
+
+void Framebuffer::fillRect(int x0, int y0, int x1, int y1, MColor color)
+{
+    x0 = MCore::clamp(&x0, 0, m_width);
+    x1 = MCore::clamp(&x1, 0, m_width);
+
+    y0 = MCore::clamp(&y0, 0, m_height);
+    y1 = MCore::clamp(&y1, 0, m_height);
+
+    // For each pixel...
+    for (int y = y0; y < y1; y++)
+    {
+        // Get the first pointer position in our memory buffer
+        auto pixelPtr = (unsigned int*)m_memoryBuffer + x0 + (y * m_width);
+        for (int x = x0; x < x1; x++)
+        {
+            *pixelPtr = color.hex();      // Set the color at this position in memory
+            (pixelPtr)++;                 // Increment the pointer
+        }
+    }
 }
 
 bool operator == (const Framebuffer& f1, const Framebuffer& f2)

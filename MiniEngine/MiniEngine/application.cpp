@@ -1,81 +1,28 @@
 #include "application.h"
+#include <string>
 
 #ifndef MAIN_WINDOW_TIMER_ID
     #define MAIN_WINDOW_TIMER_ID 1001
 #endif
 
-static bool bQuit = false;
-void* bufferMemory;
-int bufferWidth;
-int bufferHeight;
-int mouseX;
-int mouseY;
-BITMAPINFO bufferBmi;
-
-int xOffset;
-
-float frameRate = 1000.0f / 60.0f;
-
-int clamp(int *value, int min, int max)
-{
-    if (*value < min)
-    {
-        return min;
-    }
-    if (*value > max)
-    {
-        return max;
-    }
-    return *value;
-}
-
-
-void fillColor(int color)
-{
-    auto pixelPtr = (unsigned int*) bufferMemory;
-    for (int y = 0; y < bufferHeight; y++)
-    {
-        for (int x = 0; x < bufferWidth; x++)
-        {
-            *pixelPtr = color;
-            (pixelPtr)++;
-        }
-    }
-}
-
-void drawRect(int xPos, int yPos, int w, int h, int color)
-{
-    clamp(&xPos, 0, bufferWidth);
-    clamp(&yPos, 0, bufferHeight);
-
-    if (xPos + w > bufferWidth)
-    {
-        w = bufferWidth - xPos;
-    }
-    if (yPos + h > bufferHeight)
-    {
-        h = bufferHeight - yPos;
-    }
-
-    for (int y = yPos; y < yPos + h; y++)
-    {
-        auto pixelPtr = (unsigned int*) bufferMemory + xPos + (y * bufferWidth);
-        for (int x = xPos; x < xPos + w; x++)
-        {
-            *pixelPtr = color;
-            (pixelPtr)++;
-        }
-    }
-}
+// Global variables
+static bool bQuit      = false;
+static int  initWidth  = 1280;
+static int  initHeight = 720;
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    // Switch on message typew
+    auto app = Application::getAppInstance();
+
+    int width = LOWORD(lParam);
+    int height = HIWORD(lParam);
+
+    // Switch on message type
     switch (uMsg)
     {
         case WM_CREATE:
         {
-            SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, frameRate, NULL);
+            SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, 16.667, NULL);
             return 0;
         }
         case WM_QUIT:
@@ -84,49 +31,29 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
             bQuit = true;
             break;
         }
+        case WM_SIZE:
+        {
+            app->setSize(width, height);
+            InvalidateRect(hwnd, NULL, FALSE);
+            UpdateWindow(hwnd);
+            break;
+        } 
         case WM_MOUSEMOVE:
         {
-            mouseX = GET_X_LPARAM(lParam);
-            mouseY = GET_Y_LPARAM(lParam);
+            //mouseX = GET_X_LPARAM(lParam);
+            //mouseY = GET_Y_LPARAM(lParam);
+            break;
         }
         case WM_TIMER:
         {
-            RECT rect;
-            GetClientRect(hwnd, &rect);
-            bufferWidth = rect.right - rect.left;
-            bufferHeight = rect.bottom - rect.top;
-
-            int bufferSize = bufferWidth * bufferHeight * sizeof(unsigned int);
-
-            if (bufferMemory)
-            {
-                VirtualFree(bufferMemory, 0, MEM_RELEASE);
-            }
-            bufferMemory = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-
-            bufferBmi.bmiHeader.biSize = sizeof(bufferBmi.bmiHeader);
-            bufferBmi.bmiHeader.biWidth = bufferWidth;
-            bufferBmi.bmiHeader.biHeight = bufferHeight;
-            bufferBmi.bmiHeader.biPlanes = 1;
-            bufferBmi.bmiHeader.biBitCount = 32;
-            bufferBmi.bmiHeader.biCompression = BI_RGB;
-
             InvalidateRect(hwnd, NULL, FALSE);
             UpdateWindow(hwnd);
+
+            break;
         }
-        case WM_SIZE:
-        {
-            InvalidateRect(hwnd, NULL, FALSE);
-            UpdateWindow(hwnd);
-        } 
     }
 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
-}
-
-Application::Application()
-{
-
 }
 
 Application* Application::getAppInstance()
@@ -160,14 +87,18 @@ void Application::init()
 
         CW_USEDEFAULT,
         CW_USEDEFAULT,
-        640,                                // Width
-        480,                                // Height
+        initWidth,                          // Width
+        initHeight,                         // Height
 
         NULL,                               // Parent window    
         NULL,                               // Menu
         m_hInstance,                        // Instance handle
         NULL                                // Additional application data
     );
+
+    // Initialize our framebuffer
+    m_buffer = new Framebuffer(m_hwnd);
+    m_buffer->setSize(initWidth, initHeight);
 }
 
 int Application::run()
@@ -175,6 +106,9 @@ int Application::run()
     ShowWindow(m_hwnd, 1);
 
     HDC hdc = GetDC(m_hwnd);
+
+    // Temporary variable for animating our rectangle
+    int xOffset = 0;
 
     // Run the message loop.
     while (!bQuit)
@@ -186,31 +120,51 @@ int Application::run()
             DispatchMessage(&message);
         }
 
-        fillColor(0x00796B);
+        // Paint a pink background
+        auto pink  = MColor(0xFF796B);
+        m_buffer->fillRect(0, 0, m_buffer->getWidth(), m_buffer->getHeight(), pink);
 
-        int staticPos = 100 + xOffset;
-        if (staticPos > bufferWidth)
+        // Paint a turquoise rectangle which we'll offset every iteration
+        int staticX = 100 + xOffset;
+        if (staticX > m_buffer->getWidth())
         {
-            staticPos = staticPos % bufferWidth;
+            staticX = staticX % m_buffer->getWidth();
         }
         xOffset++;
-        drawRect(staticPos, 50, 100, 100, 0xF57C00);
-        drawRect(mouseX, bufferHeight - mouseY, 100, 100, 0xFDD835);
 
+        auto turqouise = MColor(0x00796B);
+        m_buffer->fillRect(staticX, 150, staticX + 350, 600, turqouise);
+
+        // Copy the memory buffer to the device context
         StretchDIBits(
             hdc,
             0, 0,
-            bufferWidth, bufferHeight,
+            m_buffer->getWidth(), m_buffer->getHeight(),
             0, 0,
-            bufferWidth, bufferHeight,
-            bufferMemory,
-            &bufferBmi,
+            m_buffer->getWidth(), m_buffer->getHeight(),
+            m_buffer->getMemoryBuffer(),
+            m_buffer->getBitmapInfo(),
             DIB_RGB_COLORS,
             SRCCOPY
         );
     };
 
     return 0;
+}
+
+void Application::setSize(int width, int height)
+{
+    if (m_buffer == nullptr)
+    {
+        m_width = width;
+        m_height = height;
+    }
+    else
+    {
+        m_width = width;
+        m_height = height;
+        m_buffer->setSize(width, height);
+    }
 }
 
 Application *Application::instance = 0;

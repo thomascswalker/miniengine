@@ -1,15 +1,17 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-//#include "core.h"
 #include <Windows.h>
 #include <windowsx.h>
+
+#include "framebuffer.h"
+#include "core.h"
 
 class Application
 {
 protected:
     static Application *instance;
-    Application();
+    Application() {};
 
 public:
     static Application* getAppInstance();
@@ -23,9 +25,17 @@ public:
     HINSTANCE getHInstance() {return m_hInstance;}
     void setHInstance(HINSTANCE hInstance) {m_hInstance = hInstance;}
 
+    Framebuffer* getFramebuffer() { return m_buffer; }
+    void setSize(int width, int height);
+
 private:
     HWND m_hwnd = 0;
     HINSTANCE m_hInstance = 0;
+
+    Framebuffer* m_buffer;
+
+    int m_width = 0;
+    int m_height = 0;
 };
 
 #endif

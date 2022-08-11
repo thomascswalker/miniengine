@@ -7,51 +7,81 @@
 
 #include <windows.h>
 #include <windowsx.h>
+#include <tuple>
 
-class MSize
+namespace MCore
 {
-public:
-    MSize(int width, int height) : _width(width), _height(height) {};
-
-    int width() {return _width;}
-    int height() {return _height;}
-    int setWidth(int width) {_width = width;}
-    int setHeight(int height) {_height = height;}
-
-private:
-    int _width;
-    int _height;
-};
-
-int clamp(int *value, int min, int max)
-{
-    if (*value < min)
+    class MSize
     {
-        return min;
-    }
-    if (*value > max)
+    public:
+        MSize() {};
+        MSize(int width, int height) : m_width(width), m_height(height) {};
+
+        int width() { return m_width; }
+        int height() { return m_height; }
+        int setWidth(int width) { m_width = width; }
+        int setHeight(int height) { m_height = height; }
+
+    private:
+        int m_width = 0;
+        int m_height = 0;
+    };
+
+    class MPoint
     {
-        return max;
-    }
-    return *value;
+    public:
+        MPoint() {};
+        MPoint(int x, int y) : m_x(x), m_y(y) {};
+
+        int x() { return m_x; }
+        int y() { return m_y; }
+        int setX(int x) { m_x = x; }
+        int setY(int y) { m_y = y; }
+
+    private:
+        int m_x = 0;
+        int m_y = 0;
+    };
+
+    class MRect
+    {
+    public:
+        // Constructors
+        MRect() {};
+        MRect(int x, int y, int width, int height) : m_x(x), m_y(y), m_width(width), m_height(height) {};
+
+        // Methods
+        MPoint pos() { return MPoint(m_x, m_y); }
+        MSize size() { return MSize(m_width, m_height); }
+
+        //template<class Types>
+        //std::tuple<MPoint, MPoint> bounds()
+        //{
+        //    return std::tuple<MPoint, MPoint>(MPoint(m_x, m_y), MPoint(m_x + m_width, m_y + m_height);
+        //};
+    
+        // Accessors
+        int x() { return m_x; }
+        int y() { return m_y; }
+        int setX(int x) { m_x = x; }
+        int setY(int y) { m_y = y; }
+        int width() { return m_width; }
+        int height() { return m_height; }
+        int setWidth(int width) { m_width = width; }
+        int setHeight(int height) { m_height = height; }
+
+    private:
+        // Properties
+        int m_x = 0;
+        int m_y = 0;
+        int m_width = 0;
+        int m_height = 0;
+    };
+
+    int clamp(int *value, int min, int max);
+    int getRefreshRate();
+    MSize getScreenSize();
 }
 
-int getRefreshRate()
-{
-    DEVMODE screen;
-    memset(&screen, 0, sizeof(DEVMODE));
-    int refreshRate = screen.dmDisplayFrequency;
-    return refreshRate;
-}
-
-MSize getScreenSize()
-{
-    RECT desktop;
-    const HWND hDesktop = GetDesktopWindow();
-
-    GetWindowRect(hDesktop, &desktop);
-
-    return MSize(desktop.right, desktop.bottom);
-}
 
 #endif

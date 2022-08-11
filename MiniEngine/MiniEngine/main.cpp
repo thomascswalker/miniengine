@@ -9,7 +9,7 @@ int WINAPI wWinMain(
     auto app = Application::getAppInstance();
     app->setHInstance(hInstance);
     app->init();
-    app->run();
+    int exitCode = app->run();
 
-    return 0;
+    return exitCode;
 }

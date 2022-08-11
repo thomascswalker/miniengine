@@ -25,6 +25,12 @@
     <ClCompile Include="pixel.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
+    <ClCompile Include="color.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="core.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -40,6 +46,9 @@
       <Filter>Source Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="vector.h">
+      <Filter>Source Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="color.h">
       <Filter>Source Files\engine</Filter>
     </ClInclude>
   </ItemGroup>
