@@ -30,3 +30,13 @@ MCore::MSize MCore::getScreenSize()
 
     return MCore::MSize(desktop.right, desktop.bottom);
 }
+
+void MCore::print(const wchar_t* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    wchar_t buffer[256];
+    wsprintfW(buffer, format, args);
+    OutputDebugString(buffer);
+}

@@ -27,6 +27,7 @@ public:
 
     Framebuffer* getFramebuffer() { return m_buffer; }
     void setSize(int width, int height);
+    void setMousePos(int x, int y);
 
 private:
     HWND m_hwnd = 0;
@@ -36,6 +37,11 @@ private:
 
     int m_width = 0;
     int m_height = 0;
+
+    int m_mouseX = 0;
+    int m_mouseY = 0;
+
+
 };
 
 #endif

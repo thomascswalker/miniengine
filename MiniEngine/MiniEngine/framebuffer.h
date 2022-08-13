@@ -8,9 +8,17 @@
 #include <windows.h>
 #include <gdiplus.h>
 #include <cassert>
+#include <vector>
 
 #include "core.h"
 #include "color.h"
+
+enum BufferMirror
+{
+    Vertical,
+    Horizontal,
+    Both
+};
 
 class Framebuffer
 {
@@ -29,7 +37,9 @@ public:
     HWND getHwnd() { return m_hwnd; }
     void allocate();
     BITMAPINFO* getBitmapInfo() { return &m_bufferBmi; }
-    void* getMemoryBuffer() { return m_memoryBuffer; }
+    void* getMemoryPtr() { return (unsigned int*)m_memoryBuffer; }
+    int getBufferSize() { return m_width * m_height * sizeof(unsigned int); }
+    std::vector<unsigned int> getMemoryBuffer();
 
     // Drawing
     void fillRect(int x0, int y0, int x1, int y1, MColor color);

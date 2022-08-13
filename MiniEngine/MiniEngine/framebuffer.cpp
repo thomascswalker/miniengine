@@ -18,7 +18,7 @@ Framebuffer::Framebuffer(HWND hwnd)
 
 Framebuffer::~Framebuffer()
 {
-
+    
 }
 
 void Framebuffer::allocate()
@@ -43,6 +43,25 @@ void Framebuffer::allocate()
     m_bufferBmi.bmiHeader.biHeight = m_height;
 }
 
+std::vector<unsigned int> Framebuffer::getMemoryBuffer()
+{
+    auto ptr  = (unsigned int*)m_memoryBuffer;  // Pointer to buffer
+    auto size = getBufferSize();                // Size of buffer (pixel count)
+
+    std::vector<unsigned int> buffer;           // Create a new vector
+    buffer.reserve(size);                       // Reserve size for this vector to be
+                                                // the size of the pixel count
+
+    for (int i = 0; i < size; i++)              // Iterate through the memory buffer
+    {
+        auto pixel = *ptr;                      // Get the value at the current pointer
+        buffer.push_back(pixel);                // Add to the vector
+        (*ptr)++;                               // Increment the pointer
+    }
+
+    return buffer;                              // Return our vector buffer
+}
+
 void Framebuffer::setSize(MCore::MSize size)
 {
     m_width = size.width();
@@ -61,7 +80,7 @@ void Framebuffer::fillRect(int x0, int y0, int x1, int y1, MColor color)
 {
     x0 = MCore::clamp(&x0, 0, m_width);
     x1 = MCore::clamp(&x1, 0, m_width);
-
+    
     y0 = MCore::clamp(&y0, 0, m_height);
     y1 = MCore::clamp(&y1, 0, m_height);
 

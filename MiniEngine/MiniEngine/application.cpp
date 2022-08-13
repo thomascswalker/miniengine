@@ -7,7 +7,8 @@
 
 // Global variables
 static bool bQuit      = false;
-static int  initWidth  = 1280;
+static float frameRate = 16.1667;   // 60 FPS
+static int  initWidth  = 1280;      // Standard HD
 static int  initHeight = 720;
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -22,7 +23,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
     {
         case WM_CREATE:
         {
-            SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, 16.667, NULL);
+            SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, frameRate, NULL);
             return 0;
         }
         case WM_QUIT:
@@ -40,8 +41,19 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         } 
         case WM_MOUSEMOVE:
         {
-            //mouseX = GET_X_LPARAM(lParam);
-            //mouseY = GET_Y_LPARAM(lParam);
+            POINT pt;
+            pt.x = GET_X_LPARAM(lParam);
+
+            int height = app->getFramebuffer()->getHeight();
+            pt.y = height - GET_Y_LPARAM(lParam);
+
+#if _DEBUG
+            wchar_t buffer[256];
+            wsprintfW(buffer, L"X: %d, Y: %d\n", pt.x, pt.y);
+            OutputDebugString(buffer);
+#endif
+
+            app->setMousePos(pt.x, pt.y);
             break;
         }
         case WM_TIMER:
@@ -113,6 +125,9 @@ int Application::run()
     // Run the message loop.
     while (!bQuit)
     {
+        RECT clientRect;
+        GetClientRect(m_hwnd, &clientRect);
+
         static MSG message = { 0 };
         while (PeekMessage(&message, m_hwnd, 0, 0, PM_REMOVE))
         {
@@ -120,29 +135,35 @@ int Application::run()
             DispatchMessage(&message);
         }
 
-        // Paint a pink background
-        auto pink  = MColor(0xFF796B);
-        m_buffer->fillRect(0, 0, m_buffer->getWidth(), m_buffer->getHeight(), pink);
+        int width = m_buffer->getWidth();
+        int height = m_buffer->getHeight();
 
-        // Paint a turquoise rectangle which we'll offset every iteration
-        int staticX = 100 + xOffset;
-        if (staticX > m_buffer->getWidth())
-        {
-            staticX = staticX % m_buffer->getWidth();
-        }
-        xOffset++;
+        // Paint background
+        auto background  = MColor(0x00796B);
+        m_buffer->fillRect(0, 0, width, height, background);
 
-        auto turqouise = MColor(0x00796B);
-        m_buffer->fillRect(staticX, 150, staticX + 350, 600, turqouise);
+        // Paint a rectangle
+        auto box = MColor(255, 200, 50);
+        m_buffer->fillRect(0, 0, 250, 250, box);
+
+        // Paint a mouse cursor
+        auto cursor = MColor(255, 0, 0);
+        m_buffer->fillRect(
+            m_mouseX - 10, // x0
+            m_mouseY - 10, // y0
+            m_mouseX + 10, // x1
+            m_mouseY + 10, // y1
+            cursor         // color
+        );
 
         // Copy the memory buffer to the device context
         StretchDIBits(
             hdc,
             0, 0,
-            m_buffer->getWidth(), m_buffer->getHeight(),
+            width, height,
             0, 0,
-            m_buffer->getWidth(), m_buffer->getHeight(),
-            m_buffer->getMemoryBuffer(),
+            width, height,
+            m_buffer->getMemoryPtr(),
             m_buffer->getBitmapInfo(),
             DIB_RGB_COLORS,
             SRCCOPY
@@ -165,6 +186,12 @@ void Application::setSize(int width, int height)
         m_height = height;
         m_buffer->setSize(width, height);
     }
+}
+
+void Application::setMousePos(int x, int y)
+{
+    m_mouseX = x;
+    m_mouseY = y;
 }
 
 Application *Application::instance = 0;

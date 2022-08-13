@@ -7,6 +7,9 @@
 
 #include <windows.h>
 #include <windowsx.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <ctype.h>
 #include <tuple>
 
 namespace MCore
@@ -81,6 +84,8 @@ namespace MCore
     int clamp(int *value, int min, int max);
     int getRefreshRate();
     MSize getScreenSize();
+
+    void print(const wchar_t* format, ...);
 }
 
 
