@@ -43,6 +43,7 @@ public:
 
     // Drawing
     void fillRect(int x0, int y0, int x1, int y1, MColor color);
+    void renderGradient();
 
     SIZE_T m_bufferSize;
     void* m_memoryBuffer;
@@ -52,10 +53,17 @@ protected:
                              const Framebuffer&);
 
 private:
+    // Window handle
     const HWND m_hwnd = HWND();
 
     int m_width = 640;
     int m_height = 480;
+
+    // Number of bytes per pixel
+    const int m_bytesPerPixel = 4;
+
+    // Length of row in bytes (width * bytes per pixel)
+    int m_rowLength = 0;
     
     BITMAPINFO m_bufferBmi;
 };

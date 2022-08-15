@@ -6,10 +6,20 @@
 #endif
 
 // Global variables
-static bool bQuit      = false;
-static float frameRate = 16.1667;   // 60 FPS
-static int  initWidth  = 1280;      // Standard HD
-static int  initHeight = 720;
+static bool     globalRunning       = false;
+static float    globalFrameRate     = 16.1667;   // 60 FPS
+static int      initWidth           = 1280;      // Standard HD
+static int      initHeight          = 720;
+
+// Keyboard input
+static WORD     keyCode;
+static WORD     keyFlags;
+
+// Temp globals
+static int      playerX     = 0;
+static int      playerY     = 0;
+static int      forceUp     = 0;
+static int      forceRight  = 0;
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -23,13 +33,43 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
     {
         case WM_CREATE:
         {
-            SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, frameRate, NULL);
+            SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, globalFrameRate, NULL);
             return 0;
         }
         case WM_QUIT:
         case WM_DESTROY:
         {
-            bQuit = true;
+            globalRunning = true;
+            break;
+        }
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+        {
+            keyCode  = LOWORD(wParam);
+            keyFlags = HIWORD(lParam);
+
+            switch (keyCode)
+            {
+                case 'W': forceUp = 0; break;
+                case 'A': forceRight = 0; break;
+                case 'S': forceUp = 0; break;
+                case 'D': forceRight = 0; break;
+            }
+            break;
+        }
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+        {
+            keyCode  = LOWORD(wParam);
+            keyFlags = HIWORD(lParam);
+
+            switch (keyCode)
+            {
+                case 'W': forceUp = -1; break;      // Invert
+                case 'A': forceRight = -1; break;
+                case 'S': forceUp = 1; break;       // Invert
+                case 'D': forceRight = 1; break;
+            }
             break;
         }
         case WM_SIZE:
@@ -41,19 +81,9 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         } 
         case WM_MOUSEMOVE:
         {
-            POINT pt;
-            pt.x = GET_X_LPARAM(lParam);
-
-            int height = app->getFramebuffer()->getHeight();
-            pt.y = height - GET_Y_LPARAM(lParam);
-
-#if _DEBUG
-            wchar_t buffer[256];
-            wsprintfW(buffer, L"X: %d, Y: %d\n", pt.x, pt.y);
-            OutputDebugString(buffer);
-#endif
-
-            app->setMousePos(pt.x, pt.y);
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+            app->setMousePos(x, y);
             break;
         }
         case WM_TIMER:
@@ -117,13 +147,8 @@ int Application::run()
 {
     ShowWindow(m_hwnd, 1);
 
-    HDC hdc = GetDC(m_hwnd);
-
-    // Temporary variable for animating our rectangle
-    int xOffset = 0;
-
     // Run the message loop.
-    while (!bQuit)
+    while (!globalRunning)
     {
         RECT clientRect;
         GetClientRect(m_hwnd, &clientRect);
@@ -138,16 +163,10 @@ int Application::run()
         int width = m_buffer->getWidth();
         int height = m_buffer->getHeight();
 
-        // Paint background
-        auto background  = MColor(0x00796B);
-        m_buffer->fillRect(0, 0, width, height, background);
-
-        // Paint a rectangle
-        auto box = MColor(255, 200, 50);
-        m_buffer->fillRect(0, 0, 250, 250, box);
+        m_buffer->renderGradient();
 
         // Paint a mouse cursor
-        auto cursor = MColor(255, 0, 0);
+        auto cursor = MColor(255, 255, 255);
         m_buffer->fillRect(
             m_mouseX - 10, // x0
             m_mouseY - 10, // y0
@@ -156,7 +175,19 @@ int Application::run()
             cursor         // color
         );
 
+        // Move our player
+        playerX += forceRight;
+        playerY += forceUp;
+        MCore::clamp(&playerX, 0, width);
+        MCore::clamp(&playerY, 0, height);
+
+        // Paint our player
+        auto player = MColor(50, 50, 235);
+        m_buffer->fillRect(playerX, playerY, playerX + 50, playerY + 50, player);
+
+
         // Copy the memory buffer to the device context
+        HDC hdc = GetDC(m_hwnd);
         StretchDIBits(
             hdc,
             0, 0,
@@ -168,6 +199,7 @@ int Application::run()
             DIB_RGB_COLORS,
             SRCCOPY
         );
+        ReleaseDC(m_hwnd, hdc);
     };
 
     return 0;
