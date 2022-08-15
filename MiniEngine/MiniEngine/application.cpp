@@ -7,8 +7,8 @@
 
 // Global variables
 static bool     globalRunning       = false;
-static float    globalFrameRate     = 16.1667;   // 60 FPS
-static int      initWidth           = 1280;      // Standard HD
+static UINT     globalFrameRate     = 1;        // 60 FPS
+static int      initWidth           = 1280;     // Standard HD
 static int      initHeight          = 720;
 
 // Keyboard input
@@ -178,8 +178,8 @@ int Application::run()
         // Move our player
         playerX += forceRight;
         playerY += forceUp;
-        MCore::clamp(&playerX, 0, width);
-        MCore::clamp(&playerY, 0, height);
+        playerX = MCore::clamp(&playerX, 0, width);
+        playerY = MCore::clamp(&playerY, 0, height);
 
         // Paint our player
         auto player = MColor(50, 50, 235);

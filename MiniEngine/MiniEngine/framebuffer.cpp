@@ -79,21 +79,23 @@ void Framebuffer::setSize(int width, int height)
 
 void Framebuffer::renderGradient()
 {
-    uint8 *row = (uint8*)m_memoryBuffer;
+    // The start position of the current row
+    uint8 *rowPtr = (uint8*)m_memoryBuffer;
 
     for (int y = 0; y < m_height; y++)
     {
-        uint32 *pixel = (uint32*)row;
+        uint32 *pixel = (uint32*)rowPtr;
         for (int x = 0; x < m_width; x++)
         {
-            uint8 red = x;
-            uint8 green = y;
-            uint8 blue = 0;
-
-            *pixel++ = (red << 16) | (green << 8) | blue;
+            uint8 red = x;      // Red channel gradient getting brighter left -> right
+            uint8 green = y;    // Green channel gradient getting brighter top -> down
+            uint8 blue = 0;     // No blue
+            
+            auto color = MColor(red, green, blue);
+            *pixel++ = color.hex();
         }
 
-        row += m_rowLength;
+        rowPtr += m_rowLength;
     }
 }
 
@@ -108,12 +110,17 @@ void Framebuffer::fillRect(int x0, int y0, int x1, int y1, MColor color)
     // For each pixel...
     for (int y = y0; y < y1; y++)
     {
-        // Get the first pointer position in our memory buffer
+        // Initial pointer position in our memory buffer
         uint32 *pixel = (uint32*)m_memoryBuffer;
-        pixel += (uint32)(x0 + (y * m_width));
+
+        // Offset across the buffer
+        uint32 offset = x0 + (y * m_width);
+        pixel += offset;
+
         for (int x = x0; x < x1; x++)
         {
-            *pixel++ = color.hex();      // Set the color at this position in memory
+            // Set the color at this position in memory
+            *pixel++ = color.hex();
         }
     }
 }

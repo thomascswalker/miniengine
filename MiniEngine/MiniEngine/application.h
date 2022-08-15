@@ -33,7 +33,7 @@ private:
     HWND m_hwnd = 0;
     HINSTANCE m_hInstance = 0;
 
-    Framebuffer* m_buffer;
+    Framebuffer* m_buffer {};
 
     int m_width = 0;
     int m_height = 0;
