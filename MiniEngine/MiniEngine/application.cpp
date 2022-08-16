@@ -163,16 +163,21 @@ int Application::run()
         int width = m_buffer->getWidth();
         int height = m_buffer->getHeight();
 
-        m_buffer->renderGradient();
+        // Clear the framebuffer
+        m_buffer->clear();
+
+        // Render the UV gradient
+        //m_buffer->renderGradient();
 
         // Paint a mouse cursor
         auto cursor = MColor(255, 255, 255);
+        MCore::MRect cursorRect(m_mouseX - 10, m_mouseY - 10, 20, 20);
         m_buffer->fillRect(
-            m_mouseX - 10, // x0
-            m_mouseY - 10, // y0
-            m_mouseX + 10, // x1
-            m_mouseY + 10, // y1
-            cursor         // color
+            cursorRect.getMin().x(), // x0
+            cursorRect.getMin().y(), // y0
+            cursorRect.getMax().x(), // x1
+            cursorRect.getMax().y(), // y1
+            cursor                   // color
         );
 
         // Move our player
@@ -185,6 +190,28 @@ int Application::run()
         auto player = MColor(50, 50, 235);
         m_buffer->fillRect(playerX, playerY, playerX + 50, playerY + 50, player);
 
+
+        // Create a triangle
+        Vector3 v1(0.0f, 0.5f, 0.0f);
+        Vector3 v2(0.5f,  -0.5f, 0.0f);
+        Vector3 v3(-0.5f, -0.5f, 0.0f);
+
+        Vector2 v1_screen = m_buffer->worldToScreen(v1, Matrix4());
+        Vector2 v2_screen = m_buffer->worldToScreen(v2, Matrix4());
+        Vector2 v3_screen = m_buffer->worldToScreen(v3, Matrix4());
+
+        auto triangle_color = MColor(0, 255, 50);
+        m_buffer->fillRect(v1_screen.x(), v1_screen.y(),
+                           v1_screen.x() + 50, v1_screen.y() + 50,
+                           triangle_color);
+
+        m_buffer->fillRect(v2_screen.x(), v2_screen.y(),
+                           v2_screen.x() + 50, v2_screen.y() + 50,
+                           triangle_color);
+
+        m_buffer->fillRect(v3_screen.x(), v3_screen.y(),
+                           v3_screen.x() + 50, v3_screen.y() + 50,
+                           triangle_color);
 
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);

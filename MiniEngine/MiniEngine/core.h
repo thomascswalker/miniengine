@@ -66,6 +66,8 @@ namespace MCore
         // Methods
         MPoint pos() { return MPoint(m_x, m_y); }
         MSize size() { return MSize(m_width, m_height); }
+        MPoint getMin() { return MPoint(m_x, m_y); }
+        MPoint getMax() { return MPoint(m_x + m_width, m_y + m_height); }
     
         // Accessors
         int x() { return m_x; }
