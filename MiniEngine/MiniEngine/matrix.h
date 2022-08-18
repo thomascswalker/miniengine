@@ -15,10 +15,10 @@ public:
     Matrix4 identity();
     void translate(int x, int y, int z);
 
-    Matrix4& lookAt(const Vector3& target);
+    Matrix4& lookAt(Vector3& target);
 
-    void setRow(int index, const Vector3& vector);
-    void setColumn(int index, const Vector3& vector);
+    void setRow(int index, Vector3& vector);
+    void setColumn(int index, Vector3& vector);
 
     float operator[](int index) const;
 

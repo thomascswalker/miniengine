@@ -7,10 +7,13 @@
 #include <windows.h>
 #include <gdiplus.h>
 #include <cassert>
+#include <sstream>
+#include <vector>
 
 #include "core.h"
 #include "color.h"
 #include "matrix.h"
+#include "math.h"
 
 class Framebuffer
 {
@@ -37,10 +40,10 @@ public:
 
     // Drawing
     void clear();
-    void fillRect(int x0, int y0, int x1, int y1, MColor color);
-    void renderGradient();
-
-
+    void drawRect(int x0, int y0, int x1, int y1, MColor color);
+    void drawCircle(int cx, int cy, int r, MColor color);
+    void drawTri(Vector2& v1, Vector2& v2, Vector2& v3, MColor color);
+    void drawGradient();
 
 protected:
     friend bool operator == (const Framebuffer&,

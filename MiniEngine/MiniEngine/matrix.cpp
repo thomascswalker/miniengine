@@ -47,21 +47,21 @@ void Matrix4::translate(int x, int y, int z)
     
 }
 
-void Matrix4::setRow(int index, const Vector3& vector)
+void Matrix4::setRow(int index, Vector3& vector)
 {
     m_values[index]     = vector.x();
     m_values[index + 4] = vector.y();
     m_values[index + 8] = vector.z();
 }
 
-void Matrix4::setColumn(int index, const Vector3& vector)
+void Matrix4::setColumn(int index, Vector3& vector)
 {
     m_values[index * 4]     = vector.x();
     m_values[index * 4 + 1] = vector.y();
     m_values[index * 4 + 2] = vector.z();
 }
 
-Matrix4& Matrix4::lookAt(const Vector3& target)
+Matrix4& Matrix4::lookAt(Vector3& target)
 {
     Vector3 yUp = Vector3(0, 1, 0);
 

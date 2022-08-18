@@ -58,30 +58,6 @@ void Framebuffer::setSize(int width, int height)
     allocate();
 }
 
-void Framebuffer::renderGradient()
-{
-    // The start position of the current row
-    uint8 *rowPtr = (uint8*)m_memoryBuffer;
-
-    for (int y = 0; y < m_height; y++)
-    {
-        // Initial pointer position in our memory buffer
-        uint32 *pixel = (uint32*)rowPtr;
-        for (int x = 0; x < m_width; x++)
-        {
-            uint8 red = x;      // Red channel gradient getting brighter left -> right
-            uint8 green = y;    // Green channel gradient getting brighter top -> down
-            uint8 blue = 0;     // No blue
-            auto color = MColor(red, green, blue);
-
-            // Set the color at this position in memory
-            *pixel++ = color.hex();
-        }
-
-        rowPtr += m_rowLength;
-    }
-}
-
 Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrix4 matrix)
 {
     Vector4 clipCoords;
@@ -122,16 +98,40 @@ Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrix4 matrix)
 
 void Framebuffer::clear()
 {
-    fillRect(0, 0, m_width, m_height, MColor(0, 0, 0));
+    drawRect(0, 0, m_width, m_height, MColor(0, 0, 0));
 }
 
-void Framebuffer::fillRect(int x0, int y0, int x1, int y1, MColor color)
+void Framebuffer::drawGradient()
 {
-    x0 = MCore::clamp(&x0, 0, m_width);
-    x1 = MCore::clamp(&x1, 0, m_width);
+    // The start position of the current row
+    uint8 *rowPtr = (uint8*)m_memoryBuffer;
+
+    for (int y = 0; y < m_height; y++)
+    {
+        // Initial pointer position in our memory buffer
+        uint32 *pixel = (uint32*)rowPtr;
+        for (int x = 0; x < m_width; x++)
+        {
+            uint8 red = x;      // Red channel gradient getting brighter left -> right
+            uint8 green = y;    // Green channel gradient getting brighter top -> down
+            uint8 blue = 0;     // No blue
+            auto color = MColor(red, green, blue);
+
+            // Set the color at this position in memory
+            *pixel++ = color.hex();
+        }
+
+        rowPtr += m_rowLength;
+    }
+}
+
+void Framebuffer::drawRect(int x0, int y0, int x1, int y1, MColor color)
+{
+    x0 = Math::clamp(&x0, 0, m_width);
+    x1 = Math::clamp(&x1, 0, m_width);
     
-    y0 = MCore::clamp(&y0, 0, m_height);
-    y1 = MCore::clamp(&y1, 0, m_height);
+    y0 = Math::clamp(&y0, 0, m_height);
+    y1 = Math::clamp(&y1, 0, m_height);
 
     // For each pixel...
     for (int y = y0; y < y1; y++)
@@ -151,7 +151,76 @@ void Framebuffer::fillRect(int x0, int y0, int x1, int y1, MColor color)
     }
 }
 
+void Framebuffer::drawCircle(int cx, int cy, int r, MColor color)
+{
+    // Top left
+    int x0 = cx - r;
+    int y0 = cy - r;
+
+    // Bottom right
+    int x1 = cx + r;
+    int y1 = cy + r;
+
+    // Clamp based on buffer width/height
+    x0 = Math::clamp(&x0, 0, m_width);
+    y0 = Math::clamp(&y0, 0, m_height);
+
+    x1 = Math::clamp(&x1, 0, m_width);
+    y1 = Math::clamp(&y1, 0, m_height);
+
+    auto rsqr = pow(r, 2);
+
+    for (int y = y0; y < y1; y++)
+    {
+        // Initial pointer position in our memory buffer
+        uint32 *pixel = (uint32*)m_memoryBuffer;
+        uint32 offset = x0 + (y * m_width);
+        pixel += offset;
+
+        for (int x = x0; x < x1; x++)
+        {
+            auto dx = x - cx;
+            auto dy = y - cy;
+
+            if (pow(dx, 2) + pow(dy, 2) <= rsqr)
+            {
+                *pixel++ = color.hex();
+            }
+        }
+    }
+}
+
+// https://austinmorlan.com/posts/drawing_a_triangle/
+//
+//  v3 (blue)        v2 (green)
+//
+//
+//
+//
+//           v1 (red)
+//
+void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, MColor color)
+{
+    for (int y = v3.y(); y < v1.y(); y++)               // Bottom to top
+    {
+        uint32* pixel = (uint32*)m_memoryBuffer;        // Initial memory starting point
+        int yOffset = y * m_width;                      // Number of pixels in an entire row
+        int xOffset = v3.x();                           // Number of pixels to hit the left-most edge
+        pixel += xOffset + yOffset;                     // Linear offset across the entire pixel array
+
+        for (int x = v3.x(); x < v2.x(); x++)           // Left to right
+        {
+            auto p = Vector2(x, y);                     // Point at current x, y
+            if (Math::isPointInTriangle(p, v1, v2, v3)) // Is this point in our triangle?
+            {
+                *pixel++ = color.hex();                 // If it is, colour here
+            }
+        }
+    }
+}
+
 bool operator == (const Framebuffer& f1, const Framebuffer& f2)
 {
     return typeid(f1) == typeid(f2);
 }
+

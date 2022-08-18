@@ -160,6 +160,7 @@
     <ClInclude Include="color.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="framebuffer.h" />
+    <ClInclude Include="math.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="pixel.h" />
     <ClInclude Include="scene.h" />

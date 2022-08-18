@@ -5,6 +5,11 @@ std::string Vector2::toString()
 	return std::format("[{}, {}]", _x, _y);;
 }
 
+double Vector2::cross(Vector2& other)
+{
+	return (_x * other.y()) - (other.x() * _y);
+}
+
 Vector3::Vector3()
 {
 	_x = 0;
@@ -37,12 +42,12 @@ Vector3 Vector3::identity()
 	return Vector3(1.0f, 1.0f, 1.0f);
 }
 
-float Vector3::dot(const Vector3& other)
+float Vector3::dot(Vector3& other)
 {
 	return _x * other.x() + _y * other.y() + _z * other.z();
 }
 
-Vector3 Vector3::cross(const Vector3& other)
+Vector3 Vector3::cross(Vector3& other)
 {
 	return Vector3(_y * other.z() - _z * other.y(),
 				   _z * other.x() - _x * other.z(),

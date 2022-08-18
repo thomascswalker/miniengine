@@ -87,11 +87,10 @@ namespace MCore
         int m_height = 0;
     };
 
-    int clamp(int *value, int min, int max);
     int getRefreshRate();
     MSize getScreenSize();
 
-    void print(const wchar_t* format, ...);
+    void print(const char* format, ...);
 }
 
 
