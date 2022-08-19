@@ -8,8 +8,8 @@
 // Global variables
 static bool     globalRunning       = false;
 static UINT     globalFrameRate     = 1;        // 60 FPS
-static int      initWidth           = 1280;     // Standard HD
-static int      initHeight          = 720;
+static int      initWidth           = 192;     // Standard HD
+static int      initHeight          = 192;
 
 // Keyboard input
 static WORD     keyCode;
@@ -20,6 +20,13 @@ static int      playerX     = 0;
 static int      playerY     = 0;
 static int      forceUp     = 0;
 static int      forceRight  = 0;
+
+// Colors
+auto COLOR_WHITE   = MColor(255, 255, 255);
+auto COLOR_RED     = MColor(255, 100, 100);
+auto COLOR_GREEN   = MColor(100, 255, 100);
+auto COLOR_BLUE    = MColor(100, 100, 255);
+auto COLOR_MAGENTA = MColor(255, 100, 255);
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -34,6 +41,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         case WM_CREATE:
         {
             SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, globalFrameRate, NULL);
+            ShowCursor(FALSE);
             return 0;
         }
         case WM_QUIT:
@@ -147,6 +155,11 @@ int Application::run()
 {
     ShowWindow(m_hwnd, 1);
 
+    // Create a triangle
+    Vector3 v1(0.0f, 0.5f, 0.0f);
+    Vector3 v2(0.5f,  -0.5f, 0.0f);
+    Vector3 v3(-0.5f, -0.5f, 0.0f);
+
     // Run the message loop.
     while (!globalRunning)
     {
@@ -163,28 +176,42 @@ int Application::run()
         int width = m_buffer->getWidth();
         int height = m_buffer->getHeight();
 
-        m_buffer->renderGradient();
+        // Clear the framebuffer
+        m_buffer->clear();
 
-        // Paint a mouse cursor
-        auto cursor = MColor(255, 255, 255);
-        m_buffer->fillRect(
-            m_mouseX - 10, // x0
-            m_mouseY - 10, // y0
-            m_mouseX + 10, // x1
-            m_mouseY + 10, // y1
-            cursor         // color
-        );
+        // Render the UV gradient
+#if _DEBUG
+        m_buffer->renderGradient();
+#endif
 
         // Move our player
+#if _DEBUG
         playerX += forceRight;
         playerY += forceUp;
         playerX = MCore::clamp(&playerX, 0, width);
         playerY = MCore::clamp(&playerY, 0, height);
 
+
         // Paint our player
         auto player = MColor(50, 50, 235);
-        m_buffer->fillRect(playerX, playerY, playerX + 50, playerY + 50, player);
+        m_buffer->drawRect(playerX, playerY, playerX + 50, playerY + 50, player);
+#endif
 
+        // Rotate triangle verts
+
+        // Get triangle verts
+        Vector2 v1_screen = m_buffer->worldToScreen(v1, Matrix4());
+        Vector2 v2_screen = m_buffer->worldToScreen(v2, Matrix4());
+        Vector2 v3_screen = m_buffer->worldToScreen(v3, Matrix4());
+
+        //m_buffer->drawCircle(v1_screen.x(), v1_screen.y(), 20, COLOR_RED);
+        //m_buffer->drawCircle(v2_screen.x(), v2_screen.y(), 20, COLOR_GREEN);
+        //m_buffer->drawCircle(v3_screen.x(), v3_screen.y(), 20, COLOR_BLUE);
+
+        m_buffer->drawTri(v1_screen, v2_screen, v3_screen, COLOR_WHITE);
+
+        // Paint a mouse cursor
+        m_buffer->drawCircle(m_mouseX, m_mouseY, 12, COLOR_MAGENTA);
 
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);

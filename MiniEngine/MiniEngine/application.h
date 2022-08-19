@@ -40,8 +40,6 @@ private:
 
     int m_mouseX = 0;
     int m_mouseY = 0;
-
-
 };
 
 #endif

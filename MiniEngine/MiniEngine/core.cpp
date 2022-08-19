@@ -1,18 +1,5 @@
 #include "core.h"
 
-int MCore::clamp(int *value, int min, int max)
-{
-    if (*value < min)
-    {
-        return min;
-    }
-    if (*value > max)
-    {
-        return max;
-    }
-    return *value;
-}
-
 int MCore::getRefreshRate()
 {
     DEVMODE screen;
@@ -31,12 +18,18 @@ MCore::MSize MCore::getScreenSize()
     return MCore::MSize(desktop.right, desktop.bottom);
 }
 
-void MCore::print(const wchar_t* format, ...)
+void MCore::print(const char* format, ...)
 {
-    va_list args;
-    va_start(args, format);
-
-    wchar_t buffer[256];
-    wsprintfW(buffer, format, args);
-    OutputDebugString(buffer);
+    char text[1024];
+    va_list arg;
+    va_start(arg, format);
+    _vsnprintf_s(text, sizeof(text), format, arg);
+    va_end(arg);
+    
+    unsigned long long size = strlen(text) + 1;
+    wchar_t* wtext = new wchar_t[size];
+    
+    size_t outSize;
+    mbstowcs_s(&outSize, wtext, size, text, size-1);
+    OutputDebugString(wtext);
 }
