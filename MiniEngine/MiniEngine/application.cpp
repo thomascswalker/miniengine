@@ -41,7 +41,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         case WM_CREATE:
         {
             SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, globalFrameRate, NULL);
-            //ShowCursor(FALSE);
+            ShowCursor(FALSE);
             return 0;
         }
         case WM_QUIT:
@@ -204,14 +204,14 @@ int Application::run()
         Vector2 v2_screen = m_buffer->worldToScreen(v2, Matrix4());
         Vector2 v3_screen = m_buffer->worldToScreen(v3, Matrix4());
 
-        m_buffer->drawCircle(v1_screen.x(), v1_screen.y(), 5, COLOR_RED);
-        m_buffer->drawCircle(v2_screen.x(), v2_screen.y(), 5, COLOR_GREEN);
-        m_buffer->drawCircle(v3_screen.x(), v3_screen.y(), 5, COLOR_BLUE);
+        //m_buffer->drawCircle(v1_screen.x(), v1_screen.y(), 20, COLOR_RED);
+        //m_buffer->drawCircle(v2_screen.x(), v2_screen.y(), 20, COLOR_GREEN);
+        //m_buffer->drawCircle(v3_screen.x(), v3_screen.y(), 20, COLOR_BLUE);
 
         m_buffer->drawTri(v1_screen, v2_screen, v3_screen, COLOR_WHITE);
 
         // Paint a mouse cursor
-        m_buffer->drawCircle(m_mouseX, m_mouseY, 5, COLOR_MAGENTA);
+        m_buffer->drawCircle(m_mouseX, m_mouseY, 12, COLOR_MAGENTA);
 
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);
