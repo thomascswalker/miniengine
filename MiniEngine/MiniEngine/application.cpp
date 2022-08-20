@@ -8,8 +8,8 @@
 // Global variables
 static bool     globalRunning       = false;
 static UINT     globalFrameRate     = 1;        // 60 FPS
-static int      initWidth           = 192;     // Standard HD
-static int      initHeight          = 192;
+static int      initWidth           = 720;     // Standard HD
+static int      initHeight          = 720;
 
 // Keyboard input
 static WORD     keyCode;
@@ -41,7 +41,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         case WM_CREATE:
         {
             SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, globalFrameRate, NULL);
-            ShowCursor(FALSE);
+            ShowCursor(TRUE);
             return 0;
         }
         case WM_QUIT:
@@ -203,10 +203,6 @@ int Application::run()
         Vector2 v1_screen = m_buffer->worldToScreen(v1, Matrix4());
         Vector2 v2_screen = m_buffer->worldToScreen(v2, Matrix4());
         Vector2 v3_screen = m_buffer->worldToScreen(v3, Matrix4());
-
-        //m_buffer->drawCircle(v1_screen.x(), v1_screen.y(), 20, COLOR_RED);
-        //m_buffer->drawCircle(v2_screen.x(), v2_screen.y(), 20, COLOR_GREEN);
-        //m_buffer->drawCircle(v3_screen.x(), v3_screen.y(), 20, COLOR_BLUE);
 
         m_buffer->drawTri(v1_screen, v2_screen, v3_screen, COLOR_WHITE);
 

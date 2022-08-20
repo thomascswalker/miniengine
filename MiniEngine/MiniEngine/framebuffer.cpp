@@ -226,23 +226,6 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, MColor color)
             }
         }
     }
-
-    //for (int y = v3.y(); y < v1.y(); y++)               // Bottom to top
-    //{
-    //    uint32* pixel = (uint32*)m_memoryBuffer;        // Initial memory starting point
-    //    int yOffset = y * m_width;                      // Number of pixels in an entire row
-    //    int xOffset = v3.x();                           // Number of pixels to hit the left-most edge
-    //    pixel += xOffset + yOffset;                     // Linear offset across the entire pixel array
-
-    //    for (int x = v3.x(); x < v2.x(); x++)           // Left to right
-    //    {
-    //        auto p = Vector2(x, y);                     // Point at current x, y
-    //        if (Math::isPointInTriangle(p, v1, v2, v3)) // Is this point in our triangle?
-    //        {
-    //            *pixel++ = color.hex();                 // If it is, colour here
-    //        }
-    //    }
-    //}
 }
 
 bool operator == (const Framebuffer& f1, const Framebuffer& f2)
