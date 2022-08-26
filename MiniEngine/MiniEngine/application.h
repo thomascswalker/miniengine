@@ -3,9 +3,11 @@
 
 #include <Windows.h>
 #include <windowsx.h>
+#include <string>
 
 #include "framebuffer.h"
 #include "core.h"
+#include "mesh.h"
 
 class Application
 {

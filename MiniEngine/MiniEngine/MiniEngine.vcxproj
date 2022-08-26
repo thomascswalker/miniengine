@@ -152,6 +152,7 @@
     <ClCompile Include="framebuffer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="matrix.cpp" />
+    <ClCompile Include="mesh.cpp" />
     <ClCompile Include="pixel.cpp" />
     <ClCompile Include="vector.cpp" />
     <ClCompile Include="application.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="framebuffer.h" />
     <ClInclude Include="math.h" />
     <ClInclude Include="matrix.h" />
+    <ClInclude Include="mesh.h" />
     <ClInclude Include="pixel.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="triangle.h" />

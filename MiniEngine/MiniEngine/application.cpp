@@ -1,5 +1,5 @@
 #include "application.h"
-#include <string>
+#include <thread>
 
 #ifndef MAIN_WINDOW_TIMER_ID
     #define MAIN_WINDOW_TIMER_ID 1001
@@ -8,8 +8,10 @@
 // Global variables
 static bool     globalRunning       = false;
 static UINT     globalFrameRate     = 1;        // 60 FPS
-static int      initWidth           = 720;     // Standard HD
-static int      initHeight          = 720;
+static int      initWidth           = 300;     // Standard HD
+static int      initHeight          = 300;
+static int      tickRate            = 60;
+static double   currentTime         = 0.0;
 
 // Keyboard input
 static WORD     keyCode;
@@ -25,8 +27,10 @@ static int      forceRight  = 0;
 auto COLOR_WHITE   = MColor(255, 255, 255);
 auto COLOR_RED     = MColor(255, 100, 100);
 auto COLOR_GREEN   = MColor(100, 255, 100);
-auto COLOR_BLUE    = MColor(100, 100, 255);
+auto COLOR_BLUE    = MColor(50, 100, 255);
 auto COLOR_MAGENTA = MColor(255, 100, 255);
+
+static float ROTATION = 0.0f;
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -41,7 +45,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         case WM_CREATE:
         {
             SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, globalFrameRate, NULL);
-            ShowCursor(TRUE);
+            ShowCursor(FALSE);
             return 0;
         }
         case WM_QUIT:
@@ -115,6 +119,11 @@ Application* Application::getAppInstance()
     return instance;
 }
 
+int deltaTime(int prev, int offset)
+{
+    return (std::clock() - prev) + offset;
+}
+
 void Application::init()
 {
     // Register the window class.
@@ -156,13 +165,60 @@ int Application::run()
     ShowWindow(m_hwnd, 1);
 
     // Create a triangle
-    Vector3 v1(0.0f, 0.5f, 0.0f);
-    Vector3 v2(0.5f,  -0.5f, 0.0f);
-    Vector3 v3(-0.5f, -0.5f, 0.0f);
+    auto mesh = Mesh();
+
+    std::vector<Vertex> vertices = {
+        Vertex(-0.5, -0.5,  0.5), //0
+        Vertex( 0.5, -0.5,  0.5), //1
+        Vertex(-0.5,  0.5,  0.5), //2
+        Vertex( 0.5,  0.5,  0.5), //3
+        Vertex(-0.5, -0.5, -0.5), //4
+        Vertex( 0.5, -0.5, -0.5), //5
+        Vertex(-0.5,  0.5, -0.5), //6
+        Vertex( 0.5,  0.5, -0.5)  //7
+    };
+
+    std::vector<int> indices = {
+        //Top
+        2, 6, 7,
+        2, 3, 7,
+
+        //Bottom
+        0, 4, 5,
+        0, 1, 5,
+
+        //Left
+        0, 2, 6,
+        0, 4, 6,
+
+        //Right
+        1, 3, 7,
+        1, 5, 7,
+
+        //Front
+        0, 2, 3,
+        0, 1, 3,
+
+        //Back
+        4, 6, 7,
+        4, 5, 7
+    };
+
+    m_buffer->setVertexBufferData(vertices);
+    m_buffer->setIndexBufferData(indices);
+
+    currentTime = MCore::time();
+
+    auto triColor = MColor::random();
+    auto m = Matrix4();
 
     // Run the message loop.
     while (!globalRunning)
     {
+        double newTime = MCore::time();
+        double frameTime = newTime - currentTime;
+        currentTime = newTime;
+
         RECT clientRect;
         GetClientRect(m_hwnd, &clientRect);
 
@@ -179,35 +235,26 @@ int Application::run()
         // Clear the framebuffer
         m_buffer->clear();
 
-        // Render the UV gradient
-#if _DEBUG
-        m_buffer->renderGradient();
-#endif
-
-        // Move our player
-#if _DEBUG
-        playerX += forceRight;
-        playerY += forceUp;
-        playerX = MCore::clamp(&playerX, 0, width);
-        playerY = MCore::clamp(&playerY, 0, height);
-
-
-        // Paint our player
-        auto player = MColor(50, 50, 235);
-        m_buffer->drawRect(playerX, playerY, playerX + 50, playerY + 50, player);
-#endif
-
         // Rotate triangle verts
+        m.rotateX(ROTATION);
+        //m.rotateY(ROTATION);
+        //m.rotateZ(ROTATION);
 
-        // Get triangle verts
-        Vector2 v1_screen = m_buffer->worldToScreen(v1, Matrix4());
-        Vector2 v2_screen = m_buffer->worldToScreen(v2, Matrix4());
-        Vector2 v3_screen = m_buffer->worldToScreen(v3, Matrix4());
+        //m.rotateX(ROTATION);
+        ROTATION += 0.001f * frameTime;
 
-        m_buffer->drawTri(v1_screen, v2_screen, v3_screen, COLOR_WHITE);
+        // Draw our scene geometry
+        m_buffer->drawScene(m);
+
+        // Draw vertices
+        for (Vertex v : vertices)
+        {
+            auto vs = m_buffer->worldToScreen(v.pos(), m);
+            m_buffer->drawCircle(vs.x(), vs.y(), 4, COLOR_BLUE);
+        }
 
         // Paint a mouse cursor
-        m_buffer->drawCircle(m_mouseX, m_mouseY, 12, COLOR_MAGENTA);
+        m_buffer->drawCircle(m_mouseX, m_mouseY, 6, COLOR_RED);
 
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);

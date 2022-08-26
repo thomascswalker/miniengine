@@ -14,14 +14,15 @@
 #include "color.h"
 #include "matrix.h"
 #include "math.h"
+#include "vertex.h"
 
 class Framebuffer
 {
 public:
     Framebuffer(HWND hwnd);
     ~Framebuffer();
-
-    // Memory
+    
+    // Parameters
     int getWidth() { return m_width; }
     void setWidth(int width) { m_width = width; }
     int getHeight() { return m_height; }
@@ -29,11 +30,18 @@ public:
     void setSize(MCore::MSize size);
     void setSize(int width, int height);
 
+    // Pixel buffer
     HWND getHwnd() { return m_hwnd; }
     void allocate();
     BITMAPINFO* getBitmapInfo() { return &m_bufferBmi; }
     void* getMemoryPtr() { return (unsigned int*)m_memoryBuffer; }
     int getBufferSize() { return m_width * m_height * sizeof(unsigned int); }
+
+    // Vertex buffer
+    void setVertexBufferData(std::vector<Vertex> data);
+    void setIndexBufferData(std::vector<int> data);
+    int getNumVertices();
+    int getNumIndices();
 
     // Math
     Vector2 worldToScreen(Vector3 vector, Matrix4 matrix);
@@ -43,6 +51,7 @@ public:
     void drawRect(int x0, int y0, int x1, int y1, MColor color);
     void drawCircle(int cx, int cy, int r, MColor color);
     void drawTri(Vector2& v1, Vector2& v2, Vector2& v3, MColor color);
+    void drawScene(Matrix4 m);
     void drawGradient();
 
 protected:
@@ -56,13 +65,22 @@ private:
     int m_width = 640;
     int m_height = 480;
 
+    // Pixel memory
     SIZE_T m_bufferSize;
     void* m_memoryBuffer;
-    BITMAPINFO m_bufferBmi;
-
-    // Number of bytes per pixel
+    BITMAPINFO m_bufferBmi; 
     const int m_bytesPerPixel = 4;
-
-    // Length of row in bytes (width * bytes per pixel)
     int m_rowLength = 0;
+
+    // Vertex memory
+    void* m_vertexBuffer;
+    std::vector<Vertex> m_vertices;
+    int m_numVertices;
+    void* m_indexBuffer;
+    std::vector<int> m_indices;
+    int m_numIndices;
+    int m_stride    = 12; // Should be 32 with X, Y, Z, R, G, B, U, V
+    int m_posOffset = 0;
+    int m_colOffset = 12;
+    int m_texOffset = 24;
 };

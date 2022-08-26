@@ -87,3 +87,57 @@ Matrix4& Matrix4::lookAt(Vector3& target)
 
     return *this;
 }
+
+Matrix4& Matrix4::rotateX(float angle)
+{
+    float c = cosf(angle);
+    float s = sinf(angle);
+
+    const float values[16] = {1,  0,  0,  0,
+                              0,  c,  -s, 0,
+                              0,  s,  c,  0,
+                              0,  0,  0,  1};
+
+    for (int i = 0; i < 16; i++)
+    {
+        m_values[i] = values[i];
+    }
+
+    return *this;
+}
+
+Matrix4& Matrix4::rotateY(float angle)
+{
+    float c = cosf(angle);
+    float s = sinf(angle);
+
+    const float values[16] = {c,  0, s, 0,
+                              0,  1, 0, 0,
+                              -s, 0, c, 0,
+                              0,  0, 0, 1};
+
+    for (int i = 0; i < 16; i++)
+    {
+        m_values[i] = values[i];
+    }
+
+    return *this;
+}
+
+Matrix4& Matrix4::rotateZ(float angle)
+{
+    float c = cosf(angle);
+    float s = sinf(angle);
+
+    const float values[16] = {c,  s, 0, 0,
+                              -s, c,  0, 0,
+                              0,  0,  1, 0,
+                              0,  0,  0, 1};
+
+    for (int i = 0; i < 16; i++)
+    {
+        m_values[i] = values[i];
+    }
+
+    return *this;
+}
