@@ -58,6 +58,26 @@ void Framebuffer::setSize(int width, int height)
     allocate();
 }
 
+void Framebuffer::setVertexBufferData(std::vector<Vertex> data)
+{
+    m_vertices = data;
+}
+
+void Framebuffer::setIndexBufferData(std::vector<int> data)
+{
+    m_indices = data;
+}
+
+int Framebuffer::getNumVertices()
+{
+    return m_numVertices;
+}
+
+int Framebuffer::getNumIndices()
+{
+    return m_numIndices;
+}
+
 Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrix4 matrix)
 {
     Vector4 clipCoords;
@@ -92,6 +112,10 @@ Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrix4 matrix)
     Vector2 screenCoord;
     screenCoord.setX((m_width / 2 * ndc.x()) + (ndc.x() + m_width / 2));
     screenCoord.setY((m_height / 2 * ndc.y()) + (ndc.y() + m_height / 2));
+
+    // Clip screen coordinates to screen width/height
+    screenCoord.setX(m_width  < screenCoord.x() ? m_width  : screenCoord.x());
+    screenCoord.setY(m_height < screenCoord.y() ? m_height : screenCoord.y());
 
     return screenCoord;
 }
@@ -194,26 +218,26 @@ void Framebuffer::drawCircle(int cx, int cy, int r, MColor color)
     }
 }
 
-// https://austinmorlan.com/posts/drawing_a_triangle/
-//
-//  v3 (blue)        v2 (green)
-//
-//
-//
-//
-//           v1 (red)
-//
 void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, MColor color)
 {
+    // Determine the min/max threshold for drawing
+    std::vector<float> xs = {v1.x(), v2.x(), v3.x()};
+    std::vector<float> ys = {v1.y(), v2.y(), v3.y()};
+
+    auto minX = *std::min_element(std::begin(xs), std::end(xs));
+    auto maxX = *std::max_element(std::begin(xs), std::end(xs));
+    auto minY = *std::min_element(std::begin(ys), std::end(ys));
+    auto maxY = *std::max_element(std::begin(ys), std::end(ys));
+
     // Debug print
-    for (int y = v3.y(); y < v1.y(); y++)               // Bottom to top
+    for (int y = minY; y < maxY; y++)               // Bottom to top
     {
         uint32* pixel = (uint32*)m_memoryBuffer;        // Initial memory starting point
         int yOffset = y * m_width;                      // Number of pixels in an entire row
-        int xOffset = v3.x();                           // Number of pixels to hit the left-most edge
+        int xOffset = minX;                             // Number of pixels to hit the left-most edge
         pixel += xOffset + yOffset;                     // Linear offset across the entire pixel array
 
-        for (int x = v3.x(); x < v2.x(); x++)           // Left to right
+        for (int x = minX; x < maxX; x++)           // Left to right
         {
             auto p = Vector2(x, y);                     // Point at current x, y
             if (Math::isPointInTriangle(p, v1, v2, v3)) // Is this point in our triangle?
@@ -222,9 +246,58 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, MColor color)
             }
             else
             {
-                *pixel++;
+                *pixel++;                               // If it's not, increment the pointer and
+                                                        // Leave the colour alone
             }
         }
+    }
+}
+
+void Framebuffer::drawScene(Matrix4 m)
+{
+    auto TOP = MColor(255,255,255);
+    auto SIDE = MColor(128,128,128);
+    auto BOTTOM = MColor(68,68,68);
+
+    for (int i = 0; i < m_indices.size(); i += 3)
+    {
+        // Start indices index
+        int index = i;
+
+        // Get vertex indices
+        int i1 = m_indices[i];
+        int i2 = m_indices[i + 1];
+        int i3 = m_indices[i + 2];
+
+        // Get vertexes from indices
+        auto v1 = m_vertices[i1];
+        auto v2 = m_vertices[i2];
+        auto v3 = m_vertices[i3];
+        
+        // Convert world pos to screen pos for each vertex
+        Vector2 v1s = worldToScreen(v1.pos(), m);
+        Vector2 v2s = worldToScreen(v2.pos(), m);
+        Vector2 v3s = worldToScreen(v3.pos(), m);
+
+        // DRaw a triangle from these screen points
+        MColor color;
+
+        switch (i)
+        {
+            case 0:
+            case 3:
+            {
+                color = TOP;
+                break;
+            }
+            default:
+            {
+                color = SIDE;
+                break;
+            }
+        }
+
+        drawTri(v1s, v2s, v3s, color);
     }
 }
 

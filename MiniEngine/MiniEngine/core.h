@@ -10,7 +10,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <time.h>
 #include <tuple>
+#include <chrono>
 
 typedef int8_t int8;
 typedef int16_t int16;
@@ -21,6 +23,11 @@ typedef uint8_t uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
 typedef uint64_t uint64;
+
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+using std::chrono::seconds;
+using std::chrono::system_clock;
 
 namespace MCore
 {
@@ -89,6 +96,12 @@ namespace MCore
 
     int getRefreshRate();
     MSize getScreenSize();
+
+    double time()
+    {                
+        auto duration = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+        return duration.count();
+    };
 
     void print(const char* format, ...);
 }
