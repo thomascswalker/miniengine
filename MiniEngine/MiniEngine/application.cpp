@@ -45,7 +45,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         case WM_CREATE:
         {
             SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, globalFrameRate, NULL);
-            ShowCursor(FALSE);
+            ShowCursor(TRUE);
             return 0;
         }
         case WM_QUIT:
@@ -165,8 +165,6 @@ int Application::run()
     ShowWindow(m_hwnd, 1);
 
     // Create a triangle
-    auto mesh = Mesh();
-
     std::vector<Vertex> vertices = {
         Vertex(-0.5, -0.5,  0.5), //0
         Vertex( 0.5, -0.5,  0.5), //1
@@ -204,8 +202,7 @@ int Application::run()
         4, 5, 7
     };
 
-    m_buffer->setVertexBufferData(vertices);
-    m_buffer->setIndexBufferData(indices);
+    auto mesh = Mesh(vertices, indices);
 
     currentTime = MCore::time();
 
@@ -235,22 +232,31 @@ int Application::run()
         // Clear the framebuffer
         m_buffer->clear();
 
+        // Rotate our mesh
+        mesh.addRotation(Vector3(ROTATION, 0, 0));
+
+        m_buffer->setVertexBufferData(mesh.getVertices(Coordinates::World));
+        m_buffer->setIndexBufferData(mesh.getIndices());
+
         // Rotate triangle verts
-        m.rotateX(ROTATION);
+        //m.rotateX(ROTATION);
         //m.rotateY(ROTATION);
         //m.rotateZ(ROTATION);
 
         //m.rotateX(ROTATION);
-        ROTATION += 0.001f * frameTime;
+        ROTATION += .1 * frameTime;
 
         // Draw our scene geometry
         m_buffer->drawScene(m);
 
         // Draw vertices
-        for (Vertex v : vertices)
+        for (Vertex v : mesh.getVertices())
         {
-            auto vs = m_buffer->worldToScreen(v.pos(), m);
-            m_buffer->drawCircle(vs.x(), vs.y(), 4, COLOR_BLUE);
+            Vector3 localPos = v.pos();
+            Vector3 meshPos = mesh.getPosition();
+            Vector3 worldPos = localPos + meshPos;
+            Vector2 screenPos = m_buffer->worldToScreen(worldPos, m);
+            m_buffer->drawCircle(screenPos.x(), screenPos.y(), 4, COLOR_BLUE);
         }
 
         // Paint a mouse cursor

@@ -81,6 +81,11 @@ public:
 	{
 		return Vector3(_x + v.x(), _y + v.y(), _z + v.z());
 	}
+
+	Vector3 operator += (Vector3& v) const
+	{
+		return Vector3(_x + v.x(), _y + v.y(), _z + v.z());
+	}
 	
 	Vector3 operator - (Vector3& v) const
 	{
