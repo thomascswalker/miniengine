@@ -75,5 +75,8 @@
     <ClInclude Include="mesh.h">
       <Filter>Source Files\engine</Filter>
     </ClInclude>
+    <ClInclude Include="coordinates.h">
+      <Filter>Source Files\engine</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
