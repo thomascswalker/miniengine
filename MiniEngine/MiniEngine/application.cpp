@@ -1,5 +1,4 @@
 #include "application.h"
-#include <thread>
 
 #ifndef MAIN_WINDOW_TIMER_ID
     #define MAIN_WINDOW_TIMER_ID 1001
@@ -24,11 +23,11 @@ static int      forceUp     = 0;
 static int      forceRight  = 0;
 
 // Colors
-auto COLOR_WHITE   = MColor(255, 255, 255);
-auto COLOR_RED     = MColor(255, 100, 100);
-auto COLOR_GREEN   = MColor(100, 255, 100);
-auto COLOR_BLUE    = MColor(50, 100, 255);
-auto COLOR_MAGENTA = MColor(255, 100, 255);
+auto COLOR_WHITE   = Color(255, 255, 255);
+auto COLOR_RED     = Color(255, 100, 100);
+auto COLOR_GREEN   = Color(100, 255, 100);
+auto COLOR_BLUE    = Color(50, 100, 255);
+auto COLOR_MAGENTA = Color(255, 100, 255);
 
 static float ROTATION = 0.0f;
 
@@ -206,8 +205,8 @@ int Application::run()
 
     currentTime = MCore::time();
 
-    auto triColor = MColor::random();
-    auto m = Matrix4();
+    auto triColor = Color::random();
+    auto m = Matrices::Matrix4();
 
     // Run the message loop.
     while (!globalRunning)

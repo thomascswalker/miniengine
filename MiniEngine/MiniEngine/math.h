@@ -60,4 +60,15 @@ namespace Math
 
         return !(isNeg && isPos);
     }
+
+    void rotate(Vector3 v1, Vector3 v2, float rotation)
+    {
+        float values[12] = { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 };
+        Matrices::Matrix4 axis(values);
+    }
+
+    void rotate(Vector3 v, float rotation)
+    {
+        rotate(v, Vector3(), rotation);
+    }
 }

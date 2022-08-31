@@ -78,7 +78,7 @@ int Framebuffer::getNumIndices()
     return m_numIndices;
 }
 
-Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrix4 matrix)
+Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrices::Matrix4 matrix)
 {
     Vector4 clipCoords;
     clipCoords.setX(vector.x() * matrix[0] +
@@ -122,7 +122,7 @@ Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrix4 matrix)
 
 void Framebuffer::clear()
 {
-    drawRect(0, 0, m_width, m_height, MColor(0, 0, 0));
+    drawRect(0, 0, m_width, m_height, Color(0, 0, 0));
 }
 
 void Framebuffer::drawGradient()
@@ -139,7 +139,7 @@ void Framebuffer::drawGradient()
             uint8 red = x;      // Red channel gradient getting brighter left -> right
             uint8 green = y;    // Green channel gradient getting brighter top -> down
             uint8 blue = 0;     // No blue
-            auto color = MColor(red, green, blue);
+            auto color = Color(red, green, blue);
 
             // Set the color at this position in memory
             *pixel++ = color.hex();
@@ -149,7 +149,7 @@ void Framebuffer::drawGradient()
     }
 }
 
-void Framebuffer::drawRect(int x0, int y0, int x1, int y1, MColor color)
+void Framebuffer::drawRect(int x0, int y0, int x1, int y1, Color color)
 {
     x0 = Math::clamp(&x0, 0, m_width);
     x1 = Math::clamp(&x1, 0, m_width);
@@ -175,7 +175,7 @@ void Framebuffer::drawRect(int x0, int y0, int x1, int y1, MColor color)
     }
 }
 
-void Framebuffer::drawCircle(int cx, int cy, int r, MColor color)
+void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
 {
     // Top left
     int x0 = cx - r;
@@ -218,7 +218,7 @@ void Framebuffer::drawCircle(int cx, int cy, int r, MColor color)
     }
 }
 
-void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, MColor color)
+void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
 {
     // Determine the min/max threshold for drawing
     std::vector<float> xs = {v1.x(), v2.x(), v3.x()};
@@ -253,11 +253,11 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, MColor color)
     }
 }
 
-void Framebuffer::drawScene(Matrix4 m)
+void Framebuffer::drawScene(Matrices::Matrix4 m)
 {
-    auto TOP = MColor(255,255,255);
-    auto SIDE = MColor(128,128,128);
-    auto BOTTOM = MColor(68,68,68);
+    auto TOP = Color(255,255,255);
+    auto SIDE = Color(128,128,128);
+    auto BOTTOM = Color(68,68,68);
 
     for (int i = 0; i < m_indices.size(); i += 3)
     {
@@ -280,7 +280,7 @@ void Framebuffer::drawScene(Matrix4 m)
         Vector2 v3s = worldToScreen(v3.pos(), m);
 
         // DRaw a triangle from these screen points
-        MColor color;
+        Color color;
 
         switch (i)
         {
@@ -292,7 +292,7 @@ void Framebuffer::drawScene(Matrix4 m)
             }
             default:
             {
-                color = SIDE;
+                color = BOTTOM;
                 break;
             }
         }

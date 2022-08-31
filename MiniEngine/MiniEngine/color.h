@@ -4,17 +4,17 @@
 
 #include <random>
 
-class MColor
+class Color
 {
 public:
-	MColor() {};
-	MColor(int rgb) : m_rgb(rgb) {};
-	MColor(int r, int g, int b);
+	Color() {};
+	Color(int rgb) : m_rgb(rgb) {};
+	Color(int r, int g, int b);
 
 	// Returns the hexadecimal format of the color
 	unsigned int hex() { return m_rgb; }
 
-	static MColor random();
+	static Color random();
 
 private:
 	unsigned int m_rgb = 0x000000;
