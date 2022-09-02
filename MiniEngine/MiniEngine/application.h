@@ -6,8 +6,6 @@
 #include <string>
 
 #include "framebuffer.h"
-#include "core.h"
-#include "mesh.h"
 
 class Application
 {
@@ -21,11 +19,11 @@ public:
     void init();
     int run();
 
-    HWND getHwnd() {return m_hwnd;}
-    void setHwnd(HWND hwnd) {m_hwnd = hwnd;}
+    HWND getHwnd() { return m_hwnd; }
+    void setHwnd(HWND hwnd) {m_hwnd = hwnd; }
 
-    HINSTANCE getHInstance() {return m_hInstance;}
-    void setHInstance(HINSTANCE hInstance) {m_hInstance = hInstance;}
+    HINSTANCE getHInstance() { return m_hInstance; }
+    void setHInstance(HINSTANCE hInstance) { m_hInstance = hInstance; }
 
     Framebuffer* getFramebuffer() { return m_buffer; }
     void setSize(int width, int height);

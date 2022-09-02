@@ -1,6 +1,5 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
-#endif
 
 #include "vertex.h"
 
@@ -18,3 +17,5 @@ private:
 	Vertex m_v2;
 	Vertex m_v3;
 };
+
+#endif

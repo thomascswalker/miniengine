@@ -1,6 +1,5 @@
 #ifndef FRAMEBUFFER_H
 #define FRAMEBUFFER_H
-#endif
 
 #include <memory>
 #include <typeinfo>
@@ -9,10 +8,10 @@
 #include <cassert>
 #include <sstream>
 
-#include "core.h"
 #include "color.h"
 #include "matrix.h"
 #include "math.h"
+#include "mesh.h"
 #include "vertex.h"
 
 class Framebuffer
@@ -22,11 +21,11 @@ public:
     ~Framebuffer();
     
     // Parameters
-    int getWidth() { return m_width; }
+    int getWidth() { return m_width; }                         
     void setWidth(int width) { m_width = width; }
     int getHeight() { return m_height; }
     void setHeight(int height) { m_height = height; }
-    void setSize(MCore::MSize size);
+    void setSize(Core::Size size);
     void setSize(int width, int height);
 
     // Pixel buffer
@@ -83,3 +82,5 @@ private:
     int m_colOffset = 12;
     int m_texOffset = 24;
 };
+
+#endif

@@ -1,6 +1,5 @@
 #ifndef MATH_H
 #define MATH_H
-#endif
 
 #include <cstdlib>
 
@@ -72,3 +71,5 @@ namespace Math
         rotate(v, Vector3(), rotation);
     }
 }
+
+#endif

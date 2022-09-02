@@ -1,8 +1,8 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "vector.h"
 #include <vector>
+#include "vector.h"
 
 namespace Matrices
 {

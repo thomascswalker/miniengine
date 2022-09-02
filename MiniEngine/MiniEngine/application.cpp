@@ -6,7 +6,7 @@
 
 // Global variables
 static bool     globalRunning       = false;
-static UINT     globalFrameRate     = 1;        // 60 FPS
+static UINT     globalFrameRate     = 1;       // 60 FPS
 static int      initWidth           = 300;     // Standard HD
 static int      initHeight          = 300;
 static int      tickRate            = 60;
@@ -21,13 +21,6 @@ static int      playerX     = 0;
 static int      playerY     = 0;
 static int      forceUp     = 0;
 static int      forceRight  = 0;
-
-// Colors
-auto COLOR_WHITE   = Color(255, 255, 255);
-auto COLOR_RED     = Color(255, 100, 100);
-auto COLOR_GREEN   = Color(100, 255, 100);
-auto COLOR_BLUE    = Color(50, 100, 255);
-auto COLOR_MAGENTA = Color(255, 100, 255);
 
 static float ROTATION = 0.0f;
 
@@ -203,7 +196,7 @@ int Application::run()
 
     auto mesh = Mesh(vertices, indices);
 
-    currentTime = MCore::time();
+    currentTime = Core::time();
 
     auto triColor = Color::random();
     auto m = Matrices::Matrix4();
@@ -211,7 +204,7 @@ int Application::run()
     // Run the message loop.
     while (!globalRunning)
     {
-        double newTime = MCore::time();
+        double newTime = Core::time();
         double frameTime = newTime - currentTime;
         currentTime = newTime;
 
@@ -233,33 +226,27 @@ int Application::run()
 
         // Rotate our mesh
         mesh.addRotation(Vector3(ROTATION, 0, 0));
+        ROTATION += 0.1f * (float)frameTime;
 
+        // Bind vertex and index buffers to the Framebuffer
         m_buffer->setVertexBufferData(mesh.getVertices(Coordinates::World));
         m_buffer->setIndexBufferData(mesh.getIndices());
 
-        // Rotate triangle verts
-        //m.rotateX(ROTATION);
-        //m.rotateY(ROTATION);
-        //m.rotateZ(ROTATION);
-
-        //m.rotateX(ROTATION);
-        ROTATION += .1 * frameTime;
-
-        // Draw our scene geometry
+        // Draw our scene geometry as triangles
         m_buffer->drawScene(m);
 
-        // Draw vertices
+        // Draw our scene vertices as circles
         for (Vertex v : mesh.getVertices())
         {
             Vector3 localPos = v.pos();
             Vector3 meshPos = mesh.getPosition();
             Vector3 worldPos = localPos + meshPos;
             Vector2 screenPos = m_buffer->worldToScreen(worldPos, m);
-            m_buffer->drawCircle(screenPos.x(), screenPos.y(), 4, COLOR_BLUE);
+            m_buffer->drawCircle((int)screenPos.x(), (int)screenPos.y(), 4, Color::blue());
         }
 
-        // Paint a mouse cursor
-        m_buffer->drawCircle(m_mouseX, m_mouseY, 6, COLOR_RED);
+        // Draw a mouse cursor
+        m_buffer->drawCircle(m_mouseX, m_mouseY, 6, Color::red());
 
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);

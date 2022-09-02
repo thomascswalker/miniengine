@@ -29,13 +29,13 @@ using std::chrono::milliseconds;
 using std::chrono::seconds;
 using std::chrono::system_clock;
 
-namespace MCore
+namespace Core
 {
-    class MSize
+    class Size
     {
     public:
-        MSize() {};
-        MSize(int width, int height) : m_width(width), m_height(height) {};
+        Size() {};
+        Size(int width, int height) : m_width(width), m_height(height) {};
 
         int width() { return m_width; }
         int height() { return m_height; }
@@ -47,11 +47,11 @@ namespace MCore
         int m_height = 0;
     };
 
-    class MPoint
+    class Point
     {
     public:
-        MPoint() {};
-        MPoint(int x, int y) : m_x(x), m_y(y) {};
+        Point() {};
+        Point(int x, int y) : m_x(x), m_y(y) {};
 
         int x() { return m_x; }
         int y() { return m_y; }
@@ -63,18 +63,18 @@ namespace MCore
         int m_y = 0;
     };
 
-    class MRect
+    class Rect
     {
     public:
         // Constructors
-        MRect() {};
-        MRect(int x, int y, int width, int height) : m_x(x), m_y(y), m_width(width), m_height(height) {};
+        Rect() {};
+        Rect(int x, int y, int width, int height) : m_x(x), m_y(y), m_width(width), m_height(height) {};
 
         // Methods
-        MPoint pos() { return MPoint(m_x, m_y); }
-        MSize size() { return MSize(m_width, m_height); }
-        MPoint getMin() { return MPoint(m_x, m_y); }
-        MPoint getMax() { return MPoint(m_x + m_width, m_y + m_height); }
+        Point pos() { return Point(m_x, m_y); }
+        Size size() { return Size(m_width, m_height); }
+        Point getMin() { return Point(m_x, m_y); }
+        Point getMax() { return Point(m_x + m_width, m_y + m_height); }
     
         // Accessors
         int x() { return m_x; }
@@ -95,12 +95,12 @@ namespace MCore
     };
 
     int getRefreshRate();
-    MSize getScreenSize();
+    Size getScreenSize();
 
     double time()
     {                
         auto duration = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
-        return duration.count();
+        return (double) duration.count();
     };
 
     void print(const char* format, ...);

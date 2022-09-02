@@ -7,10 +7,16 @@ void Mesh::addTri(Vertex v1, Vertex v2, Vertex v3)
     m_vertices.push_back(v3);
 }
 
+size_t Mesh::numVertices()
+{
+    return m_vertices.size();
+}
+
 std::vector<Vertex> Mesh::getVertices(Coordinates::CoordSpace space)
 {
     switch (space)
     {
+        default:
         case Coordinates::Local:
         {
             return m_vertices;

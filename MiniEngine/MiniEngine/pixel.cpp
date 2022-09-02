@@ -1,6 +1,5 @@
 #include "pixel.h"
 
-
 union COLOR
 {
     unsigned long RGB;

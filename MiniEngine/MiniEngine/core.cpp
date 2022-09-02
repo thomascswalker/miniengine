@@ -1,6 +1,6 @@
 #include "core.h"
 
-int MCore::getRefreshRate()
+int Core::getRefreshRate()
 {
     DEVMODE screen;
     memset(&screen, 0, sizeof(DEVMODE));
@@ -8,17 +8,17 @@ int MCore::getRefreshRate()
     return refreshRate;
 }
 
-MCore::MSize MCore::getScreenSize()
+Core::Size Core::getScreenSize()
 {
     RECT desktop;
     const HWND hDesktop = GetDesktopWindow();
 
     GetWindowRect(hDesktop, &desktop);
 
-    return MCore::MSize(desktop.right, desktop.bottom);
+    return Core::Size(desktop.right, desktop.bottom);
 }
 
-void MCore::print(const char* format, ...)
+void Core::print(const char* format, ...)
 {
     char text[1024];
     va_list arg;

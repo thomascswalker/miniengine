@@ -1,10 +1,10 @@
 #ifndef MESH_H
 #define MESH_H
-#endif
 
 #include <vector>
-#include "vertex.h"
+
 #include "coordinates.h"
+#include "vertex.h"
 
 class Mesh
 {
@@ -13,7 +13,7 @@ public:
 	Mesh(std::vector<Vertex> vertices, std::vector<int> indices) : m_vertices(vertices), m_indices(indices) {};
 
 	void addTri(Vertex v1, Vertex v2, Vertex v3);
-	int numVertices() { return m_vertices.size(); }
+	size_t numVertices();
 
 	std::vector<Vertex> getVertices() { return m_vertices;}
 	std::vector<Vertex> getVertices(Coordinates::CoordSpace space);
@@ -39,3 +39,5 @@ private:
 	Vector3 m_rotation = {0, 0, 0};
 	Vector3 m_scale	   = {1, 1, 1};
 };
+
+#endif

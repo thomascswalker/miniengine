@@ -1,6 +1,6 @@
 #include "framebuffer.h"
 
-using namespace MCore;
+using namespace Core;
 
 Framebuffer::Framebuffer(HWND hwnd)
     : m_hwnd(hwnd)
@@ -44,7 +44,7 @@ void Framebuffer::allocate()
     m_rowLength = m_width * m_bytesPerPixel;
 }
 
-void Framebuffer::setSize(MCore::MSize size)
+void Framebuffer::setSize(Core::Size size)
 {
     m_width = size.width();
     m_height = size.height();
@@ -212,7 +212,7 @@ void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
             }
             else
             {
-                *pixel++;
+                (* pixel)++;
             }
         }
     }
@@ -221,8 +221,8 @@ void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
 void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
 {
     // Determine the min/max threshold for drawing
-    std::vector<float> xs = {v1.x(), v2.x(), v3.x()};
-    std::vector<float> ys = {v1.y(), v2.y(), v3.y()};
+    std::vector<int> xs = {(int)v1.x(), (int)v2.x(), (int)v3.x()};
+    std::vector<int> ys = {(int)v1.y(), (int)v2.y(), (int)v3.y()};
 
     auto minX = *std::min_element(std::begin(xs), std::end(xs));
     auto maxX = *std::max_element(std::begin(xs), std::end(xs));
@@ -230,14 +230,16 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
     auto maxY = *std::max_element(std::begin(ys), std::end(ys));
 
     // Debug print
-    for (int y = minY; y < maxY; y++)               // Bottom to top
+    for (int y = minY; y < maxY; y++)                   // Bottom to top
     {
         uint32* pixel = (uint32*)m_memoryBuffer;        // Initial memory starting point
         int yOffset = y * m_width;                      // Number of pixels in an entire row
         int xOffset = minX;                             // Number of pixels to hit the left-most edge
-        pixel += xOffset + yOffset;                     // Linear offset across the entire pixel array
+        int offset = xOffset + yOffset;                 // Total number of pixels to offset (start at)
 
-        for (int x = minX; x < maxX; x++)           // Left to right
+        pixel = pixel + offset;                         // Linear offset across the entire pixel array
+
+        for (int x = minX; x < maxX; x++)               // Left to right
         {
             auto p = Vector2(x, y);                     // Point at current x, y
             if (Math::isPointInTriangle(p, v1, v2, v3)) // Is this point in our triangle?
@@ -246,7 +248,7 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
             }
             else
             {
-                *pixel++;                               // If it's not, increment the pointer and
+                (* pixel)++;                            // If it's not, increment the pointer and
                                                         // Leave the colour alone
             }
         }
@@ -263,21 +265,24 @@ void Framebuffer::drawScene(Matrices::Matrix4 m)
     {
         // Start indices index
         int index = i;
+        int i1 = i;
+        int i2 = i + 1;
+        int i3 = i + 1;
 
         // Get vertex indices
-        int i1 = m_indices[i];
-        int i2 = m_indices[i + 1];
-        int i3 = m_indices[i + 2];
+        int idx1 = m_indices[i1];
+        int idx2 = m_indices[i2];
+        int idx3 = m_indices[i3];
 
         // Get vertexes from indices
-        auto v1 = m_vertices[i1];
-        auto v2 = m_vertices[i2];
-        auto v3 = m_vertices[i3];
+        auto vtx1 = m_vertices[idx1];
+        auto vtx2 = m_vertices[idx2];
+        auto vtx3 = m_vertices[idx3];
         
         // Convert world pos to screen pos for each vertex
-        Vector2 v1s = worldToScreen(v1.pos(), m);
-        Vector2 v2s = worldToScreen(v2.pos(), m);
-        Vector2 v3s = worldToScreen(v3.pos(), m);
+        Vector2 vtx1s = worldToScreen(vtx1.pos(), m);
+        Vector2 vtx2s = worldToScreen(vtx2.pos(), m);
+        Vector2 vtx3s = worldToScreen(vtx3.pos(), m);
 
         // DRaw a triangle from these screen points
         Color color;
@@ -297,7 +302,7 @@ void Framebuffer::drawScene(Matrices::Matrix4 m)
             }
         }
 
-        drawTri(v1s, v2s, v3s, color);
+        drawTri(vtx1s, vtx2s, vtx3s, color);
     }
 }
 

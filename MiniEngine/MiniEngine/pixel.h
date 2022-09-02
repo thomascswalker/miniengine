@@ -1,6 +1,5 @@
 #ifndef PIXEL_H
 #define PIXEL_H
-#endif
 
 #include <cstddef>
 #include <cstdint>
@@ -21,3 +20,5 @@ private:
     int _g;
     int _b;
 };
+
+#endif
