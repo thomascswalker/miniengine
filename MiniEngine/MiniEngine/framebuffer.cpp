@@ -206,6 +206,7 @@ void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
             auto dx = x - cx;
             auto dy = y - cy;
 
+            uint32 pixelColor;
             if (pow(dx, 2) + pow(dy, 2) <= rsqr)
             {
                 *pixel++ = color.hex();
@@ -230,25 +231,24 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
     auto maxY = *std::max_element(std::begin(ys), std::end(ys));
 
     // Debug print
-    for (int y = minY; y < maxY; y++)                   // Bottom to top
+    for (int y = minY; y < maxY; y++)                       // Bottom to top
     {
-        uint32* pixel = (uint32*)m_memoryBuffer;        // Initial memory starting point
-        int yOffset = y * m_width;                      // Number of pixels in an entire row
-        int xOffset = minX;                             // Number of pixels to hit the left-most edge
+        uint32* pixel = (uint32*)m_memoryBuffer;            // Initial memory starting point
+        int yOffset = y * m_width;                          // Number of pixels in an entire row
+        int xOffset = minX;                                 // Number of pixels to hit the left-most edge
 
-        pixel += xOffset + yOffset;                     // Linear offset across the entire pixel array
+        pixel += xOffset + yOffset;                         // Linear offset across the entire pixel array
 
-        for (int x = minX; x < maxX; x++)               // Left to right
+        for (int x = minX; x < maxX; x++)                   // Left to right
         {
-            Vector2 point(x,y);
-            auto isInTri = Math::isPointInTriangle(point, v1, v2, v3);// Point at current x, y
-            if (isInTri) // Is this point in our triangle?
+            Vector2 point(x,y);                             // Point at current x, y
+            if (Math::isPointInTriangle(point, v1, v2, v3)) // Is this point in our triangle?
             {
-                *pixel++ = color.hex();                 // If it is, colour here
+                *pixel++ = color.hex();                     // If it is, colour here
             }
             else
             {
-                *pixel++;                               // If it's not, increment the pointer and leave the colour alone
+                *pixel++;                                   // If it's not, increment the pointer and leave the colour alone
             }
         }
     }
