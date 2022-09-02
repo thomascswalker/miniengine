@@ -97,11 +97,7 @@ namespace Core
     int getRefreshRate();
     Size getScreenSize();
 
-    double time()
-    {                
-        auto duration = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
-        return (double) duration.count();
-    };
+    double getCurrentTime();
 
     void print(const char* format, ...);
 }

@@ -195,3 +195,18 @@ namespace Matrices
         return *this;
     }
 }
+
+float Matrices::Matrix2::operator[](int index) const
+{
+    return m_values[index];
+}
+
+float Matrices::Matrix3::operator[](int index) const
+{
+    return m_values[index];
+}
+
+float Matrices::Matrix4::operator[](int index) const
+{
+    return m_values[index];
+}

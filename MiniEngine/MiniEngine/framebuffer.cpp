@@ -235,9 +235,8 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
         uint32* pixel = (uint32*)m_memoryBuffer;        // Initial memory starting point
         int yOffset = y * m_width;                      // Number of pixels in an entire row
         int xOffset = minX;                             // Number of pixels to hit the left-most edge
-        int offset = xOffset + yOffset;                 // Total number of pixels to offset (start at)
 
-        pixel = pixel + offset;                         // Linear offset across the entire pixel array
+        pixel = pixel + xOffset + yOffset;                         // Linear offset across the entire pixel array
 
         for (int x = minX; x < maxX; x++)               // Left to right
         {
@@ -248,8 +247,7 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
             }
             else
             {
-                (* pixel)++;                            // If it's not, increment the pointer and
-                                                        // Leave the colour alone
+                (* pixel)++;                            // If it's not, increment the pointer and leave the colour alone
             }
         }
     }

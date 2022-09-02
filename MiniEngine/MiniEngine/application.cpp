@@ -196,7 +196,7 @@ int Application::run()
 
     auto mesh = Mesh(vertices, indices);
 
-    currentTime = Core::time();
+    currentTime = Core::getCurrentTime();
 
     auto triColor = Color::random();
     auto m = Matrices::Matrix4();
@@ -204,7 +204,7 @@ int Application::run()
     // Run the message loop.
     while (!globalRunning)
     {
-        double newTime = Core::time();
+        double newTime = Core::getCurrentTime();
         double frameTime = newTime - currentTime;
         currentTime = newTime;
 
