@@ -8,6 +8,12 @@
     <Filter Include="Source Files\engine">
       <UniqueIdentifier>{630b9742-0774-4d97-b020-234531d2d2b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{ca508906-3567-405d-a3fa-23bd30990e03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\engine">
+      <UniqueIdentifier>{71c13323-afa7-428f-b780-2b5a090e22b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -37,46 +43,49 @@
     <ClCompile Include="mesh.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
+    <ClCompile Include="math.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
-      <Filter>Source Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="framebuffer.h">
-      <Filter>Source Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="core.h">
-      <Filter>Source Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="pixel.h">
-      <Filter>Source Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="vector.h">
-      <Filter>Source Files\engine</Filter>
+      <Filter>Header Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="color.h">
-      <Filter>Source Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="vertex.h">
-      <Filter>Source Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="triangle.h">
-      <Filter>Source Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="scene.h">
-      <Filter>Source Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="matrix.h">
-      <Filter>Source Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="math.h">
-      <Filter>Source Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="mesh.h">
-      <Filter>Source Files\engine</Filter>
+      <Filter>Header Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="coordinates.h">
-      <Filter>Source Files\engine</Filter>
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="core.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="framebuffer.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="math.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="matrix.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="pixel.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="triangle.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="vector.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="vertex.h">
+      <Filter>Header Files\engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 #include "framebuffer.h"
 
-using namespace MCore;
+using namespace Core;
 
 Framebuffer::Framebuffer(HWND hwnd)
     : m_hwnd(hwnd)
@@ -44,7 +44,7 @@ void Framebuffer::allocate()
     m_rowLength = m_width * m_bytesPerPixel;
 }
 
-void Framebuffer::setSize(MCore::MSize size)
+void Framebuffer::setSize(Core::Size size)
 {
     m_width = size.width();
     m_height = size.height();
@@ -78,7 +78,7 @@ int Framebuffer::getNumIndices()
     return m_numIndices;
 }
 
-Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrix4 matrix)
+Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrices::Matrix4 matrix)
 {
     Vector4 clipCoords;
     clipCoords.setX(vector.x() * matrix[0] +
@@ -122,7 +122,7 @@ Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrix4 matrix)
 
 void Framebuffer::clear()
 {
-    drawRect(0, 0, m_width, m_height, MColor(0, 0, 0));
+    drawRect(0, 0, m_width, m_height, Color(0, 0, 0));
 }
 
 void Framebuffer::drawGradient()
@@ -139,7 +139,7 @@ void Framebuffer::drawGradient()
             uint8 red = x;      // Red channel gradient getting brighter left -> right
             uint8 green = y;    // Green channel gradient getting brighter top -> down
             uint8 blue = 0;     // No blue
-            auto color = MColor(red, green, blue);
+            auto color = Color(red, green, blue);
 
             // Set the color at this position in memory
             *pixel++ = color.hex();
@@ -149,7 +149,7 @@ void Framebuffer::drawGradient()
     }
 }
 
-void Framebuffer::drawRect(int x0, int y0, int x1, int y1, MColor color)
+void Framebuffer::drawRect(int x0, int y0, int x1, int y1, Color color)
 {
     x0 = Math::clamp(&x0, 0, m_width);
     x1 = Math::clamp(&x1, 0, m_width);
@@ -175,7 +175,7 @@ void Framebuffer::drawRect(int x0, int y0, int x1, int y1, MColor color)
     }
 }
 
-void Framebuffer::drawCircle(int cx, int cy, int r, MColor color)
+void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
 {
     // Top left
     int x0 = cx - r;
@@ -218,7 +218,7 @@ void Framebuffer::drawCircle(int cx, int cy, int r, MColor color)
     }
 }
 
-void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, MColor color)
+void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
 {
     // Determine the min/max threshold for drawing
     std::vector<float> xs = {v1.x(), v2.x(), v3.x()};
@@ -230,74 +230,64 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, MColor color)
     auto maxY = *std::max_element(std::begin(ys), std::end(ys));
 
     // Debug print
-    for (int y = minY; y < maxY; y++)               // Bottom to top
+    for (int y = minY; y < maxY; y++)                   // Bottom to top
     {
         uint32* pixel = (uint32*)m_memoryBuffer;        // Initial memory starting point
         int yOffset = y * m_width;                      // Number of pixels in an entire row
         int xOffset = minX;                             // Number of pixels to hit the left-most edge
+
         pixel += xOffset + yOffset;                     // Linear offset across the entire pixel array
 
-        for (int x = minX; x < maxX; x++)           // Left to right
+        for (int x = minX; x < maxX; x++)               // Left to right
         {
-            auto p = Vector2(x, y);                     // Point at current x, y
-            if (Math::isPointInTriangle(p, v1, v2, v3)) // Is this point in our triangle?
+            Vector2 point(x,y);
+            auto isInTri = Math::isPointInTriangle(point, v1, v2, v3);// Point at current x, y
+            if (isInTri) // Is this point in our triangle?
             {
                 *pixel++ = color.hex();                 // If it is, colour here
             }
             else
             {
-                *pixel++;                               // If it's not, increment the pointer and
-                                                        // Leave the colour alone
+                *pixel++;                               // If it's not, increment the pointer and leave the colour alone
             }
         }
     }
 }
 
-void Framebuffer::drawScene(Matrix4 m)
+void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
 {
-    auto TOP = MColor(255,255,255);
-    auto SIDE = MColor(128,128,128);
-    auto BOTTOM = MColor(68,68,68);
+    
+}
 
+void Framebuffer::drawScene(Matrices::Matrix4 m)
+{
     for (int i = 0; i < m_indices.size(); i += 3)
     {
         // Start indices index
         int index = i;
 
         // Get vertex indices
-        int i1 = m_indices[i];
-        int i2 = m_indices[i + 1];
-        int i3 = m_indices[i + 2];
+        int idx1 = m_indices[i];
+        int idx2 = m_indices[i + 1];
+        int idx3 = m_indices[i + 2];
 
         // Get vertexes from indices
-        auto v1 = m_vertices[i1];
-        auto v2 = m_vertices[i2];
-        auto v3 = m_vertices[i3];
+        auto vtx1 = m_vertices[idx1];
+        auto vtx2 = m_vertices[idx2];
+        auto vtx3 = m_vertices[idx3];
         
         // Convert world pos to screen pos for each vertex
-        Vector2 v1s = worldToScreen(v1.pos(), m);
-        Vector2 v2s = worldToScreen(v2.pos(), m);
-        Vector2 v3s = worldToScreen(v3.pos(), m);
+        Vector2 vtx1s = worldToScreen(vtx1.pos(), m);
+        Vector2 vtx2s = worldToScreen(vtx2.pos(), m);
+        Vector2 vtx3s = worldToScreen(vtx3.pos(), m);
 
-        // DRaw a triangle from these screen points
-        MColor color;
+        // Draw a triangle from these screen points
+        drawTri(vtx1s, vtx2s, vtx3s, Color::gray());
 
-        switch (i)
-        {
-            case 0:
-            case 3:
-            {
-                color = TOP;
-                break;
-            }
-            default:
-            {
-                color = SIDE;
-                break;
-            }
-        }
-
-        drawTri(v1s, v2s, v3s, color);
+        // Draw each vertex
+        drawCircle(vtx1s.x(), vtx1s.y(), 3, Color::blue());
+        drawCircle(vtx2s.x(), vtx1s.y(), 3, Color::blue());
+        drawCircle(vtx3s.x(), vtx1s.y(), 3, Color::blue());
     }
 }
 

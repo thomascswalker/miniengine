@@ -1,6 +1,5 @@
 #ifndef FRAMEBUFFER_H
 #define FRAMEBUFFER_H
-#endif
 
 #include <memory>
 #include <typeinfo>
@@ -8,12 +7,11 @@
 #include <gdiplus.h>
 #include <cassert>
 #include <sstream>
-#include <vector>
 
-#include "core.h"
 #include "color.h"
 #include "matrix.h"
 #include "math.h"
+#include "mesh.h"
 #include "vertex.h"
 
 class Framebuffer
@@ -23,11 +21,11 @@ public:
     ~Framebuffer();
     
     // Parameters
-    int getWidth() { return m_width; }
+    int getWidth() { return m_width; }                         
     void setWidth(int width) { m_width = width; }
     int getHeight() { return m_height; }
     void setHeight(int height) { m_height = height; }
-    void setSize(MCore::MSize size);
+    void setSize(Core::Size size);
     void setSize(int width, int height);
 
     // Pixel buffer
@@ -44,14 +42,15 @@ public:
     int getNumIndices();
 
     // Math
-    Vector2 worldToScreen(Vector3 vector, Matrix4 matrix);
+    Vector2 worldToScreen(Vector3 vector, Matrices::Matrix4 matrix);
 
     // Drawing
     void clear();
-    void drawRect(int x0, int y0, int x1, int y1, MColor color);
-    void drawCircle(int cx, int cy, int r, MColor color);
-    void drawTri(Vector2& v1, Vector2& v2, Vector2& v3, MColor color);
-    void drawScene(Matrix4 m);
+    void drawRect(int x0, int y0, int x1, int y1, Color color);
+    void drawCircle(int cx, int cy, int r, Color color);
+    void drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color);
+    void drawLine(Vector2& v1, Vector2& v2, Color color);
+    void drawScene(Matrices::Matrix4 m);
     void drawGradient();
 
 protected:
@@ -84,3 +83,5 @@ private:
     int m_colOffset = 12;
     int m_texOffset = 24;
 };
+
+#endif
