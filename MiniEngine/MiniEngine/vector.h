@@ -15,7 +15,6 @@ public:
 	// Constructors
 	Vector2() : _x(0), _y(0) {};
 	Vector2(float x, float y) : _x(x), _y(y) {};
-	Vector2(int x, int y) : _x((float)x), _y((float)y) {};
 
 	// Methods
 	float x() { return _x; }

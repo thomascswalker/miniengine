@@ -225,8 +225,10 @@ int Application::run()
         m_buffer->clear();
 
         // Rotate our mesh
-        mesh.addRotation(Vector3(ROTATION, 0, 0));
-        ROTATION += 0.1f * (float)frameTime;
+        //mesh.addRotation(Vector3(ROTATION, 0, 0));
+        m.rotateX(ROTATION);
+        ROTATION += 0.001f * frameTime;
+        
 
         // Bind vertex and index buffers to the Framebuffer
         m_buffer->setVertexBufferData(mesh.getVertices(Coordinates::World));
@@ -234,16 +236,6 @@ int Application::run()
 
         // Draw our scene geometry as triangles
         m_buffer->drawScene(m);
-
-        // Draw our scene vertices as circles
-        for (Vertex v : mesh.getVertices())
-        {
-            Vector3 localPos = v.pos();
-            Vector3 meshPos = mesh.getPosition();
-            Vector3 worldPos = localPos + meshPos;
-            Vector2 screenPos = m_buffer->worldToScreen(worldPos, m);
-            m_buffer->drawCircle((int)screenPos.x(), (int)screenPos.y(), 4, Color::blue());
-        }
 
         // Draw a mouse cursor
         m_buffer->drawCircle(m_mouseX, m_mouseY, 6, Color::red());

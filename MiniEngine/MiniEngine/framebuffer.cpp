@@ -212,7 +212,7 @@ void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
             }
             else
             {
-                (* pixel)++;
+                *pixel++;
             }
         }
     }
@@ -221,8 +221,8 @@ void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
 void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
 {
     // Determine the min/max threshold for drawing
-    std::vector<int> xs = {(int)v1.x(), (int)v2.x(), (int)v3.x()};
-    std::vector<int> ys = {(int)v1.y(), (int)v2.y(), (int)v3.y()};
+    std::vector<float> xs = {v1.x(), v2.x(), v3.x()};
+    std::vector<float> ys = {v1.y(), v2.y(), v3.y()};
 
     auto minX = *std::min_element(std::begin(xs), std::end(xs));
     auto maxX = *std::max_element(std::begin(xs), std::end(xs));
@@ -236,41 +236,40 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
         int yOffset = y * m_width;                      // Number of pixels in an entire row
         int xOffset = minX;                             // Number of pixels to hit the left-most edge
 
-        pixel = pixel + xOffset + yOffset;                         // Linear offset across the entire pixel array
+        pixel += xOffset + yOffset;                     // Linear offset across the entire pixel array
 
         for (int x = minX; x < maxX; x++)               // Left to right
         {
-            auto p = Vector2(x, y);                     // Point at current x, y
-            if (Math::isPointInTriangle(p, v1, v2, v3)) // Is this point in our triangle?
+            Vector2 point(x,y);
+            auto isInTri = Math::isPointInTriangle(point, v1, v2, v3);// Point at current x, y
+            if (isInTri) // Is this point in our triangle?
             {
                 *pixel++ = color.hex();                 // If it is, colour here
             }
             else
             {
-                (* pixel)++;                            // If it's not, increment the pointer and leave the colour alone
+                *pixel++;                               // If it's not, increment the pointer and leave the colour alone
             }
         }
     }
 }
 
+void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
+{
+    
+}
+
 void Framebuffer::drawScene(Matrices::Matrix4 m)
 {
-    auto TOP = Color(255,255,255);
-    auto SIDE = Color(128,128,128);
-    auto BOTTOM = Color(68,68,68);
-
     for (int i = 0; i < m_indices.size(); i += 3)
     {
         // Start indices index
         int index = i;
-        int i1 = i;
-        int i2 = i + 1;
-        int i3 = i + 1;
 
         // Get vertex indices
-        int idx1 = m_indices[i1];
-        int idx2 = m_indices[i2];
-        int idx3 = m_indices[i3];
+        int idx1 = m_indices[i];
+        int idx2 = m_indices[i + 1];
+        int idx3 = m_indices[i + 2];
 
         // Get vertexes from indices
         auto vtx1 = m_vertices[idx1];
@@ -282,25 +281,13 @@ void Framebuffer::drawScene(Matrices::Matrix4 m)
         Vector2 vtx2s = worldToScreen(vtx2.pos(), m);
         Vector2 vtx3s = worldToScreen(vtx3.pos(), m);
 
-        // DRaw a triangle from these screen points
-        Color color;
+        // Draw a triangle from these screen points
+        drawTri(vtx1s, vtx2s, vtx3s, Color::gray());
 
-        switch (i)
-        {
-            case 0:
-            case 3:
-            {
-                color = TOP;
-                break;
-            }
-            default:
-            {
-                color = BOTTOM;
-                break;
-            }
-        }
-
-        drawTri(vtx1s, vtx2s, vtx3s, color);
+        // Draw each vertex
+        drawCircle(vtx1s.x(), vtx1s.y(), 3, Color::blue());
+        drawCircle(vtx2s.x(), vtx1s.y(), 3, Color::blue());
+        drawCircle(vtx3s.x(), vtx1s.y(), 3, Color::blue());
     }
 }
 

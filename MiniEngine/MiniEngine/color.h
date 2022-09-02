@@ -15,8 +15,8 @@ public:
 
 	static Color random();
 	static Color red() { return Color(255, 0, 0); }
-	static Color blue() { return Color(0, 255, 0); }
-	static Color green() { return Color(0, 0, 255); }
+	static Color green() { return Color(0, 255, 0); }
+	static Color blue() { return Color(0, 0, 255); }
 
 	static Color cyan() { return Color(0, 255, 255); }
 	static Color magenta() { return Color(255, 0, 255); }

@@ -16,7 +16,6 @@ std::vector<Vertex> Mesh::getVertices(Coordinates::CoordSpace space)
 {
     switch (space)
     {
-        default:
         case Coordinates::Local:
         {
             return m_vertices;
