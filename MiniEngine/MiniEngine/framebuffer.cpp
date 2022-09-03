@@ -254,12 +254,56 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
     }
 }
 
+/*
+https://en.wikipedia.org/wiki/Line_drawing_algorithm
+*/
 void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
 {
-    
+    std::vector<float> xs = { v1.x(), v2.x() };
+    std::vector<float> ys = { v1.y(), v2.y() };
+
+    auto minX = *std::min_element(std::begin(xs), std::end(xs));
+    auto maxX = *std::max_element(std::begin(xs), std::end(xs));
+    auto minY = *std::min_element(std::begin(ys), std::end(ys));
+    auto maxY = *std::max_element(std::begin(ys), std::end(ys));
+
+    float step;
+
+    int dx = maxX - minX;
+    int dy = maxY - minY;
+
+    if (abs(dx) >= abs(dy))
+    {
+        step = abs(dx);
+    }
+    else
+    {
+        step = abs(dy);
+    }
+
+    dx = dx / step;
+    dy = dy / step;
+
+    float x = maxX;
+    float y = minY;
+    int i = 1;
+
+    while (i <= step)
+    {
+        uint32* pixel = (uint32*)m_memoryBuffer;
+        int xOffset = x;
+        int yOffset = y * m_width;
+        int offset = xOffset + yOffset;
+        pixel += offset;
+        *pixel++ = color.hex();
+
+        x += dx;
+        y += dy;
+        i++;
+    }
 }
 
-void Framebuffer::drawScene(Matrices::Matrix4 m)
+void Framebuffer::drawScene(Matrices::Matrix4 m, bool bWireframe)
 {
     for (int i = 0; i < m_indices.size(); i += 3)
     {
@@ -283,6 +327,14 @@ void Framebuffer::drawScene(Matrices::Matrix4 m)
 
         // Draw a triangle from these screen points
         drawTri(vtx1s, vtx2s, vtx3s, Color::gray());
+
+        // Draw a line for each line segment
+        if (bWireframe)
+        {
+            drawLine(vtx1s, vtx2s, Color::orange());
+            drawLine(vtx1s, vtx3s, Color::orange());
+            drawLine(vtx2s, vtx3s, Color::orange());
+        }
 
         // Draw each vertex
         drawCircle(vtx1s.x(), vtx1s.y(), 3, Color::blue());

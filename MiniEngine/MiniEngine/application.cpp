@@ -1,7 +1,11 @@
 #include "application.h"
 
 #ifndef MAIN_WINDOW_TIMER_ID
-    #define MAIN_WINDOW_TIMER_ID 1001
+#define MAIN_WINDOW_TIMER_ID 1001
+#endif
+
+#ifndef DRAW_WIREFRAME
+#define DRAW_WIREFRAME true
 #endif
 
 // Global variables
@@ -235,7 +239,7 @@ int Application::run()
         m_buffer->setIndexBufferData(mesh.getIndices());
 
         // Draw our scene geometry as triangles
-        m_buffer->drawScene(m);
+        m_buffer->drawScene(m, DRAW_WIREFRAME);
 
         // Draw a mouse cursor
         m_buffer->drawCircle(m_mouseX, m_mouseY, 6, Color::red());
