@@ -294,8 +294,6 @@ void Framebuffer::drawScene(Matrices::Matrix4 m, bool bDrawFaces, bool bDrawEdge
         Vector2 vtx2s = worldToScreen(vtx2.pos(), m);
         Vector2 vtx3s = worldToScreen(vtx3.pos(), m);
 
-
-
         // Draw a line for each line segment
         if (bDrawFaces)
         {
@@ -303,6 +301,7 @@ void Framebuffer::drawScene(Matrices::Matrix4 m, bool bDrawFaces, bool bDrawEdge
             drawTri(vtx1s, vtx2s, vtx3s, Color::gray());
         }
 
+        // Draw each edge
         if (bDrawEdges)
         {
             drawLine(vtx1s, vtx2s, Color::orange());
