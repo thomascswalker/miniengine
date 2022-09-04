@@ -1,7 +1,19 @@
 #include "application.h"
 
 #ifndef MAIN_WINDOW_TIMER_ID
-    #define MAIN_WINDOW_TIMER_ID 1001
+#define MAIN_WINDOW_TIMER_ID 1001
+#endif
+
+#ifndef DRAW_FACES
+#define DRAW_FACES true
+#endif
+
+#ifndef DRAW_WIREFRAME
+#define DRAW_WIREFRAME true
+#endif
+
+#ifndef DRAW_VERTICES
+#define DRAW_VERTICES true
 #endif
 
 // Global variables
@@ -11,6 +23,11 @@ static int      initWidth           = 300;     // Standard HD
 static int      initHeight          = 300;
 static int      tickRate            = 60;
 static double   currentTime         = 0.0;
+
+// Display options
+static bool     bDrawFaces          = true;
+static bool     bDrawEdges          = true;
+static bool     bDrawVertices       = false;
 
 // Keyboard input
 static WORD     keyCode;
@@ -54,25 +71,13 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 
             switch (keyCode)
             {
-                case 'W': forceUp = 0; break;
-                case 'A': forceRight = 0; break;
-                case 'S': forceUp = 0; break;
-                case 'D': forceRight = 0; break;
-            }
-            break;
-        }
-        case WM_KEYDOWN:
-        case WM_SYSKEYDOWN:
-        {
-            keyCode  = LOWORD(wParam);
-            keyFlags = HIWORD(lParam);
-
-            switch (keyCode)
-            {
-                case 'W': forceUp = -1; break;      // Invert
-                case 'A': forceRight = -1; break;
-                case 'S': forceUp = 1; break;       // Invert
-                case 'D': forceRight = 1; break;
+                case '1': bDrawFaces = !bDrawFaces; break;
+                case '2': bDrawEdges = !bDrawEdges; break;
+                case '3': bDrawVertices = !bDrawVertices; break;
+                //case 'W': forceUp = 0; break;
+                //case 'A': forceRight = 0; break;
+                //case 'S': forceUp = 0; break;
+                //case 'D': forceRight = 0; break;
             }
             break;
         }
@@ -235,7 +240,7 @@ int Application::run()
         m_buffer->setIndexBufferData(mesh.getIndices());
 
         // Draw our scene geometry as triangles
-        m_buffer->drawScene(m);
+        m_buffer->drawScene(m, bDrawFaces, bDrawEdges, bDrawVertices);
 
         // Draw a mouse cursor
         m_buffer->drawCircle(m_mouseX, m_mouseY, 6, Color::red());
