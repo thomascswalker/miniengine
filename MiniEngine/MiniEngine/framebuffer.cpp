@@ -125,6 +125,14 @@ void Framebuffer::clear()
     drawRect(0, 0, m_width, m_height, Color(0, 0, 0));
 }
 
+void Framebuffer::setPixel(int x, int y, Color color)
+{
+    uint32* pixelPtr = (uint32*)m_memoryBuffer;
+    uint32 offset = x + (y * m_width);
+    pixelPtr += offset;
+    *pixelPtr = color.hex();
+}
+
 void Framebuffer::drawGradient()
 {
     // The start position of the current row
@@ -160,17 +168,10 @@ void Framebuffer::drawRect(int x0, int y0, int x1, int y1, Color color)
     // For each pixel...
     for (int y = y0; y < y1; y++)
     {
-        // Initial pointer position in our memory buffer
-        uint32 *pixel = (uint32*)m_memoryBuffer;
-
-        // Offset across the buffer
-        uint32 offset = x0 + (y * m_width);
-        pixel += offset;
-
         for (int x = x0; x < x1; x++)
         {
             // Set the color at this position in memory
-            *pixel++ = color.hex();
+            setPixel(x, y, color);
         }
     }
 }
@@ -196,24 +197,13 @@ void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
 
     for (int y = y0; y < y1; y++)
     {
-        // Initial pointer position in our memory buffer
-        uint32 *pixel = (uint32*)m_memoryBuffer;
-        uint32 offset = x0 + (y * m_width);
-        pixel += offset;
-
         for (int x = x0; x < x1; x++)
         {
             auto dx = x - cx;
             auto dy = y - cy;
-
-            uint32 pixelColor;
             if (pow(dx, 2) + pow(dy, 2) <= rsqr)
             {
-                *pixel++ = color.hex();
-            }
-            else
-            {
-                *pixel++;
+                setPixel(x, y, color);
             }
         }
     }
@@ -230,25 +220,14 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
     auto minY = *std::min_element(std::begin(ys), std::end(ys));
     auto maxY = *std::max_element(std::begin(ys), std::end(ys));
 
-    // Debug print
     for (int y = minY; y < maxY; y++)                       // Bottom to top
     {
-        uint32* pixel = (uint32*)m_memoryBuffer;            // Initial memory starting point
-        int yOffset = y * m_width;                          // Number of pixels in an entire row
-        int xOffset = minX;                                 // Number of pixels to hit the left-most edge
-
-        pixel += xOffset + yOffset;                         // Linear offset across the entire pixel array
-
         for (int x = minX; x < maxX; x++)                   // Left to right
         {
             Vector2 point(x,y);                             // Point at current x, y
             if (Math::isPointInTriangle(point, v1, v2, v3)) // Is this point in our triangle?
             {
-                *pixel++ = color.hex();                     // If it is, colour here
-            }
-            else
-            {
-                *pixel++;                                   // If it's not, increment the pointer and leave the colour alone
+                setPixel(x, y, color);                     // If it is, colour here
             }
         }
     }
@@ -269,33 +248,23 @@ void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
 
     float step;
 
-    int dx = maxX - minX;
-    int dy = maxY - minY;
+    float dx = maxX - minX;
+    float dy = maxY - minY;
 
-    if (abs(dx) >= abs(dy))
-    {
-        step = abs(dx);
-    }
-    else
-    {
-        step = abs(dy);
-    }
+    auto adx = abs(dx);
+    auto ady = abs(dy);
+    step = (adx >= ady) ? adx : ady;
 
     dx = dx / step;
     dy = dy / step;
 
-    float x = maxX;
+    float x = minX;
     float y = minY;
     int i = 1;
 
     while (i <= step)
     {
-        uint32* pixel = (uint32*)m_memoryBuffer;
-        int xOffset = x;
-        int yOffset = y * m_width;
-        int offset = xOffset + yOffset;
-        pixel += offset;
-        *pixel++ = color.hex();
+        setPixel(x, y, color);
 
         x += dx;
         y += dy;
@@ -303,7 +272,7 @@ void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
     }
 }
 
-void Framebuffer::drawScene(Matrices::Matrix4 m, bool bWireframe)
+void Framebuffer::drawScene(Matrices::Matrix4 m, bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
 {
     for (int i = 0; i < m_indices.size(); i += 3)
     {
@@ -325,11 +294,16 @@ void Framebuffer::drawScene(Matrices::Matrix4 m, bool bWireframe)
         Vector2 vtx2s = worldToScreen(vtx2.pos(), m);
         Vector2 vtx3s = worldToScreen(vtx3.pos(), m);
 
-        // Draw a triangle from these screen points
-        drawTri(vtx1s, vtx2s, vtx3s, Color::gray());
+
 
         // Draw a line for each line segment
-        if (bWireframe)
+        if (bDrawFaces)
+        {
+            // Draw a triangle from these screen points
+            drawTri(vtx1s, vtx2s, vtx3s, Color::gray());
+        }
+
+        if (bDrawEdges)
         {
             drawLine(vtx1s, vtx2s, Color::orange());
             drawLine(vtx1s, vtx3s, Color::orange());
@@ -337,9 +311,12 @@ void Framebuffer::drawScene(Matrices::Matrix4 m, bool bWireframe)
         }
 
         // Draw each vertex
-        drawCircle(vtx1s.x(), vtx1s.y(), 3, Color::blue());
-        drawCircle(vtx2s.x(), vtx1s.y(), 3, Color::blue());
-        drawCircle(vtx3s.x(), vtx1s.y(), 3, Color::blue());
+        if (bDrawVertices)
+        {
+            drawCircle(vtx1s.x(), vtx1s.y(), 3, Color::blue());
+            drawCircle(vtx2s.x(), vtx1s.y(), 3, Color::blue());
+            drawCircle(vtx3s.x(), vtx1s.y(), 3, Color::blue());
+        }
     }
 }
 

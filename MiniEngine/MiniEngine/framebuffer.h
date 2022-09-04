@@ -46,11 +46,12 @@ public:
 
     // Drawing
     void clear();
+    void setPixel(int x, int y, Color color);
     void drawRect(int x0, int y0, int x1, int y1, Color color);
     void drawCircle(int cx, int cy, int r, Color color);
     void drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color);
     void drawLine(Vector2& v1, Vector2& v2, Color color);
-    void drawScene(Matrices::Matrix4 m, bool bWireframe);
+    void drawScene(Matrices::Matrix4 m, bool bDrawFaces, bool bDrawEdges, bool bDrawVertices);
     void drawGradient();
 
 protected:
