@@ -22,17 +22,17 @@ Framebuffer::~Framebuffer()
 void Framebuffer::allocate()
 {
     // Clear the memory buffer
-    if (m_memoryBuffer)
+    if (m_colorBuffer)
     {
-        VirtualFree(m_memoryBuffer, 0, MEM_RELEASE);
-        m_memoryBuffer = nullptr;
+        VirtualFree(m_colorBuffer, 0, MEM_RELEASE);
+        m_colorBuffer = nullptr;
     }
 
     // Calculate the new buffer size and allocate memory of that size
     int bufferSize = m_width * m_height * m_bytesPerPixel;
 
     // Allocate the memory buffer
-    m_memoryBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    m_colorBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
     // Update the buffer BitmapInfo struct with the updated buffer size,
     // and width and height
@@ -127,7 +127,7 @@ void Framebuffer::clear()
 
 void Framebuffer::setPixel(int x, int y, Color color)
 {
-    uint32* pixelPtr = (uint32*)m_memoryBuffer;
+    uint32* pixelPtr = (uint32*)m_colorBuffer;
     uint32 offset = x + (y * m_width);
     pixelPtr += offset;
     *pixelPtr = color.hex();
@@ -136,7 +136,7 @@ void Framebuffer::setPixel(int x, int y, Color color)
 void Framebuffer::drawGradient()
 {
     // The start position of the current row
-    uint8 *rowPtr = (uint8*)m_memoryBuffer;
+    uint8 *rowPtr = (uint8*)m_colorBuffer;
 
     for (int y = 0; y < m_height; y++)
     {
@@ -212,13 +212,13 @@ void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
 void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
 {
     // Determine the min/max threshold for drawing
-    std::vector<float> xs = {v1.x(), v2.x(), v3.x()};
-    std::vector<float> ys = {v1.y(), v2.y(), v3.y()};
+    std::vector<float> xList = {v1.x(), v2.x(), v3.x()};
+    std::vector<float> yList = {v1.y(), v2.y(), v3.y()};
 
-    auto minX = *std::min_element(std::begin(xs), std::end(xs));
-    auto maxX = *std::max_element(std::begin(xs), std::end(xs));
-    auto minY = *std::min_element(std::begin(ys), std::end(ys));
-    auto maxY = *std::max_element(std::begin(ys), std::end(ys));
+    auto minX = *std::min_element(std::begin(xList), std::end(xList));
+    auto maxX = *std::max_element(std::begin(xList), std::end(xList));
+    auto minY = *std::min_element(std::begin(yList), std::end(yList));
+    auto maxY = *std::max_element(std::begin(yList), std::end(yList));
 
     for (int y = minY; y < maxY; y++)                       // Bottom to top
     {
@@ -238,13 +238,13 @@ https://en.wikipedia.org/wiki/Line_drawing_algorithm
 */
 void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
 {
-    std::vector<float> xs = { v1.x(), v2.x() };
-    std::vector<float> ys = { v1.y(), v2.y() };
+    std::vector<float> xList = { v1.x(), v2.x() };
+    std::vector<float> yList = { v1.y(), v2.y() };
 
-    auto minX = *std::min_element(std::begin(xs), std::end(xs));
-    auto maxX = *std::max_element(std::begin(xs), std::end(xs));
-    auto minY = *std::min_element(std::begin(ys), std::end(ys));
-    auto maxY = *std::max_element(std::begin(ys), std::end(ys));
+    auto minX = *std::min_element(std::begin(xList), std::end(xList));
+    auto maxX = *std::max_element(std::begin(xList), std::end(xList));
+    auto minY = *std::min_element(std::begin(yList), std::end(yList));
+    auto maxY = *std::max_element(std::begin(yList), std::end(yList));
 
     float step;
 
@@ -285,29 +285,27 @@ void Framebuffer::drawScene(Matrices::Matrix4 m, bool bDrawFaces, bool bDrawEdge
         int idx3 = m_indices[i + 2];
 
         // Get vertexes from indices
-        auto vtx1 = m_vertices[idx1];
-        auto vtx2 = m_vertices[idx2];
-        auto vtx3 = m_vertices[idx3];
+        Vertex vtx1 = m_vertices[idx1];
+        Vertex vtx2 = m_vertices[idx2];
+        Vertex vtx3 = m_vertices[idx3];
         
         // Convert world pos to screen pos for each vertex
         Vector2 vtx1s = worldToScreen(vtx1.pos(), m);
         Vector2 vtx2s = worldToScreen(vtx2.pos(), m);
         Vector2 vtx3s = worldToScreen(vtx3.pos(), m);
 
-
-
-        // Draw a line for each line segment
+        // Draw each face
         if (bDrawFaces)
         {
-            // Draw a triangle from these screen points
-            drawTri(vtx1s, vtx2s, vtx3s, Color::gray());
+            drawTri(vtx1s, vtx2s, vtx3s, Color::white());
         }
 
+        // Draw each edge
         if (bDrawEdges)
         {
-            drawLine(vtx1s, vtx2s, Color::orange());
-            drawLine(vtx1s, vtx3s, Color::orange());
-            drawLine(vtx2s, vtx3s, Color::orange());
+            drawLine(vtx1s, vtx2s, Color::green());
+            drawLine(vtx1s, vtx3s, Color::green());
+            drawLine(vtx2s, vtx3s, Color::green());
         }
 
         // Draw each vertex

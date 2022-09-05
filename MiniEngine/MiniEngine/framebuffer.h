@@ -32,7 +32,7 @@ public:
     HWND getHwnd() { return m_hwnd; }
     void allocate();
     BITMAPINFO* getBitmapInfo() { return &m_bufferBmi; }
-    void* getMemoryPtr() { return (unsigned int*)m_memoryBuffer; }
+    void* getMemoryPtr() { return (unsigned int*)m_colorBuffer; }
     int getBufferSize() { return m_width * m_height * sizeof(unsigned int); }
 
     // Vertex buffer
@@ -67,7 +67,8 @@ private:
 
     // Pixel memory
     SIZE_T m_bufferSize;
-    void* m_memoryBuffer;
+    void* m_colorBuffer;
+    void* m_depthBuffer;
     BITMAPINFO m_bufferBmi; 
     const int m_bytesPerPixel = 4;
     int m_rowLength = 0;

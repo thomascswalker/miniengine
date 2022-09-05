@@ -4,20 +4,9 @@
 #define MAIN_WINDOW_TIMER_ID 1001
 #endif
 
-#ifndef DRAW_FACES
-#define DRAW_FACES true
-#endif
-
-#ifndef DRAW_WIREFRAME
-#define DRAW_WIREFRAME true
-#endif
-
-#ifndef DRAW_VERTICES
-#define DRAW_VERTICES true
-#endif
-
 // Global variables
-static bool     globalRunning       = false;
+static bool     bIsRunning          = false;
+static bool     bFlipFlop           = false;
 static UINT     globalFrameRate     = 1;       // 60 FPS
 static int      initWidth           = 300;     // Standard HD
 static int      initHeight          = 300;
@@ -33,13 +22,47 @@ static bool     bDrawVertices       = false;
 static WORD     keyCode;
 static WORD     keyFlags;
 
-// Temp globals
-static int      playerX     = 0;
-static int      playerY     = 0;
-static int      forceUp     = 0;
-static int      forceRight  = 0;
-
 static float ROTATION = 0.0f;
+
+// Create a triangle
+std::vector<Vertex> vertices = {
+    Vertex(-0.5, -0.5,  0.5),   //0
+    Vertex(0.5, -0.5,  0.5),    //1
+    Vertex(-0.5,  0.5,  0.5),   //2
+    Vertex(0.5,  0.5,  0.5),    //3
+    Vertex(-0.5, -0.5, -0.5),   //4
+    Vertex(0.5, -0.5, -0.5),    //5
+    Vertex(-0.5,  0.5, -0.5),   //6
+    Vertex(0.5,  0.5, -0.5)     //7
+};
+
+std::vector<int> indices = {
+    //Top
+    2, 6, 7,
+    2, 3, 7,
+
+    //Bottom
+    0, 4, 5,
+    0, 1, 5,
+
+    //Left
+    0, 2, 6,
+    0, 4, 6,
+
+    //Right
+    1, 3, 7,
+    1, 5, 7,
+
+    //Front
+    0, 2, 3,
+    0, 1, 3,
+
+    //Back
+    4, 6, 7,
+    4, 5, 7
+};
+
+auto mesh = Mesh(vertices, indices);
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -60,7 +83,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         case WM_QUIT:
         case WM_DESTROY:
         {
-            globalRunning = true;
+            bIsRunning = true;
             break;
         }
         case WM_KEYUP:
@@ -161,53 +184,12 @@ int Application::run()
 {
     ShowWindow(m_hwnd, 1);
 
-    // Create a triangle
-    std::vector<Vertex> vertices = {
-        Vertex(-0.5, -0.5,  0.5), //0
-        Vertex( 0.5, -0.5,  0.5), //1
-        Vertex(-0.5,  0.5,  0.5), //2
-        Vertex( 0.5,  0.5,  0.5), //3
-        Vertex(-0.5, -0.5, -0.5), //4
-        Vertex( 0.5, -0.5, -0.5), //5
-        Vertex(-0.5,  0.5, -0.5), //6
-        Vertex( 0.5,  0.5, -0.5)  //7
-    };
-
-    std::vector<int> indices = {
-        //Top
-        2, 6, 7,
-        2, 3, 7,
-
-        //Bottom
-        0, 4, 5,
-        0, 1, 5,
-
-        //Left
-        0, 2, 6,
-        0, 4, 6,
-
-        //Right
-        1, 3, 7,
-        1, 5, 7,
-
-        //Front
-        0, 2, 3,
-        0, 1, 3,
-
-        //Back
-        4, 6, 7,
-        4, 5, 7
-    };
-
-    auto mesh = Mesh(vertices, indices);
-
     currentTime = Core::getCurrentTime();
 
-    auto triColor = Color::random();
     auto m = Matrices::Matrix4();
 
     // Run the message loop.
-    while (!globalRunning)
+    while (!bIsRunning)
     {
         double newTime = Core::getCurrentTime();
         double frameTime = newTime - currentTime;
@@ -230,11 +212,9 @@ int Application::run()
         m_buffer->clear();
 
         // Rotate our mesh
-        //mesh.addRotation(Vector3(ROTATION, 0, 0));
         m.rotateX(ROTATION);
         ROTATION += 0.001f * frameTime;
         
-
         // Bind vertex and index buffers to the Framebuffer
         m_buffer->setVertexBufferData(mesh.getVertices(Coordinates::World));
         m_buffer->setIndexBufferData(mesh.getIndices());
