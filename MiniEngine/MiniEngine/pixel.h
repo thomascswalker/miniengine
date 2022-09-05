@@ -1,9 +1,6 @@
 #ifndef PIXEL_H
 #define PIXEL_H
 
-#include <cstddef>
-#include <cstdint>
-
 class Pixel
 {
 public:

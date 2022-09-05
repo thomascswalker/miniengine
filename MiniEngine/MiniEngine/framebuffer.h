@@ -14,6 +14,12 @@
 #include "mesh.h"
 #include "vertex.h"
 
+enum Buffer
+{
+    RGB,
+    DEPTH
+};
+
 class Framebuffer
 {
 public:
@@ -46,7 +52,7 @@ public:
 
     // Drawing
     void clear();
-    void setPixel(int x, int y, Color color);
+    void setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB);
     void drawRect(int x0, int y0, int x1, int y1, Color color);
     void drawCircle(int cx, int cy, int r, Color color);
     void drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color);

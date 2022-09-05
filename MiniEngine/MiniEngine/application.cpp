@@ -97,10 +97,6 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case '1': bDrawFaces = !bDrawFaces; break;
                 case '2': bDrawEdges = !bDrawEdges; break;
                 case '3': bDrawVertices = !bDrawVertices; break;
-                //case 'W': forceUp = 0; break;
-                //case 'A': forceRight = 0; break;
-                //case 'S': forceUp = 0; break;
-                //case 'D': forceRight = 0; break;
             }
             break;
         }

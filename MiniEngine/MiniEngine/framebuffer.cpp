@@ -125,9 +125,22 @@ void Framebuffer::clear()
     drawRect(0, 0, m_width, m_height, Color(0, 0, 0));
 }
 
-void Framebuffer::setPixel(int x, int y, Color color)
+void Framebuffer::setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB)
 {
-    uint32* pixelPtr = (uint32*)m_colorBuffer;
+    uint32* pixelPtr;
+
+    switch (buffer)
+    {
+        case RGB:
+        {
+            pixelPtr = (uint32*)m_colorBuffer;
+        }
+        case DEPTH:
+        {
+            pixelPtr = (uint32*)m_depthBuffer;
+        }
+    }
+
     uint32 offset = x + (y * m_width);
     pixelPtr += offset;
     *pixelPtr = color.hex();
@@ -274,15 +287,14 @@ void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
 
 void Framebuffer::drawScene(Matrices::Matrix4 m, bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
 {
-    for (int i = 0; i < m_indices.size(); i += 3)
+    for (int i = 0; i < m_indices.size(); i++)
     {
-        // Start indices index
-        int index = i;
-
         // Get vertex indices
         int idx1 = m_indices[i];
-        int idx2 = m_indices[i + 1];
-        int idx3 = m_indices[i + 2];
+        i++;
+        int idx2 = m_indices[i];
+        i++;
+        int idx3 = m_indices[i];
 
         // Get vertexes from indices
         Vertex vtx1 = m_vertices[idx1];
@@ -297,23 +309,23 @@ void Framebuffer::drawScene(Matrices::Matrix4 m, bool bDrawFaces, bool bDrawEdge
         // Draw each face
         if (bDrawFaces)
         {
-            drawTri(vtx1s, vtx2s, vtx3s, Color::white());
+            drawTri(vtx1s, vtx2s, vtx3s, Color::gray());
         }
 
         // Draw each edge
         if (bDrawEdges)
         {
-            drawLine(vtx1s, vtx2s, Color::green());
-            drawLine(vtx1s, vtx3s, Color::green());
-            drawLine(vtx2s, vtx3s, Color::green());
+            drawLine(vtx1s, vtx2s, Color::blue());
+            drawLine(vtx1s, vtx3s, Color::blue());
+            drawLine(vtx2s, vtx3s, Color::blue());
         }
 
         // Draw each vertex
         if (bDrawVertices)
         {
-            drawCircle(vtx1s.x(), vtx1s.y(), 3, Color::blue());
-            drawCircle(vtx2s.x(), vtx1s.y(), 3, Color::blue());
-            drawCircle(vtx3s.x(), vtx1s.y(), 3, Color::blue());
+            drawCircle(vtx1s.x(), vtx1s.y(), 3, Color::orange());
+            drawCircle(vtx2s.x(), vtx1s.y(), 3, Color::orange());
+            drawCircle(vtx3s.x(), vtx1s.y(), 3, Color::orange());
         }
     }
 }
