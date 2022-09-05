@@ -4,26 +4,14 @@
 #define MAIN_WINDOW_TIMER_ID 1001
 #endif
 
-#ifndef DRAW_FACES
-#define DRAW_FACES true
-#endif
-
-#ifndef DRAW_WIREFRAME
-#define DRAW_WIREFRAME true
-#endif
-
-#ifndef DRAW_VERTICES
-#define DRAW_VERTICES true
-#endif
-
 // Global variables
-static bool     globalRunning       = false;
+static bool     bIsRunning          = false;
+static bool     bFlipFlop           = false;
 static UINT     globalFrameRate     = 1;       // 60 FPS
 static int      initWidth           = 300;     // Standard HD
 static int      initHeight          = 300;
 static int      tickRate            = 60;
 static double   currentTime         = 0.0;
-static bool     bFlipFlop = false;
 
 // Display options
 static bool     bDrawFaces          = true;
@@ -34,24 +22,18 @@ static bool     bDrawVertices       = false;
 static WORD     keyCode;
 static WORD     keyFlags;
 
-// Temp globals
-static int      playerX     = 0;
-static int      playerY     = 0;
-static int      forceUp     = 0;
-static int      forceRight  = 0;
-
 static float ROTATION = 0.0f;
 
 // Create a triangle
 std::vector<Vertex> vertices = {
-    Vertex(-0.5, -0.5,  0.5), //0
-    Vertex(0.5, -0.5,  0.5), //1
-    Vertex(-0.5,  0.5,  0.5), //2
-    Vertex(0.5,  0.5,  0.5), //3
-    Vertex(-0.5, -0.5, -0.5), //4
-    Vertex(0.5, -0.5, -0.5), //5
-    Vertex(-0.5,  0.5, -0.5), //6
-    Vertex(0.5,  0.5, -0.5)  //7
+    Vertex(-0.5, -0.5,  0.5),   //0
+    Vertex(0.5, -0.5,  0.5),    //1
+    Vertex(-0.5,  0.5,  0.5),   //2
+    Vertex(0.5,  0.5,  0.5),    //3
+    Vertex(-0.5, -0.5, -0.5),   //4
+    Vertex(0.5, -0.5, -0.5),    //5
+    Vertex(-0.5,  0.5, -0.5),   //6
+    Vertex(0.5,  0.5, -0.5)     //7
 };
 
 std::vector<int> indices = {
@@ -101,7 +83,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         case WM_QUIT:
         case WM_DESTROY:
         {
-            globalRunning = true;
+            bIsRunning = true;
             break;
         }
         case WM_KEYUP:
@@ -207,7 +189,7 @@ int Application::run()
     auto m = Matrices::Matrix4();
 
     // Run the message loop.
-    while (!globalRunning)
+    while (!bIsRunning)
     {
         double newTime = Core::getCurrentTime();
         double frameTime = newTime - currentTime;
@@ -230,7 +212,7 @@ int Application::run()
         m_buffer->clear();
 
         // Rotate our mesh
-        m.rotateZ(ROTATION);
+        m.rotateX(ROTATION);
         ROTATION += 0.001f * frameTime;
         
         // Bind vertex and index buffers to the Framebuffer

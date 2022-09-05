@@ -22,6 +22,8 @@ public:
 	float y() { return _y; }
 	void setY(float y) { _y = y; }
 
+	Vector2 copy() { return Vector2(_x, _y); }
+
 	// Converts the X, Y values to a string
 	std::string toString();
 
@@ -76,6 +78,8 @@ public:
 	Vector3();
 	Vector3(float x, float y, float z);
 
+	Vector3 copy() { return Vector3(_x, _y, _z); }
+
 	// Operators
 	Vector3 operator + (Vector3& v) const
 	{
@@ -100,6 +104,21 @@ public:
 	Vector3 operator / (Vector3& v) const
 	{
 		return Vector3(_x / v.x(), _y / v.y(), _z / v.z());
+	}
+
+	bool operator < (Vector3& v) const
+	{
+		return _x < v.x() && _y < v.y() && _z < v.z();
+	}
+
+	bool operator > (Vector3& v) const
+	{
+		return _x > v.x() && _y > v.y() && _z > v.z();
+	}
+
+	bool operator == (Vector3& v) const
+	{
+		return _x - v.x() < 0.0001f && _y - v.y() < 0.0001f && _z - v.z() < 0.0001f;
 	}
 
 	// Methods
@@ -127,6 +146,8 @@ public:
 	Vector4();
 	Vector4(float x, float y, float z, float w);
 
+	Vector4 copy() { return Vector4(_x, _y, _z, _w); }
+
 	// Operators
 	Vector4 operator + (Vector4& v) const
 	{
@@ -146,6 +167,21 @@ public:
 	Vector4 operator / (Vector4& v) const
 	{
 		return Vector4(_x / v.x(), _y / v.y(), _z / v.z(), _w / v.w());
+	}
+
+	bool operator < (Vector4& v) const
+	{
+		return _x < v.x() && _y < v.y() && _z < v.z() && _w < v.w();
+	}
+
+	bool operator > (Vector4& v) const
+	{
+		return _x > v.x() && _y > v.y() && _z > v.z() && _w > v.w();
+	}
+
+	bool operator == (Vector4& v) const
+	{
+		return _x - v.x() < 0.0001f && _y - v.y() < 0.0001f && _z - v.z() < 0.0001f && _w - v.w() < 0.0001f;
 	}
 
 	// Methods
