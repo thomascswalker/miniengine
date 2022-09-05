@@ -35,17 +35,17 @@ namespace Math
     bool Math::isPointInTriangle(Vector2 p, Vector2 v1, Vector2 v2, Vector2 v3)
     {
         // Get each vector
-        auto ab = v1 - v2;
-        auto ap = v1 - p;
-        auto bc = v2 - v3;
-        auto bp = v2 - p;
-        auto ca = v3 - v1;
-        auto cp = v3 - p;
+        Vector2 ab = v1 - v2;
+        Vector2 ap = v1 - p;
+        Vector2 bc = v2 - v3;
+        Vector2 bp = v2 - p;
+        Vector2 ca = v3 - v1;
+        Vector2 cp = v3 - p;
 
         // Cross product of each edge/point
-        auto d1 = ab.cross(ap);
-        auto d2 = bc.cross(bp);
-        auto d3 = ca.cross(cp);
+        float d1 = cross(ab, ap);
+        float d2 = cross(bc, bp);
+        float d3 = cross(ca, cp);
 
         // Are either positive, or negative?
         bool isNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);

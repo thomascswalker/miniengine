@@ -22,6 +22,11 @@ static bool     bDrawVertices       = false;
 static WORD     keyCode;
 static WORD     keyFlags;
 
+static bool     W_DOWN = false;
+static bool     A_DOWN = false;
+static bool     S_DOWN = false;
+static bool     D_DOWN = false;
+
 static float ROTATION = 0.0f;
 
 // Create a triangle
@@ -97,6 +102,25 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case '1': bDrawFaces = !bDrawFaces; break;
                 case '2': bDrawEdges = !bDrawEdges; break;
                 case '3': bDrawVertices = !bDrawVertices; break;
+                case 'W': W_DOWN = false; break;
+                case 'A': A_DOWN = false; break;
+                case 'S': S_DOWN = false; break;
+                case 'D': D_DOWN = false; break;
+            }
+            break;
+        }
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+        {
+            keyCode  = LOWORD(wParam);
+            keyFlags = HIWORD(lParam);
+
+            switch (keyCode)
+            {
+                case 'W': W_DOWN = true; break;
+                case 'A': A_DOWN = true; break;
+                case 'S': S_DOWN = true; break;
+                case 'D': D_DOWN = true; break;
             }
             break;
         }
@@ -183,6 +207,9 @@ int Application::run()
     currentTime = Core::getCurrentTime();
 
     auto m = Matrices::Matrix4();
+    auto camera = Camera();
+
+    m_buffer->camera()->setPosition(0, 2, 5);
 
     // Run the message loop.
     while (!bIsRunning)
@@ -207,10 +234,24 @@ int Application::run()
         // Clear the framebuffer
         m_buffer->clear();
 
-        // Rotate our mesh
-        m.rotateX(ROTATION);
-        ROTATION += 0.001f * frameTime;
-        
+        // Move our camera
+        if (W_DOWN)
+        {
+            m_buffer->camera()->move(0, 0.001f * frameTime, 0);
+        }
+        if (A_DOWN)
+        {
+            m_buffer->camera()->move(0, 0, -0.001f * frameTime);
+        }
+        if (S_DOWN)
+        {
+            m_buffer->camera()->move(0, -0.001f * frameTime, 0);
+        }
+        if (D_DOWN)
+        {
+            m_buffer->camera()->move(0, 0, 0.001f * frameTime);
+        }
+
         // Bind vertex and index buffers to the Framebuffer
         m_buffer->setVertexBufferData(mesh.getVertices(Coordinates::World));
         m_buffer->setIndexBufferData(mesh.getIndices());

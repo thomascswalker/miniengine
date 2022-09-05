@@ -8,6 +8,7 @@
 #include <cassert>
 #include <sstream>
 
+#include "camera.h"
 #include "color.h"
 #include "matrix.h"
 #include "math.h"
@@ -17,7 +18,8 @@
 enum Buffer
 {
     RGB,
-    DEPTH
+    DEPTH,
+    NORMAL
 };
 
 class Framebuffer
@@ -34,6 +36,9 @@ public:
     void setSize(Core::Size size);
     void setSize(int width, int height);
 
+    // Camera
+    Camera* camera() { return &m_camera; }
+
     // Pixel buffer
     HWND getHwnd() { return m_hwnd; }
     void allocate();
@@ -48,11 +53,12 @@ public:
     int getNumIndices();
 
     // Math
+    Vector2 vertexToScreen(Vertex vertex);
     Vector2 worldToScreen(Vector3 vector, Matrices::Matrix4 matrix);
 
     // Drawing
     void clear();
-    void setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB);
+    void setPixel(int x, int y, Color color, Buffer buffer);
     void drawRect(int x0, int y0, int x1, int y1, Color color);
     void drawCircle(int cx, int cy, int r, Color color);
     void drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color);
@@ -90,6 +96,9 @@ private:
     int m_posOffset = 0;
     int m_colOffset = 12;
     int m_texOffset = 24;
+
+    // Camera and matrices
+    Camera m_camera;
 };
 
 #endif

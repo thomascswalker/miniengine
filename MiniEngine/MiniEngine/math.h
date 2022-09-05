@@ -9,6 +9,8 @@
 
 namespace Math
 {
+    constexpr auto PI = 3.14159;
+
     int clamp(int *value, int min, int max);
 
     float area(Vector2 v1, Vector2 v2, Vector3 v3);

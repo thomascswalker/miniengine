@@ -17,18 +17,15 @@ public:
 	Vector2(float x, float y) : _x(x), _y(y) {};
 
 	// Methods
-	float x() { return _x; }
+	float x() const { return _x; }
 	void setX(float x) { _x = x; }
-	float y() { return _y; }
+	float y() const { return _y; }
 	void setY(float y) { _y = y; }
 
 	Vector2 copy() { return Vector2(_x, _y); }
 
 	// Converts the X, Y values to a string
 	std::string toString();
-
-	double cross(Vector2& other);
-	//Vector2 cross(Vector2& other);
 
 	// Operators
 	Vector2 operator + (Vector2& v) const
@@ -122,7 +119,7 @@ public:
 	}
 
 	// Methods
-	float z() { return _z; }
+	float z() const { return _z; }
 	void setZ(float z) { _z = z; }
 
 	// Converts the X, Y, Z values to a string
@@ -132,8 +129,9 @@ public:
 	void normalize();
 	static Vector3 identity();
 	float dot(Vector3& other);
-	Vector3 cross(Vector3& other);
-	float length() { return sqrtf(_x * _x + _y * _y + _z * _z); }
+	float length() {
+		return sqrtf((_x * _x) + (_y * _y) + (_z * _z));
+	}
 	void set(float x, float y, float z) {_x = x, _y = y, _z = z;}
 };
 
@@ -185,7 +183,7 @@ public:
 	}
 
 	// Methods
-	float w() { return _w; }
+	float w() const { return _w; }
 	void setW(float w) { _w = w; }
 
 	// Converts the X, Y, Z, W values to a string
@@ -196,5 +194,8 @@ public:
 	float length() { return sqrtf(_x * _x + _y * _y + _z * _z + _w * _w); }
 	void set(float x, float y, float z, float w) {_x = x, _y = y, _z = z, _w = w;}
 };
+
+float cross(const Vector2& v1, const Vector2& v2);
+Vector3 cross(const Vector3& v1, const Vector3& v2);
 
 #endif

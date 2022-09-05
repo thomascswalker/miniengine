@@ -81,12 +81,11 @@ namespace Matrices
         Matrix4 identity();
         void translate(int x, int y, int z);
 
-        Matrix4& lookAt(Vector3& target);
-
         Matrix4& rotateX(float angle);
         Matrix4& rotateY(float angle);
         Matrix4& rotateZ(float angle);
 
+        void setIndex(int index, float value);
         void setRow(int index, Vector3& vector);
         void setColumn(int index, Vector3& vector);
 
@@ -111,6 +110,26 @@ namespace Matrices
             };
             return Matrix4(values);
         }
+        Vector3 operator*(Vector3& in) const
+        {
+            //out = in * Mproj;
+            Vector3 out;
+
+            float x = in.x() * m_values[0]  + in.y() * m_values[1]  + in.z() * m_values[2]  + m_values[3];
+            float y = in.x() * m_values[4]  + in.y() * m_values[5]  + in.z() * m_values[6]  + m_values[7];
+            float z = in.x() * m_values[8]  + in.y() * m_values[9]  + in.z() * m_values[10] + m_values[11];
+            float w = in.x() * m_values[12] + in.y() * m_values[13] + in.z() * m_values[14] + m_values[15];
+ 
+            // normalize if w is different than 1 (convert from homogeneous to Cartesian coordinates)
+            if (w != 1)
+            { 
+                x /= w;
+                y /= w;
+                z /= w;
+            }
+
+            return Vector3(x, y, z);
+        }
 
     private:
         float m_values[16] = { 0,0,0,0,
@@ -118,6 +137,8 @@ namespace Matrices
                                0,0,0,0,
                                0,0,0,0 };
     };
+
+    Matrix4& lookAt(const Vector3& origin, Vector3& target, const Vector3& up, Matrix4& m);
 }
 
 #endif

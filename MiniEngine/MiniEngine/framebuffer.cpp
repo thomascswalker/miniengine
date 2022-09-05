@@ -12,6 +12,9 @@ Framebuffer::Framebuffer(HWND hwnd)
 
     // Do an initial allocation of the framebuffer
     allocate();
+
+    // Create a new default camera
+    m_camera = Camera();
 }
 
 Framebuffer::~Framebuffer()
@@ -78,6 +81,30 @@ int Framebuffer::getNumIndices()
     return m_numIndices;
 }
 
+/*
+https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix
+*/
+Vector2 Framebuffer::vertexToScreen(Vertex vertex)
+{
+    Matrices::Matrix4 cameraMatrix = m_camera.getCameraMatrix();
+    Matrices::Matrix4 projectionMatrix = m_camera.getProjectionMatrix();
+
+    Vector3 vertCamera, projectedVert;
+
+    Vector3 vertexPos = vertex.pos();
+    vertCamera = cameraMatrix * vertexPos;
+    projectedVert = projectionMatrix * vertCamera;
+
+    float x = (float)((projectedVert.x() + 1) * 0.5 * m_width);
+    float y = (float)((1 - (projectedVert.y() + 1) * 0.5) * m_height);
+
+    //Math::clamp((int)x, 0, m_width);
+    x = m_width - 1.0f < x ? m_width - 1.0f : x;
+    y = m_height - 1.0f < y ? m_height - 1.0f : y;
+
+    return Vector2(x, y);
+}
+
 Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrices::Matrix4 matrix)
 {
     Vector4 clipCoords;
@@ -122,22 +149,27 @@ Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrices::Matrix4 matrix)
 
 void Framebuffer::clear()
 {
-    drawRect(0, 0, m_width, m_height, Color(0, 0, 0));
+    drawRect(0, 0,              // Origin
+             m_width, m_height, // Width, height
+             Color::black());   // Color
 }
 
 void Framebuffer::setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB)
 {
-    uint32* pixelPtr;
+    uint32* pixelPtr = 0;
 
     switch (buffer)
     {
+        default:
         case RGB:
         {
             pixelPtr = (uint32*)m_colorBuffer;
+            break;
         }
         case DEPTH:
         {
             pixelPtr = (uint32*)m_depthBuffer;
+            break;
         }
     }
 
@@ -240,7 +272,7 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
             Vector2 point(x,y);                             // Point at current x, y
             if (Math::isPointInTriangle(point, v1, v2, v3)) // Is this point in our triangle?
             {
-                setPixel(x, y, color);                     // If it is, colour here
+                setPixel(x, y, color);                      // If it is, colour here
             }
         }
     }
@@ -290,10 +322,8 @@ void Framebuffer::drawScene(Matrices::Matrix4 m, bool bDrawFaces, bool bDrawEdge
     for (int i = 0; i < m_indices.size(); i++)
     {
         // Get vertex indices
-        int idx1 = m_indices[i];
-        i++;
-        int idx2 = m_indices[i];
-        i++;
+        int idx1 = m_indices[i]; i++;
+        int idx2 = m_indices[i]; i++;
         int idx3 = m_indices[i];
 
         // Get vertexes from indices
@@ -302,9 +332,9 @@ void Framebuffer::drawScene(Matrices::Matrix4 m, bool bDrawFaces, bool bDrawEdge
         Vertex vtx3 = m_vertices[idx3];
         
         // Convert world pos to screen pos for each vertex
-        Vector2 vtx1s = worldToScreen(vtx1.pos(), m);
-        Vector2 vtx2s = worldToScreen(vtx2.pos(), m);
-        Vector2 vtx3s = worldToScreen(vtx3.pos(), m);
+        Vector2 vtx1s = vertexToScreen(vtx1);
+        Vector2 vtx2s = vertexToScreen(vtx2);
+        Vector2 vtx3s = vertexToScreen(vtx3);
 
         // Draw each face
         if (bDrawFaces)

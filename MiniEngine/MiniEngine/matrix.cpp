@@ -100,6 +100,11 @@ namespace Matrices
 
     }
 
+    void Matrix4::setIndex(int index, float value)
+    {
+        m_values[index] = value;
+    }
+
     void Matrix4::setRow(int index, Vector3& vector)
     {
         m_values[index] = vector.x();
@@ -112,33 +117,6 @@ namespace Matrices
         m_values[index * 4] = vector.x();
         m_values[index * 4 + 1] = vector.y();
         m_values[index * 4 + 2] = vector.z();
-    }
-
-    Matrix4& Matrix4::lookAt(Vector3& target)
-    {
-        Vector3 yUp = Vector3(0, 1, 0);
-
-        // Compute the forward vector, facing the target
-        Vector3 position = Vector3(m_values[12], m_values[13], m_values[14]);
-        Vector3 forward = target - position;
-
-        // Normalize the forward vector
-        forward.normalize();
-
-        // Get the left vector
-        Vector3 left = yUp.cross(forward);
-        left.normalize();
-
-        // Get the up vector
-        Vector3 up = forward.cross(left);
-        up.normalize();
-
-        // Update the columns with the updated orientation
-        this->setColumn(0, left);
-        this->setColumn(1, up);
-        this->setColumn(2, forward);
-
-        return *this;
     }
 
     Matrix4& Matrix4::rotateX(float angle)
@@ -193,6 +171,58 @@ namespace Matrices
         }
 
         return *this;
+    }
+
+    Matrix4& lookAt(const Vector3& origin, Vector3& target, const Vector3& up, Matrix4& m)
+    {
+        Vector3 forward = origin - target;
+        forward.normalize();
+
+        Vector3 right = cross(origin, target);
+        right.normalize();
+
+        Vector3 newUp = cross(forward, right);
+
+        m.setIndex(0, right.x());
+        m.setIndex(1, right.y());
+        m.setIndex(2, right.z());
+
+        m.setIndex(5, newUp.x());
+        m.setIndex(6, newUp.y());
+        m.setIndex(7, newUp.z());
+
+        m.setIndex(9, forward.x());
+        m.setIndex(10, forward.y());
+        m.setIndex(11, forward.z());
+
+        //m.setIndex(13, origin.x());
+        //m.setIndex(14, origin.y());
+        //m.setIndex(15, origin.z());
+
+        return m;
+        //Vector3 yUp = Vector3(0, 1, 0);
+
+        //// Compute the forward vector, facing the target
+        //Vector3 position = Vector3(m_values[12], m_values[13], m_values[14]);
+        //Vector3 forward = target - position;
+
+        //// Normalize the forward vector
+        //forward.normalize();
+
+        //// Get the left vector
+        //Vector3 left = yUp.cross(forward);
+        //left.normalize();
+
+        //// Get the up vector
+        //Vector3 up = forward.cross(left);
+        //up.normalize();
+
+        //// Update the columns with the updated orientation
+        //this->setColumn(0, left);
+        //this->setColumn(1, up);
+        //this->setColumn(2, forward);
+
+        //return *this;
     }
 }
 
