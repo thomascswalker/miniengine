@@ -49,6 +49,9 @@
     <ClCompile Include="camera.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
+    <ClCompile Include="transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -88,6 +91,12 @@
       <Filter>Header Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="transform.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="rotation.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
   </ItemGroup>

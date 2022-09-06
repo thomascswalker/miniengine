@@ -86,65 +86,66 @@ https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthogr
 */
 Vector2 Framebuffer::vertexToScreen(Vertex vertex)
 {
-    Matrices::Matrix4 cameraMatrix = m_camera.getCameraMatrix();
-    Matrices::Matrix4 projectionMatrix = m_camera.getProjectionMatrix();
 
-    Vector3 vertCamera, projectedVert;
+    //Matrix4 cameraMatrix = m_camera.getCameraMatrix();
+    //Matrix4 projectionMatrix = m_camera.getProjectionMatrix();
 
-    Vector3 vertexPos = vertex.pos();
-    vertCamera = cameraMatrix * vertexPos;
-    projectedVert = projectionMatrix * vertCamera;
+    //Vector3 vertCamera, projectedVert;
 
-    float x = (float)((projectedVert.x() + 1) * 0.5 * m_width);
-    float y = (float)((1 - (projectedVert.y() + 1) * 0.5) * m_height);
+    //Vector3 vertexPos = vertex.pos();
+    //vertCamera = cameraMatrix * vertexPos;
+    //projectedVert = projectionMatrix * vertCamera;
 
-    //Math::clamp((int)x, 0, m_width);
-    x = m_width - 1.0f < x ? m_width - 1.0f : x;
-    y = m_height - 1.0f < y ? m_height - 1.0f : y;
+    //float x = (float)((projectedVert.x() + 1) * 0.5 * m_width);
+    //float y = (float)((1 - (projectedVert.y() + 1) * 0.5) * m_height);
 
-    return Vector2(x, y);
+    ////Math::clamp((int)x, 0, m_width);
+    //x = m_width - 1.0f < x ? m_width - 1.0f : x;
+    //y = m_height - 1.0f < y ? m_height - 1.0f : y;
+
+    //return Vector2(x, y);
 }
 
-Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrices::Matrix4 matrix)
+Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrix4 matrix)
 {
-    Vector4 clipCoords;
-    clipCoords.setX(vector.x() * matrix[0] +
-                    vector.y() * matrix[4] +
-                    vector.z() * matrix[8] +
-                    matrix[12]);
-    clipCoords.setY(vector.x() * matrix[1] +
-                    vector.y() * matrix[5] +
-                    vector.z() * matrix[9] +
-                    matrix[13]);
-    clipCoords.setZ(vector.x() * matrix[2] +
-                    vector.y() * matrix[6] +
-                    vector.z() * matrix[10] +
-                    matrix[14]);
-    clipCoords.setW(vector.x() * matrix[3] +
-                    vector.y() * matrix[7] +
-                    vector.z() * matrix[11] +
-                    matrix[15]);
+    //Vector4 clipCoords;
+    //clipCoords.setX(vector.x() * matrix[0] +
+    //                vector.y() * matrix[4] +
+    //                vector.z() * matrix[8] +
+    //                matrix[12]);
+    //clipCoords.setY(vector.x() * matrix[1] +
+    //                vector.y() * matrix[5] +
+    //                vector.z() * matrix[9] +
+    //                matrix[13]);
+    //clipCoords.setZ(vector.x() * matrix[2] +
+    //                vector.y() * matrix[6] +
+    //                vector.z() * matrix[10] +
+    //                matrix[14]);
+    //clipCoords.setW(vector.x() * matrix[3] +
+    //                vector.y() * matrix[7] +
+    //                vector.z() * matrix[11] +
+    //                matrix[15]);
 
-    if (clipCoords.w() < 0.1f)
-    {
-        return Vector2();
-    }
+    //if (clipCoords.w() < 0.1f)
+    //{
+    //    return Vector2();
+    //}
 
-    Vector3 ndc; // Normalized device coordinates
-    ndc.setX(clipCoords.x() / clipCoords.w());
-    ndc.setY(clipCoords.y() / clipCoords.w());
-    ndc.setZ(clipCoords.z() / clipCoords.w());
+    //Vector3 ndc; // Normalized device coordinates
+    //ndc.setX(clipCoords.x() / clipCoords.w());
+    //ndc.setY(clipCoords.y() / clipCoords.w());
+    //ndc.setZ(clipCoords.z() / clipCoords.w());
 
-    // Transform to screen coordinates
-    Vector2 screenCoord;
-    screenCoord.setX((m_width / 2 * ndc.x()) + (ndc.x() + m_width / 2));
-    screenCoord.setY((m_height / 2 * ndc.y()) + (ndc.y() + m_height / 2));
+    //// Transform to screen coordinates
+    //Vector2 screenCoord;
+    //screenCoord.setX((m_width / 2 * ndc.x()) + (ndc.x() + m_width / 2));
+    //screenCoord.setY((m_height / 2 * ndc.y()) + (ndc.y() + m_height / 2));
 
-    // Clip screen coordinates to screen width/height
-    screenCoord.setX(m_width  < screenCoord.x() ? m_width  : screenCoord.x());
-    screenCoord.setY(m_height < screenCoord.y() ? m_height : screenCoord.y());
+    //// Clip screen coordinates to screen width/height
+    //screenCoord.setX(m_width  < screenCoord.x() ? m_width  : screenCoord.x());
+    //screenCoord.setY(m_height < screenCoord.y() ? m_height : screenCoord.y());
 
-    return screenCoord;
+    //return screenCoord;
 }
 
 void Framebuffer::clear()
@@ -173,6 +174,8 @@ void Framebuffer::setPixel(int x, int y, Color color, Buffer buffer = Buffer::RG
         }
     }
 
+    Math::clamp(&x, 0, m_width);
+    Math::clamp(&y, 0, m_height);
     uint32 offset = x + (y * m_width);
     pixelPtr += offset;
     *pixelPtr = color.hex();
@@ -317,7 +320,7 @@ void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
     }
 }
 
-void Framebuffer::drawScene(Matrices::Matrix4 m, bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
+void Framebuffer::drawScene(Matrix4 m, bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
 {
     for (int i = 0; i < m_indices.size(); i++)
     {

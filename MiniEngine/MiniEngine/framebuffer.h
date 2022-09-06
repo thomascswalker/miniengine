@@ -54,7 +54,7 @@ public:
 
     // Math
     Vector2 vertexToScreen(Vertex vertex);
-    Vector2 worldToScreen(Vector3 vector, Matrices::Matrix4 matrix);
+    Vector2 worldToScreen(Vector3 vector, Matrix4 matrix);
 
     // Drawing
     void clear();
@@ -63,7 +63,7 @@ public:
     void drawCircle(int cx, int cy, int r, Color color);
     void drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color);
     void drawLine(Vector2& v1, Vector2& v2, Color color);
-    void drawScene(Matrices::Matrix4 m, bool bDrawFaces, bool bDrawEdges, bool bDrawVertices);
+    void drawScene(Matrix4 m, bool bDrawFaces, bool bDrawEdges, bool bDrawVertices);
     void drawGradient();
 
 protected:

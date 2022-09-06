@@ -2,7 +2,7 @@
 
 Camera::Camera()
     : m_position(Vector3()),
-      m_projectionMatrix(Matrices::Matrix4())
+      m_projectionMatrix(Matrix4())
 {
     setProjectionMatrix(m_fieldOfView, m_nearClip, m_farClip);
 }
@@ -31,9 +31,9 @@ void Camera::setPosition(Vector3& vec)
     setPosition(vec.x(), vec.y(), vec.z());
 }
 
-Matrices::Matrix4 Camera::getCameraMatrix()
+Matrix4 Camera::getCameraMatrix()
 {
-    auto m = Matrices::Matrix4();
+    auto m = Matrix4();
     m.setIndex(9, m_position.x());
     m.setIndex(10, m_position.y());
     m.setIndex(11, m_position.z());
@@ -48,7 +48,7 @@ void Camera::setProjectionMatrix(const float &angle, const float &nearClip, cons
     float scale = 1.0f / tan(angle * 0.5 * Math::PI / 180.0f);
 
     // Reset projection matrix
-    m_projectionMatrix = Matrices::Matrix4();
+    m_projectionMatrix = Matrix4();
 
     // Distance between near clip and far clip
     float deltaClip = farClip - nearClip;

@@ -160,6 +160,7 @@
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="pixel.cpp" />
+    <ClCompile Include="transform.cpp" />
     <ClCompile Include="vector.cpp" />
     <ClCompile Include="application.cpp" />
   </ItemGroup>
@@ -173,7 +174,9 @@
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="pixel.h" />
+    <ClInclude Include="rotation.h" />
     <ClInclude Include="scene.h" />
+    <ClInclude Include="transform.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="application.h" />
     <ClInclude Include="vertex.h" />

@@ -206,7 +206,7 @@ int Application::run()
 
     currentTime = Core::getCurrentTime();
 
-    auto m = Matrices::Matrix4();
+    auto m = Matrix4();
     auto camera = Camera();
 
     m_buffer->camera()->setPosition(0, 2, 5);

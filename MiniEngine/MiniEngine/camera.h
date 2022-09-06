@@ -21,9 +21,9 @@ public:
 	void setPosition(float x, float y, float z);
 	void setPosition(Vector3 &vec);
 
-	Matrices::Matrix4 getCameraMatrix();
+	Matrix4 getCameraMatrix();
 
-	Matrices::Matrix4 getProjectionMatrix() { return m_projectionMatrix; }
+	Matrix4 getProjectionMatrix() { return m_projectionMatrix; }
 	void setProjectionMatrix(const float &angle, const float &nearClip, const float &farClip);
 
 private:
@@ -31,7 +31,7 @@ private:
 	float m_fieldOfView = 90.0f;
 	float m_nearClip = 0.1f;
 	float m_farClip = 100.0f;
-	Matrices::Matrix4 m_projectionMatrix;
+	Matrix4 m_projectionMatrix;
 };
 
 #endif

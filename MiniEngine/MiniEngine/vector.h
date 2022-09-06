@@ -118,6 +118,11 @@ public:
 		return _x - v.x() < 0.0001f && _y - v.y() < 0.0001f && _z - v.z() < 0.0001f;
 	}
 
+	Vector3 operator -() const
+	{
+		return Vector3(-_x, -_y, -_z);
+	}
+
 	// Methods
 	float z() const { return _z; }
 	void setZ(float z) { _z = z; }

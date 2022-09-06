@@ -57,7 +57,7 @@ namespace Math
     void Math::rotate(Vector3 v1, Vector3 v2, float rotation)
     {
         float values[12] = { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 };
-        Matrices::Matrix4 axis(values);
+        Matrix4 axis(values);
     }
 
     void Math::rotate(Vector3 v, float rotation)

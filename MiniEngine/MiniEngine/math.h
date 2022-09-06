@@ -9,7 +9,8 @@
 
 namespace Math
 {
-    constexpr auto PI = 3.14159;
+    constexpr auto PI = 3.14159265359;
+    constexpr auto EPSILON = 0.000000001;
 
     int clamp(int *value, int min, int max);
 
