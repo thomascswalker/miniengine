@@ -7,7 +7,7 @@
 class Rotation
 {
 public:
-	Rotation() { };
+	Rotation() : m_axis(Vector3()), m_angle(90.0) {};
 	Rotation(const Vector3& axis, const double angle)
 	{
 		setAxisAngle(axis, angle);

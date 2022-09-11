@@ -1,62 +1,68 @@
 #include "camera.h"
 
 Camera::Camera()
-    : m_position(Vector3()),
-      m_projectionMatrix(Matrix4())
 {
-    setProjectionMatrix(m_fieldOfView, m_nearClip, m_farClip);
+    
 }
-
-void Camera::move(float x, float y, float z)
-{
-    m_position.setX(m_position.x() + x);
-    m_position.setY(m_position.y() + y);
-    m_position.setZ(m_position.z() + z);
-}
-
-void Camera::move(Vector3& vec)
-{
-    move(vec.x(), vec.y(), vec.z());
-}
-
-void Camera::setPosition(float x, float y, float z)
-{
-    m_position.setX(x);
-    m_position.setY(y);
-    m_position.setZ(z);
-}
-
-void Camera::setPosition(Vector3& vec)
-{
-    setPosition(vec.x(), vec.y(), vec.z());
-}
-
-Matrix4 Camera::getCameraMatrix()
-{
-    //auto m = Matrix4();
-    //m[], m_position.x());
-    //m.setIndex(10, m_position.y());
-    //m.setIndex(11, m_position.z());
-    //return m;
-}
+//
+//void Camera::move(float x, float y, float z)
+//{
+//    m_position.setX(m_position.x() + x);
+//    m_position.setY(m_position.y() + y);
+//    m_position.setZ(m_position.z() + z);
+//}
+//
+//void Camera::move(Vector3& vec)
+//{
+//    move(vec.x(), vec.y(), vec.z());
+//}
+//
+//void Camera::setPosition(float x, float y, float z)
+//{
+//    m_position.setX(x);
+//    m_position.setY(y);
+//    m_position.setZ(z);
+//}
+//
+//void Camera::setPosition(Vector3& vec)
+//{
+//    setPosition(vec.x(), vec.y(), vec.z());
+//}
+//
+//Matrix4 Camera::getCameraMatrix()
+//{
+//    //auto m = Matrix4();
+//    //m[], m_position.x());
+//    //m.setIndex(10, m_position.y());
+//    //m.setIndex(11, m_position.z());
+//    //return m;
+//}
 
 /*
 https://www.scratchapixel.com/code.php?id=4&origin=/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
 */
-void Camera::setProjectionMatrix(const float &angle, const float &nearClip, const float &farClip)
+Matrix4 Camera::getProjectionMatrix()
 {
-    //float scale = 1.0f / tan(angle * 0.5 * Math::PI / 180.0f);
+    float scale = 1.0f / tan(m_fieldOfView * 0.5 * Math::PI / 180.0f);
 
-    //// Reset projection matrix
-    //m_projectionMatrix = Matrix4();
+    // Reset projection matrix
+    auto projectionMatrix = Matrix4();
 
-    //// Distance between near clip and far clip
-    //float deltaClip = farClip - nearClip;
+    // Distance between near clip and far clip
+    float deltaClip = m_farClip - m_nearClip;
 
-    //m_projectionMatrix.setIndex(0, scale);                              // Scale the X coordinate of the projected point
-    //m_projectionMatrix.setIndex(5, scale);                              // Scale the Y coordinate of the projected point
-    //m_projectionMatrix.setIndex(10, -farClip / deltaClip);              // Remap Z to [0, 1]
-    //m_projectionMatrix.setIndex(11, -farClip * nearClip / deltaClip);   // Remap Z to [0, 1]
-    //m_projectionMatrix.setIndex(14, -1);                                // Set W to -Z
-    //m_projectionMatrix.setIndex(15, 0);
+    projectionMatrix[0][0] = scale;
+    projectionMatrix[1][1] = scale;
+    projectionMatrix[2][2] = -m_farClip / deltaClip;
+    projectionMatrix[2][3] = -m_farClip * m_nearClip / deltaClip;
+    projectionMatrix[3][2] = -1;
+    projectionMatrix[3][3] = 0;
+    //projectionMatrix.setIndex(0, scale);                              // Scale the X coordinate of the projected point
+    //projectionMatrix.setIndex(5, scale);                              // Scale the Y coordinate of the projected point
+    //projectionMatrix.setIndex(10, -farClip / deltaClip);              // Remap Z to [0, 1]
+    //projectionMatrix.setIndex(11, -farClip * nearClip / deltaClip);   // Remap Z to [0, 1]
+    //projectionMatrix.setIndex(14, -1);                                // Set W to -Z
+    //projectionMatrix.setIndex(15, 0);
+
+    return projectionMatrix;
 }

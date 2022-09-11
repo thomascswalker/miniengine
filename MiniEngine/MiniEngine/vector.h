@@ -8,19 +8,19 @@
 class Vector2
 {
 protected:
-	float _x = 0;
-	float _y = 0;
+	double _x = 0;
+	double _y = 0;
 
 public:
 	// Constructors
 	Vector2() : _x(0), _y(0) {};
-	Vector2(float x, float y) : _x(x), _y(y) {};
+	Vector2(double x, double y) : _x(x), _y(y) {};
 
 	// Methods
-	float x() const { return _x; }
-	void setX(float x) { _x = x; }
-	float y() const { return _y; }
-	void setY(float y) { _y = y; }
+	double x() const { return _x; }
+	void setX(double x) { _x = x; }
+	double y() const { return _y; }
+	void setY(double y) { _y = y; }
 
 	Vector2 copy() { return Vector2(_x, _y); }
 
@@ -67,18 +67,18 @@ public:
 class Vector3 : public Vector2
 {
 protected:
-	float _z = 0;
+	double _z = 0;
 
 public:
 
 	// Constructors
 	Vector3();
-	Vector3(float x, float y, float z);
+	Vector3(double x, double y, double z);
 
 	Vector3 copy() { return Vector3(_x, _y, _z); }
 
 	// Operators
-	float operator [] (int i) const
+	double operator [] (int i) const
 	{
 		switch (i)
 		{
@@ -145,8 +145,8 @@ public:
 	}
 
 	// Methods
-	float z() const { return _z; }
-	void setZ(float z) { _z = z; }
+	double z() const { return _z; }
+	void setZ(double z) { _z = z; }
 
 	// Converts the X, Y, Z values to a string
 	std::string toString();
@@ -154,20 +154,21 @@ public:
 	// Normalizes the length of the vector so length == 1
 	void normalize();
 	static Vector3 identity();
-	float length() {
-		return sqrtf((_x * _x) + (_y * _y) + (_z * _z));
+	double length()
+	{
+		return sqrtf((float)(_x * _x) + (float)(_y * _y) + (float)(_z * _z));
 	}
-	void set(float x, float y, float z) {_x = x, _y = y, _z = z;}
+	void set(double x, double y, double z) {_x = x, _y = y, _z = z;}
 };
 
 class Vector4 : public Vector3
 {
 protected:
-	float _w = 0;
+	double _w = 0;
 
 public:
 	Vector4();
-	Vector4(float x, float y, float z, float w);
+	Vector4(double x, double y, double z, double w);
 
 	Vector4 copy() { return Vector4(_x, _y, _z, _w); }
 
@@ -208,19 +209,19 @@ public:
 	}
 
 	// Methods
-	float w() const { return _w; }
-	void setW(float w) { _w = w; }
+	double w() const { return _w; }
+	void setW(double w) { _w = w; }
 
 	// Converts the X, Y, Z, W values to a string
 	std::string toString();
 
 	void normalize();
 	static Vector4 identity();
-	float length() { return sqrtf(_x * _x + _y * _y + _z * _z + _w * _w); }
-	void set(float x, float y, float z, float w) {_x = x, _y = y, _z = z, _w = w;}
+	double length() { return sqrtf((float)(_x * _x + _y * _y + _z * _z + _w * _w)); }
+	void set(double x, double y, double z, double w) {_x = x, _y = y, _z = z, _w = w;}
 };
 
-float cross(const Vector2& v1, const Vector2& v2);
+double cross(const Vector2& v1, const Vector2& v2);
 Vector3 cross(const Vector3& v1, const Vector3& v2);
 
 #endif

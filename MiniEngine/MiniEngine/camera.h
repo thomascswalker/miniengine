@@ -1,11 +1,10 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "object.h"
 #include "math.h"
-#include "matrix.h"
-#include "vector.h"
 
-class Camera
+class Camera : public Object
 {
 public:
 	Camera();
@@ -14,24 +13,20 @@ public:
 	const float getNearClip() { return m_nearClip; }
 	const float getFarClip() { return m_farClip; }
 
-	void move(float x, float y, float z);
-	void move(Vector3 &vec);
-	
-	const Vector3 getPosition() { return m_position; }
-	void setPosition(float x, float y, float z);
-	void setPosition(Vector3 &vec);
+	//void move(float x, float y, float z);
+	//void move(Vector3 &vec);
+	//
+	//const Vector3 getPosition() { return m_position; }
+	//void setPosition(float x, float y, float z);
+	//void setPosition(Vector3 &vec);
 
-	Matrix4 getCameraMatrix();
-
-	Matrix4 getProjectionMatrix() { return m_projectionMatrix; }
-	void setProjectionMatrix(const float &angle, const float &nearClip, const float &farClip);
+	Matrix4 getProjectionMatrix();
 
 private:
-	Vector3 m_position;
+	//Vector3 m_position;
 	float m_fieldOfView = 90.0f;
-	float m_nearClip = 0.1f;
-	float m_farClip = 100.0f;
-	Matrix4 m_projectionMatrix;
+	float m_nearClip	= 0.1f;
+	float m_farClip		= 100.0f;
 };
 
 #endif

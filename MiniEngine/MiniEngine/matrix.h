@@ -3,32 +3,36 @@
 
 #include <vector>
 #include "math.h"
-#include "vector.h"
 #include "rotation.h"
 
 // Class for handling matrix data, particularly to support multiple
 // indexing like `Matrix[0][0]`.
 template <class T, int Rows, int Columns>
-class MatrixData {
+class MatrixData
+{
 public:
 
     /// Return a pointer to a \a row of data.
-    T *operator[](int row) {
+    T *operator[](int row)
+    {
         return _data + (row * Columns);
     }
 
     /// Return a const pointer to a \a row of data.
-    T const *operator[](int row) const {
+    T const *operator[](int row) const
+    {
         return _data + (row * Columns);
     }
 
     /// Return a pointer to the start of all the data.
-    T *GetData() {
+    T *getData()
+    {
         return _data;
     }
 
     /// Return a const pointer to the start of all the data.
-    T const *GetData() const {
+    T const *getData() const
+    {
         return _data;
     }
 
@@ -73,6 +77,27 @@ public:
     bool            operator != (const Matrix4& m) const;
     Matrix4&        operator *= (double v);
     Matrix4&        operator += (const Matrix4& m);
+
+    Vector3 operator*(Vector3& in) const
+    {
+        //out = in * Mproj;
+        Vector3 out;
+    
+        double x = in.x() * m_mtx[0][0] + in.y() * m_mtx[0][1] + in.z() * m_mtx[0][2] + m_mtx[0][3];
+        double y = in.x() * m_mtx[1][0] + in.y() * m_mtx[1][1] + in.z() * m_mtx[1][2] + m_mtx[1][3];
+        double z = in.x() * m_mtx[2][0] + in.y() * m_mtx[2][1] + in.z() * m_mtx[2][2] + m_mtx[2][3];
+        double w = in.x() * m_mtx[3][0] + in.y() * m_mtx[3][1] + in.z() * m_mtx[3][2] + m_mtx[3][3];
+     
+        // normalize if w is different than 1 (convert from homogeneous to Cartesian coordinates)
+        if (w != 1)
+        { 
+            x /= w;
+            y /= w;
+            z /= w;
+        }
+    
+        return Vector3(x, y, z);
+    }
 
 private:
     MatrixData<double, 4, 4> m_mtx;

@@ -105,5 +105,8 @@
     <ClInclude Include="quaternion.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
+    <ClInclude Include="object.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

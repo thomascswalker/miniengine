@@ -11,7 +11,7 @@ Vector3::Vector3()
 	_y = 0;
 	_z = 0;
 };
-Vector3::Vector3(float x, float y, float z)
+Vector3::Vector3(double x, double y, double z)
 {
 	_x = x;
 	_y = y;
@@ -26,7 +26,7 @@ std::string Vector3::toString()
 
 void Vector3::normalize()
 {
-	float l = length();
+	double l = length();
 	_x /= l;
 	_y /= l;
 	_z /= l;
@@ -46,7 +46,7 @@ Vector4::Vector4()
 	_z = 0;
 }
 
-Vector4::Vector4(float x, float y, float z, float w)
+Vector4::Vector4(double x, double y, double z, double w)
 {
 	_x = x;
 	_y = y;
@@ -61,7 +61,7 @@ std::string Vector4::toString()
 
 void Vector4::normalize()
 {
-	float l = length();
+	double l = length();
 	_x /= l;
 	_y /= l;
 	_z /= l;
@@ -73,15 +73,15 @@ Vector4 Vector4::identity()
 	return Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-float cross(const Vector2& v1, const Vector2& v2)
+double cross(const Vector2& v1, const Vector2& v2)
 {
 	return v1.x() * v2.y() - v2.x() * v1.y();
 }
 
 Vector3 cross(const Vector3& v1, const Vector3& v2)
 {
-	float x = (v1.y() * v2.z()) - (v1.z() * v2.y());
-	float y = (v1.z() * v2.x()) - (v1.x() * v2.z());
-	float z = (v1.x() * v2.y()) - (v1.y() * v2.x());
+	double x = (v1.y() * v2.z()) - (v1.z() * v2.y());
+	double y = (v1.z() * v2.x()) - (v1.x() * v2.z());
+	double z = (v1.x() * v2.y()) - (v1.y() * v2.x());
 	return Vector3(x, y, z);
 }

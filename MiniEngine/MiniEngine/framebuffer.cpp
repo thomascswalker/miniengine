@@ -87,27 +87,28 @@ https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthogr
 Vector2 Framebuffer::vertexToScreen(Vertex vertex)
 {
 
-    //Matrix4 cameraMatrix = m_camera.getCameraMatrix();
-    //Matrix4 projectionMatrix = m_camera.getProjectionMatrix();
+    auto cameraMatrix = m_camera.getTransform().getMatrix();
+    auto projectionMatrix = m_camera.getProjectionMatrix();
 
-    //Vector3 vertCamera, projectedVert;
+    Vector3 vertCamera, projectedVert;
 
-    //Vector3 vertexPos = vertex.pos();
-    //vertCamera = cameraMatrix * vertexPos;
-    //projectedVert = projectionMatrix * vertCamera;
+    Vector3 vertexPos = vertex.pos();
+    vertCamera = cameraMatrix * vertexPos;
+    projectedVert = projectionMatrix * vertCamera;
 
-    //float x = (float)((projectedVert.x() + 1) * 0.5 * m_width);
-    //float y = (float)((1 - (projectedVert.y() + 1) * 0.5) * m_height);
+    float x = (float)((projectedVert.x() + 1) * 0.5 * m_width);
+    float y = (float)((1 - (projectedVert.y() + 1) * 0.5) * m_height);
 
-    ////Math::clamp((int)x, 0, m_width);
-    //x = m_width - 1.0f < x ? m_width - 1.0f : x;
-    //y = m_height - 1.0f < y ? m_height - 1.0f : y;
+    //Math::clamp((int)x, 0, m_width);
+    x = m_width - 1.0f < x ? m_width - 1.0f : x;
+    y = m_height - 1.0f < y ? m_height - 1.0f : y;
 
-    return Vector2(0, 0);
+    return Vector2(x, y);
 }
 
 Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrix4 matrix)
 {
+
     //Vector4 clipCoords;
     //clipCoords.setX(vector.x() * matrix[0] +
     //                vector.y() * matrix[4] +
@@ -260,8 +261,8 @@ void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
 void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
 {
     // Determine the min/max threshold for drawing
-    std::vector<float> xList = {v1.x(), v2.x(), v3.x()};
-    std::vector<float> yList = {v1.y(), v2.y(), v3.y()};
+    std::vector<double> xList = {v1.x(), v2.x(), v3.x()};
+    std::vector<double> yList = {v1.y(), v2.y(), v3.y()};
 
     auto minX = *std::min_element(std::begin(xList), std::end(xList));
     auto maxX = *std::max_element(std::begin(xList), std::end(xList));
@@ -286,8 +287,8 @@ https://en.wikipedia.org/wiki/Line_drawing_algorithm
 */
 void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
 {
-    std::vector<float> xList = { v1.x(), v2.x() };
-    std::vector<float> yList = { v1.y(), v2.y() };
+    std::vector<double> xList = { v1.x(), v2.x() };
+    std::vector<double> yList = { v1.y(), v2.y() };
 
     auto minX = *std::min_element(std::begin(xList), std::end(xList));
     auto maxX = *std::max_element(std::begin(xList), std::end(xList));
@@ -320,7 +321,7 @@ void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
     }
 }
 
-void Framebuffer::drawScene(Matrix4 m, bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
+void Framebuffer::drawScene(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
 {
     for (int i = 0; i < m_indices.size(); i++)
     {

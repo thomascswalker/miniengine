@@ -209,7 +209,7 @@ int Application::run()
     auto m = Matrix4();
     auto camera = Camera();
 
-    m_buffer->camera()->setPosition(0, 2, 5);
+    //m_buffer->camera()->setPosition(0, 2, 5);
 
     // Run the message loop.
     while (!bIsRunning)
@@ -234,30 +234,30 @@ int Application::run()
         // Clear the framebuffer
         m_buffer->clear();
 
-        // Move our camera
-        if (W_DOWN)
-        {
-            m_buffer->camera()->move(0, 0.001f * frameTime, 0);
-        }
-        if (A_DOWN)
-        {
-            m_buffer->camera()->move(0, 0, -0.001f * frameTime);
-        }
-        if (S_DOWN)
-        {
-            m_buffer->camera()->move(0, -0.001f * frameTime, 0);
-        }
-        if (D_DOWN)
-        {
-            m_buffer->camera()->move(0, 0, 0.001f * frameTime);
-        }
+        //// Move our camera
+        //if (W_DOWN)
+        //{
+        //    m_buffer->camera()->move(0, 0.001f * frameTime, 0);
+        //}
+        //if (A_DOWN)
+        //{
+        //    m_buffer->camera()->move(0, 0, -0.001f * frameTime);
+        //}
+        //if (S_DOWN)
+        //{
+        //    m_buffer->camera()->move(0, -0.001f * frameTime, 0);
+        //}
+        //if (D_DOWN)
+        //{
+        //    m_buffer->camera()->move(0, 0, 0.001f * frameTime);
+        //}
 
         // Bind vertex and index buffers to the Framebuffer
         m_buffer->setVertexBufferData(mesh.getVertices(Coordinates::World));
         m_buffer->setIndexBufferData(mesh.getIndices());
 
         // Draw our scene geometry as triangles
-        //m_buffer->drawScene(m, bDrawFaces, bDrawEdges, bDrawVertices);
+        m_buffer->drawScene(bDrawFaces, bDrawEdges, bDrawVertices);
 
         // Draw a mouse cursor
         m_buffer->drawCircle(m_mouseX, m_mouseY, 6, Color::red());

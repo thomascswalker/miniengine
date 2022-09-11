@@ -45,3 +45,18 @@ Matrix4 Transform::getMatrix() const
 
     return temp;
 }
+
+void Transform::setTranslation(const Vector3& t)
+{
+    m_translation = t;
+}
+
+void Transform::setRotation(const Rotation& r)
+{
+    m_rotation = r;
+}
+
+void Transform::setScale(const Vector3& s)
+{
+    m_scale = s;
+}

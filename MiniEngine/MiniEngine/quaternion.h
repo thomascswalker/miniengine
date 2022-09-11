@@ -6,12 +6,15 @@
 class Quaternion
 {
 public:
-	Quaternion() {};
+	// Constructors
+	Quaternion()
+		: m_real(0), m_imaginary(Vector3()) {};
 	Quaternion(double real)
 		: m_real(real), m_imaginary(Vector3()) {};
 	Quaternion(double real, const Vector3& imaginary)
 		: m_real(real), m_imaginary(imaginary) {};
 
+	// Methods
 	static Quaternion	getIdentity()
 	{
 		return Quaternion(1.0, Vector3(0, 0, 0));
@@ -22,9 +25,12 @@ public:
 	Vector3				getImaginary() { return m_imaginary; }
 
 private:
+	// Properties
 	double m_real;
 	Vector3 m_imaginary;
-	double _getLengthSquared() const
+
+	// Private methods
+	double p_getLengthSquared() const
 	{
 		return (m_real * m_real * Math::dot(m_imaginary, m_imaginary));
 	}
