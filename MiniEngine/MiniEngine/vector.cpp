@@ -37,10 +37,6 @@ Vector3 Vector3::identity()
 	return Vector3(1.0f, 1.0f, 1.0f);
 }
 
-float Vector3::dot(Vector3& other)
-{
-	return _x * other.x() + _y * other.y() + _z * other.z();
-}
 
 Vector4::Vector4()
 {

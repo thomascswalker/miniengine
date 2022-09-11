@@ -78,6 +78,17 @@ public:
 	Vector3 copy() { return Vector3(_x, _y, _z); }
 
 	// Operators
+	float operator [] (int i) const
+	{
+		switch (i)
+		{
+			case 0: return _x;
+			case 1: return _y;
+			case 2: return _z;
+		}
+
+	}
+
 	Vector3 operator + (Vector3& v) const
 	{
 		return Vector3(_x + v.x(), _y + v.y(), _z + v.z());
@@ -93,9 +104,19 @@ public:
 		return Vector3(_x - v.x(), _y - v.y(), _z - v.z());
 	}
 	
+	const Vector3 operator * (const Vector3& v) const
+	{
+		return Vector3(_x * v.x(), _y * v.y(), _z * v.z());
+	}
+
 	Vector3 operator * (Vector3& v) const
 	{
 		return Vector3(_x * v.x(), _y * v.y(), _z * v.z());
+	}
+
+	Vector3 operator * (double d) const
+	{
+		return Vector3(_x * d, _y * d, _z * d);
 	}
 	
 	Vector3 operator / (Vector3& v) const
@@ -133,7 +154,6 @@ public:
 	// Normalizes the length of the vector so length == 1
 	void normalize();
 	static Vector3 identity();
-	float dot(Vector3& other);
 	float length() {
 		return sqrtf((_x * _x) + (_y * _y) + (_z * _z));
 	}

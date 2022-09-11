@@ -257,7 +257,7 @@ int Application::run()
         m_buffer->setIndexBufferData(mesh.getIndices());
 
         // Draw our scene geometry as triangles
-        m_buffer->drawScene(m, bDrawFaces, bDrawEdges, bDrawVertices);
+        //m_buffer->drawScene(m, bDrawFaces, bDrawEdges, bDrawVertices);
 
         // Draw a mouse cursor
         m_buffer->drawCircle(m_mouseX, m_mouseY, 6, Color::red());

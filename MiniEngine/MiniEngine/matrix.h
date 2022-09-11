@@ -4,36 +4,37 @@
 #include <vector>
 #include "math.h"
 #include "vector.h"
+#include "rotation.h"
 
 // Class for handling matrix data, particularly to support multiple
 // indexing like `Matrix[0][0]`.
-template <class T, int rows, int columns>
-class MatrixData
-{
+template <class T, int Rows, int Columns>
+class MatrixData {
 public:
-    T* operator [] (int row)
-    {
-        return m_data + (row * columns);
+
+    /// Return a pointer to a \a row of data.
+    T *operator[](int row) {
+        return _data + (row * Columns);
     }
 
-    T* const operator [] (int row) const
-    {
-        return m_data + (row * columns);
+    /// Return a const pointer to a \a row of data.
+    T const *operator[](int row) const {
+        return _data + (row * Columns);
     }
 
-    T* getData()
-    {
-        return m_data;
+    /// Return a pointer to the start of all the data.
+    T *GetData() {
+        return _data;
     }
 
-    T* const getData() const
-    {
-        return m_data;
+    /// Return a const pointer to the start of all the data.
+    T const *GetData() const {
+        return _data;
     }
-
 
 private:
-    T m_data[rows, columns];
+
+    T _data[Rows * Columns];
 };
 
 
@@ -57,7 +58,10 @@ public:
     Matrix4&        set(const double m[4][4]);
     Matrix4&        setDiagonal(double v);
     Matrix4&        setIdentity();
+    Matrix4&        setTranslate(const Vector3 &t);
+    Matrix4&        setRotation(const Rotation& r);
     Matrix4&        setScale(double scale);
+    Matrix4&        setScale(const Vector3& scale);
 
     Matrix4         getInverse(double* detPtr = NULL);
 
@@ -72,6 +76,9 @@ public:
 
 private:
     MatrixData<double, 4, 4> m_mtx;
+
+    Matrix4 _setRotateOnly(Quaternion &rot);
+    void    _setRotateFromQuat(float r, const Vector3& i);
 };
 
 //class Matrix3

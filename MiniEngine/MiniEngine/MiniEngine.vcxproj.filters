@@ -50,7 +50,10 @@
       <Filter>Source Files\engine</Filter>
     </ClCompile>
     <ClCompile Include="transform.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="quaternion.cpp">
+      <Filter>Source Files\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +100,9 @@
       <Filter>Header Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="rotation.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="quaternion.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
   </ItemGroup>

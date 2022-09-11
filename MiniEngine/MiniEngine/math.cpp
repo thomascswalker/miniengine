@@ -2,6 +2,21 @@
 
 namespace Math
 {
+    double Math::degreesToRadians(double d)
+    {
+        return d * (Math::PI / 180.0);
+    }
+
+    double Math::radiansToDegrees(double r)
+    {
+        return r * (180 / Math::PI);
+    }
+
+    float Math::dot(Vector3 v1, Vector3 v2)
+    {
+	    return v1.x() * v2.x() + v1.y() * v2.y() + v1.z() * v2.z();
+    }
+
     int Math::clamp(int *value, int min, int max)
     {
         if (*value < min)
@@ -52,16 +67,5 @@ namespace Math
         bool isPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
 
         return !(isNeg && isPos);
-    }
-
-    void Math::rotate(Vector3 v1, Vector3 v2, float rotation)
-    {
-        float values[12] = { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 };
-        Matrix4 axis(values);
-    }
-
-    void Math::rotate(Vector3 v, float rotation)
-    {
-        rotate(v, Vector3(), rotation);
     }
 }

@@ -38,6 +38,33 @@ Matrix4& Matrix4::setIdentity()
     setDiagonal(1.0);
 }
 
+Matrix4& Matrix4::setTranslate(const Vector3& t)
+{
+    m_mtx[0][0] = 1.0; m_mtx[0][1] = 0.0;   m_mtx[0][2] = 0.0;   m_mtx[0][3] = 0.0;
+    m_mtx[1][0] = 0.0;   m_mtx[1][1] = 1.0; m_mtx[1][2] = 0.0;   m_mtx[1][3] = 0.0;
+    m_mtx[2][0] = 0.0;   m_mtx[2][1] = 0.0;   m_mtx[2][2] = 1.0; m_mtx[2][3] = 0.0;
+    m_mtx[3][0] = t[0];   m_mtx[3][1] = t[1];   m_mtx[3][2] = t[2];   m_mtx[3][3] = 1.0;
+
+    return *this;
+}
+
+Matrix4& Matrix4::setRotation(const Rotation& r)
+{
+    auto quat = r.getQuaternion();
+    _setRotateFromQuat(quat.getReal(), quat.getImaginary());
+
+    m_mtx[0][3] = 0.0;
+    m_mtx[1][3] = 0.0;
+    m_mtx[2][3] = 0.0;
+
+    m_mtx[3][0] = 0.0;
+    m_mtx[3][1] = 0.0;
+    m_mtx[3][2] = 0.0;
+    m_mtx[3][3] = 1.0;
+
+    return *this;
+}
+
 Matrix4& Matrix4::setScale(double scale)
 {
     m_mtx[0][0] = scale; m_mtx[0][1] = 0.0;   m_mtx[0][2] = 0.0;   m_mtx[0][3] = 0.0;
@@ -48,13 +75,23 @@ Matrix4& Matrix4::setScale(double scale)
     return *this;
 }
 
+Matrix4& Matrix4::setScale(const Vector3& scale)
+{
+    m_mtx[0][0] = scale[0]; m_mtx[0][1] = 0.0;      m_mtx[0][2] = 0.0;      m_mtx[0][3] = 0.0;
+    m_mtx[1][0] = 0.0;      m_mtx[1][1] = scale[1]; m_mtx[1][2] = 0.0;      m_mtx[1][3] = 0.0;
+    m_mtx[2][0] = 0.0;      m_mtx[2][1] = 0.0;      m_mtx[2][2] = scale[2]; m_mtx[2][3] = 0.0;
+    m_mtx[3][0] = 0.0;      m_mtx[3][1] = 0.0;      m_mtx[3][2] = 0.0;      m_mtx[3][3] = 1.0;
+
+    return *this;
+}
+
 /// Derived from https://github.com/PixarAnimationStudios/USD/blob/release/pxr/base/gf/matrix4d.cpp
 /// Returns the inverse of the matrix, or FLT_MAX * SetIdentity() if the
 /// matrix is singular. (FLT_MAX is the largest value a \c float can have,
 /// as defined by the system.) The matrix is considered singular if the
 /// determinant is less than or equal to the optional parameter \e eps. If
 /// \e det is non-null, <c>*det</c> is set to the determinant.
-Matrix4 Matrix4::getInverse(double* detPtr = NULL)
+Matrix4 Matrix4::getInverse(double* detPtr)
 {
     double x00, x01, x02, x03;
     double x10, x11, x12, x13;
@@ -229,6 +266,27 @@ Matrix4& Matrix4::operator += (const Matrix4& m)
     m_mtx[3][3] += m.m_mtx[3][3];
 
     return *this;
+}
+
+// Private //
+Matrix4 Matrix4::_setRotateOnly(Quaternion& rot)
+{
+    Matrix4::_setRotateFromQuat(rot.getReal(), rot.getImaginary());
+}
+
+void Matrix4::_setRotateFromQuat(float r, const Vector3& i)
+{
+    m_mtx[0][0] = 1.0 - 2.0 * (i[1] * i[1] + i[2] * i[2]);
+    m_mtx[0][1] =       2.0 * (i[0] * i[1] + i[2] *    r);
+    m_mtx[0][2] =       2.0 * (i[2] * i[0] - i[1] *    r);
+
+    m_mtx[1][0] =       2.0 * (i[0] * i[1] - i[2] *    r);
+    m_mtx[1][1] = 1.0 - 2.0 * (i[2] * i[2] + i[0] * i[0]);
+    m_mtx[1][2] =       2.0 * (i[1] * i[2] + i[0] *    r);
+
+    m_mtx[2][0] =       2.0 * (i[2] * i[0] + i[1] *    r);
+    m_mtx[2][1] =       2.0 * (i[1] * i[2] - i[0] *    r);
+    m_mtx[2][2] = 1.0 - 2.0 * (i[1] * i[1] + i[0] * i[0]);
 }
 
 //Matrix2::Matrix2()

@@ -12,6 +12,7 @@ public:
 	Transform& identity();
 
 	void setMatrix(const Matrix4 &m);
+	Matrix4 getMatrix() const;
 
 private:
 	Vector3 m_translation;

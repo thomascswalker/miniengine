@@ -103,7 +103,7 @@ Vector2 Framebuffer::vertexToScreen(Vertex vertex)
     //x = m_width - 1.0f < x ? m_width - 1.0f : x;
     //y = m_height - 1.0f < y ? m_height - 1.0f : y;
 
-    //return Vector2(x, y);
+    return Vector2(0, 0);
 }
 
 Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrix4 matrix)
