@@ -8,14 +8,17 @@ class Transform
 public:
 	Transform() {};
 
-	Transform& identity();
+	Transform&		identity();
 
-	void setMatrix(const Matrix4& m);
-	Matrix4 getMatrix() const;
+	void			setMatrix(const Matrix4& m);
+	Matrix4			getMatrix() const;
 
-	void setTranslation(const Vector3& t);
-	void setRotation(const Rotation& r);
-	void setScale(const Vector3& s);
+	void			setTranslation(const Vector3& t);
+	const Vector3&	getTranslation() { return m_translation; }
+	void			setRotation(const Rotation& r);
+	const Rotation& getRotation() { return m_rotation; }
+	void			setScale(const Vector3& s);
+	const Vector3&	getScale() { return m_scale; }
 
 
 private:

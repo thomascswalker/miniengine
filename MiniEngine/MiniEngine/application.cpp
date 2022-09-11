@@ -235,22 +235,30 @@ int Application::run()
         m_buffer->clear();
 
         //// Move our camera
-        //if (W_DOWN)
-        //{
-        //    m_buffer->camera()->move(0, 0.001f * frameTime, 0);
-        //}
-        //if (A_DOWN)
-        //{
-        //    m_buffer->camera()->move(0, 0, -0.001f * frameTime);
-        //}
-        //if (S_DOWN)
-        //{
-        //    m_buffer->camera()->move(0, -0.001f * frameTime, 0);
-        //}
-        //if (D_DOWN)
-        //{
-        //    m_buffer->camera()->move(0, 0, 0.001f * frameTime);
-        //}
+        double d = 0.001f * frameTime;
+        if (W_DOWN)
+        {
+            m_buffer->camera()->move(Vector3(0, d, 0));
+        }
+        if (A_DOWN)
+        {
+            m_buffer->camera()->move(Vector3(0, 0, -d));
+        }
+        if (S_DOWN)
+        {
+            m_buffer->camera()->move(Vector3(0, -d, 0));
+        }
+        if (D_DOWN)
+        {
+            m_buffer->camera()->move(Vector3(0, 0, d));
+        }
+
+        auto xform = m_buffer->camera()->getTransform();
+        auto pos = xform.getTranslation();
+
+#if _DEBUG
+        Core::print("Camera position: [%f, %f, %f]\n", pos.x(), pos.y(), pos.z());
+#endif
 
         // Bind vertex and index buffers to the Framebuffer
         m_buffer->setVertexBufferData(mesh.getVertices(Coordinates::World));

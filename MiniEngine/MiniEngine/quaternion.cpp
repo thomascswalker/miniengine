@@ -9,6 +9,6 @@ Quaternion Quaternion::getNormalized() const
     }
     else
     {
-        return (*this); // / length;
+        return (*this / length);
     }
 }

@@ -86,10 +86,21 @@ public:
 			case 1: return _y;
 			case 2: return _z;
 		}
+	}
 
+	bool operator == (const Vector3& v) const
+	{
+		return (_x == v.x() &&
+				_y == v.y() &&
+				_z == v.z());
 	}
 
 	Vector3 operator + (Vector3& v) const
+	{
+		return Vector3(_x + v.x(), _y + v.y(), _z + v.z());
+	}
+
+	Vector3 operator + (const Vector3& v) const
 	{
 		return Vector3(_x + v.x(), _y + v.y(), _z + v.z());
 	}

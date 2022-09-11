@@ -57,12 +57,6 @@ Matrix4 Camera::getProjectionMatrix()
     projectionMatrix[2][3] = -m_farClip * m_nearClip / deltaClip;
     projectionMatrix[3][2] = -1;
     projectionMatrix[3][3] = 0;
-    //projectionMatrix.setIndex(0, scale);                              // Scale the X coordinate of the projected point
-    //projectionMatrix.setIndex(5, scale);                              // Scale the Y coordinate of the projected point
-    //projectionMatrix.setIndex(10, -farClip / deltaClip);              // Remap Z to [0, 1]
-    //projectionMatrix.setIndex(11, -farClip * nearClip / deltaClip);   // Remap Z to [0, 1]
-    //projectionMatrix.setIndex(14, -1);                                // Set W to -Z
-    //projectionMatrix.setIndex(15, 0);
 
     return projectionMatrix;
 }

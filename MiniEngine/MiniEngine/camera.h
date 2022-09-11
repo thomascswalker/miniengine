@@ -24,7 +24,7 @@ public:
 
 private:
 	//Vector3 m_position;
-	float m_fieldOfView = 90.0f;
+	float m_fieldOfView = 120.0f;
 	float m_nearClip	= 0.1f;
 	float m_farClip		= 100.0f;
 };

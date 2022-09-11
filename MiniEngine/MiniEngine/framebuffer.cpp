@@ -87,8 +87,8 @@ https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthogr
 Vector2 Framebuffer::vertexToScreen(Vertex vertex)
 {
 
-    auto cameraMatrix = m_camera.getTransform().getMatrix();
-    auto projectionMatrix = m_camera.getProjectionMatrix();
+    Matrix4 cameraMatrix = m_camera.getTransform().getMatrix();
+    Matrix4 projectionMatrix = m_camera.getProjectionMatrix();
 
     Vector3 vertCamera, projectedVert;
 
