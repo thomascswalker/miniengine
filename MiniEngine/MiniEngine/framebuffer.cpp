@@ -16,7 +16,7 @@ Framebuffer::Framebuffer(HWND hwnd)
     // Create a new default camera
     m_camera = Camera();
     auto t = m_camera.getTransform();
-    t.setTranslation(Vector3(0, -10, -20));
+    t.setTranslation(Vector3(0, 5, -20));
     m_camera.setTransform(t);
 }
 
@@ -89,25 +89,38 @@ https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthogr
 */
 Vector2 Framebuffer::vertexToScreen(Vertex vertex)
 {
-    //Vector3 vertexPos = vertex.getTranslation();
-    //Transform cameraXForm = m_camera.getTransform();
-    //Vector3 cameraPos = cameraXForm.getTranslation();
+    // Projection matrix
+    Matrix4 proj  = m_camera.getProjectionMatrix(m_width, m_height);;
+    
+    // View matrix
+    auto cameraXForm = m_camera.getTransform();
+    auto up = Vector3(0, 1, 0);
+    auto at = Vector3(0, 0, 0);
 
-    //double f = Math::distance(vertexPos, cameraPos);
+    Matrix4 view = lookAt(cameraXForm.getTranslation(), at, up);
 
-    //int x = ((vertexPos.x() - cameraPos.x()) * (f / vertexPos.z())) + cameraPos.x();
-    //int y = ((vertexPos.y() - cameraPos.y()) * (f / vertexPos.z())) + cameraPos.y();
+    // Vertex position
+    Vector4 pos = Vector4(vertex.getTranslation(), 1.0);
 
-    Matrix4 cameraMatrix     = m_camera.getTransform().getMatrix();
-    Matrix4 projectionMatrix = m_camera.getProjectionMatrix(m_width, m_height);
-    Vector3 vertexPos        = vertex.getTranslation();
-    Vector4 projectedVertex = projectionMatrix * cameraMatrix * (Vector4(vertexPos.x(), vertexPos.y(), vertexPos.z(), 1.0));
+    // MVP
+    Vector4 vtx = proj * view * pos;
+    vtx.setW(1);
 
-    int x = (projectedVertex.x() + 1) * 0.5 * m_width;
-    int y = (1 - (projectedVertex.y() + 1) * 0.5) * m_height;
+    // Get X screenspace coordinate
+    int w1 = m_width - 1;
+    int w2 = (vtx.x() + 1) * 0.5 * m_width;
+    int x = w1 < w2 ? w1 : w2;
+    x = abs(x);
 
-    Math::clamp(x, 0, m_width);
-    Math::clamp(y, 0, m_height);
+    // Get Y screenspace coordinate
+    int h1 = m_height - 1;
+    int h2 = 1 - ((vtx.y() + 1) * 0.5) * m_height;
+    int y = h1 < h2 ? h1 : h2;
+    y = abs(y);
+
+    // Clamp screenspace coordinates
+    //x = Math::clamp(x, 0, m_width);
+    //y = Math::clamp(y, 0, m_height);
 
     return Vector2(x, y);
 }
@@ -302,8 +315,8 @@ void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
 void Framebuffer::drawScene(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
 {
 
-    Matrix4 cameraMatrix = m_camera.getTransform().getMatrix();
-    Core::print("------\nCamera Matrix:\n%s\r", cameraMatrix.toString().c_str());
+    //Matrix4 cameraMatrix = m_camera.getTransform().getMatrix();
+    //Core::print("------\nCamera Matrix:\n%s\r", cameraMatrix.toString().c_str());
 
     for (int i = 0; i < m_indices.size(); i++)
     {
@@ -322,10 +335,15 @@ void Framebuffer::drawScene(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices
         Vector2 vtx2s = vertexToScreen(vtx2);
         Vector2 vtx3s = vertexToScreen(vtx3);
 
+        //if (!isPointInFrame(vtx1s) || !isPointInFrame(vtx2s) || !isPointInFrame(vtx2s))
+        //{
+        //    continue;
+        //}
+
         // Draw each face
         if (bDrawFaces)
         {
-            drawTri(vtx1s, vtx2s, vtx3s, Color::gray());
+            drawTri(vtx1s, vtx2s, vtx3s, Color::white());
         }
 
         // Draw each edge

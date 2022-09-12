@@ -10,8 +10,8 @@
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
 static UINT     globalFrameRate     = 1;       // 60 FPS
-static int      initWidth           = 300;     // Standard HD
-static int      initHeight          = 300;
+static int      initWidth           = 720;     // Standard HD
+static int      initHeight          = 720;
 static int      tickRate            = 60;
 static double   currentTime         = 0.0;
 
@@ -28,21 +28,56 @@ static bool     W_DOWN = false;
 static bool     A_DOWN = false;
 static bool     S_DOWN = false;
 static bool     D_DOWN = false;
+static bool     E_DOWN = false;
+static bool     Q_DOWN = false;
+static bool     SPACEBAR_DOWN = false;
 
 static float ROTATION = 0.0f;
 
-// Create a triangle
-std::vector<Vertex> vertices = {
-    Vertex(-0.5, -0.5,  0.5),   //0
-    Vertex(0.5, -0.5,  0.5),    //1
-    Vertex(-0.5,  0.5,  0.5),   //2
-    Vertex(0.5,  0.5,  0.5),    //3
-    Vertex(-0.5, -0.5, -0.5),   //4
-    Vertex(0.5, -0.5, -0.5),    //5
-    Vertex(-0.5,  0.5, -0.5),   //6
-    Vertex(0.5,  0.5, -0.5)     //7
+static double GEO_SIZE = 0.1;
+
+// Create a pyramid
+std::vector<Vertex> pVertices = {
+    Vertex(0,  GEO_SIZE,  0),
+    Vertex(-GEO_SIZE, -GEO_SIZE,  GEO_SIZE),
+    Vertex(GEO_SIZE, -GEO_SIZE,  GEO_SIZE),
+    Vertex(0,  GEO_SIZE,  0),
+    Vertex(GEO_SIZE, -GEO_SIZE,  GEO_SIZE),
+    Vertex(GEO_SIZE, -GEO_SIZE, -GEO_SIZE),
+    Vertex(0,  GEO_SIZE,  0),
+    Vertex(GEO_SIZE, -GEO_SIZE, -GEO_SIZE),
+    Vertex(-GEO_SIZE, -GEO_SIZE, -GEO_SIZE),
+    Vertex(0,  GEO_SIZE,  0),
+    Vertex(-GEO_SIZE, -GEO_SIZE, -GEO_SIZE),
+    Vertex(-GEO_SIZE, -GEO_SIZE,  GEO_SIZE)
+};
+std::vector<int> pIndices = {
+    1, 0, 0, 1,
+    0, 1, 0, 1,
+    0, 0, 1, 1,
+    1, 0, 0, 1,
+    0, 0, 1, 1,
+    0, 1, 0, 1,
+    1, 0, 0, 1,
+    0, 1, 0, 1,
+    0, 0, 1, 1,
+    1, 0, 0, 1,
+    0, 0, 1, 1,
+    0, 1, 0, 1
+
 };
 
+// Create a cube
+std::vector<Vertex> vertices = {
+    Vertex(-GEO_SIZE, -GEO_SIZE,  GEO_SIZE),   //0
+    Vertex(GEO_SIZE, -GEO_SIZE,  GEO_SIZE),    //1
+    Vertex(-GEO_SIZE,  GEO_SIZE,  GEO_SIZE),   //2
+    Vertex(GEO_SIZE,  GEO_SIZE,  GEO_SIZE),    //3
+    Vertex(-GEO_SIZE, -GEO_SIZE, -GEO_SIZE),   //4
+    Vertex(GEO_SIZE, -GEO_SIZE, -GEO_SIZE),    //5
+    Vertex(-GEO_SIZE,  GEO_SIZE, -GEO_SIZE),   //6
+    Vertex(GEO_SIZE,  GEO_SIZE, -GEO_SIZE)     //7
+};
 std::vector<int> indices = {
     //Top
     2, 6, 7,
@@ -70,6 +105,7 @@ std::vector<int> indices = {
 };
 
 auto mesh = Mesh(vertices, indices);
+//auto mesh = Mesh(pVertices, pIndices);
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -108,6 +144,9 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case 'A': A_DOWN = false; break;
                 case 'S': S_DOWN = false; break;
                 case 'D': D_DOWN = false; break;
+                case 'E': E_DOWN = false; break;
+                case 'Q': Q_DOWN = false; break;
+                //case VK_SPACE: SPACEBAR_DOWN = false; break;
             }
             break;
         }
@@ -123,6 +162,9 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case 'A': A_DOWN = true; break;
                 case 'S': S_DOWN = true; break;
                 case 'D': D_DOWN = true; break;
+                case 'E': E_DOWN = true; break;
+                case 'Q': Q_DOWN = true; break;
+                //case VK_SPACE: SPACEBAR_DOWN = true; break;
             }
             break;
         }
@@ -211,8 +253,6 @@ int Application::run()
     auto m = Matrix4();
     auto camera = Camera();
 
-    //m_buffer->camera()->setPosition(0, 2, 5);
-
     // Run the message loop.
     while (!bIsRunning)
     {
@@ -240,23 +280,31 @@ int Application::run()
         double d = 0.01f * frameTime;
         if (W_DOWN)
         {
-            m_buffer->camera()->move(Vector3(0, d, 0));
+            m_buffer->camera()->move(Vector3(0, 0, d));
         }
         if (A_DOWN)
         {
-            m_buffer->camera()->move(Vector3(0, 0, -d));
+            m_buffer->camera()->move(Vector3(-d, 0, 0));
         }
         if (S_DOWN)
         {
-            m_buffer->camera()->move(Vector3(0, -d, 0));
+            m_buffer->camera()->move(Vector3(0, 0, -d));
         }
         if (D_DOWN)
         {
-            m_buffer->camera()->move(Vector3(0, 0, d));
+            m_buffer->camera()->move(Vector3(d, 0, 0));
+        }
+        if (E_DOWN)
+        {
+            m_buffer->camera()->move(Vector3(0, d, 0));
+        }
+        if (Q_DOWN)
+        {
+            m_buffer->camera()->move(Vector3(0, -d, 0));
         }
 
         // Bind vertex and index buffers to the Framebuffer
-        m_buffer->setVertexBufferData(mesh.getVertices(Coordinates::World));
+        m_buffer->setVertexBufferData(mesh.getVertices());
         m_buffer->setIndexBufferData(mesh.getIndices());
 
         // Draw our scene geometry as triangles

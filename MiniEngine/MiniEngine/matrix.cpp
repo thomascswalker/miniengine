@@ -283,84 +283,84 @@ Matrix4& Matrix4::operator*=(const Matrix4& m)
     Matrix4 tmp = *this;
 
     m_mtx[0][0] = tmp.m_mtx[0][0] * m.m_mtx[0][0] +
-                 tmp.m_mtx[0][1] * m.m_mtx[1][0] +
-                 tmp.m_mtx[0][2] * m.m_mtx[2][0] +
-                 tmp.m_mtx[0][3] * m.m_mtx[3][0];
+                  tmp.m_mtx[0][1] * m.m_mtx[1][0] +
+                  tmp.m_mtx[0][2] * m.m_mtx[2][0] +
+                  tmp.m_mtx[0][3] * m.m_mtx[3][0];
 
     m_mtx[0][1] = tmp.m_mtx[0][0] * m.m_mtx[0][1] +
-                 tmp.m_mtx[0][1] * m.m_mtx[1][1] +
-                 tmp.m_mtx[0][2] * m.m_mtx[2][1] +
-                 tmp.m_mtx[0][3] * m.m_mtx[3][1];
+                  tmp.m_mtx[0][1] * m.m_mtx[1][1] +
+                  tmp.m_mtx[0][2] * m.m_mtx[2][1] +
+                  tmp.m_mtx[0][3] * m.m_mtx[3][1];
 
     m_mtx[0][2] = tmp.m_mtx[0][0] * m.m_mtx[0][2] +
-                 tmp.m_mtx[0][1] * m.m_mtx[1][2] +
-                 tmp.m_mtx[0][2] * m.m_mtx[2][2] +
-                 tmp.m_mtx[0][3] * m.m_mtx[3][2];
+                  tmp.m_mtx[0][1] * m.m_mtx[1][2] +
+                  tmp.m_mtx[0][2] * m.m_mtx[2][2] +
+                  tmp.m_mtx[0][3] * m.m_mtx[3][2];
 
     m_mtx[0][3] = tmp.m_mtx[0][0] * m.m_mtx[0][3] +
-                 tmp.m_mtx[0][1] * m.m_mtx[1][3] +
-                 tmp.m_mtx[0][2] * m.m_mtx[2][3] +
-                 tmp.m_mtx[0][3] * m.m_mtx[3][3];
+                  tmp.m_mtx[0][1] * m.m_mtx[1][3] +
+                  tmp.m_mtx[0][2] * m.m_mtx[2][3] +
+                  tmp.m_mtx[0][3] * m.m_mtx[3][3];
 
     m_mtx[1][0] = tmp.m_mtx[1][0] * m.m_mtx[0][0] +
-                 tmp.m_mtx[1][1] * m.m_mtx[1][0] +
-                 tmp.m_mtx[1][2] * m.m_mtx[2][0] +
-                 tmp.m_mtx[1][3] * m.m_mtx[3][0];
+                  tmp.m_mtx[1][1] * m.m_mtx[1][0] +
+                  tmp.m_mtx[1][2] * m.m_mtx[2][0] +
+                  tmp.m_mtx[1][3] * m.m_mtx[3][0];
 
     m_mtx[1][1] = tmp.m_mtx[1][0] * m.m_mtx[0][1] +
-                 tmp.m_mtx[1][1] * m.m_mtx[1][1] +
-                 tmp.m_mtx[1][2] * m.m_mtx[2][1] +
-                 tmp.m_mtx[1][3] * m.m_mtx[3][1];
+                  tmp.m_mtx[1][1] * m.m_mtx[1][1] +
+                  tmp.m_mtx[1][2] * m.m_mtx[2][1] +
+                  tmp.m_mtx[1][3] * m.m_mtx[3][1];
 
     m_mtx[1][2] = tmp.m_mtx[1][0] * m.m_mtx[0][2] +
-                 tmp.m_mtx[1][1] * m.m_mtx[1][2] +
-                 tmp.m_mtx[1][2] * m.m_mtx[2][2] +
-                 tmp.m_mtx[1][3] * m.m_mtx[3][2];
+                  tmp.m_mtx[1][1] * m.m_mtx[1][2] +
+                  tmp.m_mtx[1][2] * m.m_mtx[2][2] +
+                  tmp.m_mtx[1][3] * m.m_mtx[3][2];
 
     m_mtx[1][3] = tmp.m_mtx[1][0] * m.m_mtx[0][3] +
-                 tmp.m_mtx[1][1] * m.m_mtx[1][3] +
-                 tmp.m_mtx[1][2] * m.m_mtx[2][3] +
-                 tmp.m_mtx[1][3] * m.m_mtx[3][3];
+                  tmp.m_mtx[1][1] * m.m_mtx[1][3] +
+                  tmp.m_mtx[1][2] * m.m_mtx[2][3] +
+                  tmp.m_mtx[1][3] * m.m_mtx[3][3];
 
     m_mtx[2][0] = tmp.m_mtx[2][0] * m.m_mtx[0][0] +
-                 tmp.m_mtx[2][1] * m.m_mtx[1][0] +
-                 tmp.m_mtx[2][2] * m.m_mtx[2][0] +
-                 tmp.m_mtx[2][3] * m.m_mtx[3][0];
+                  tmp.m_mtx[2][1] * m.m_mtx[1][0] +
+                  tmp.m_mtx[2][2] * m.m_mtx[2][0] +
+                  tmp.m_mtx[2][3] * m.m_mtx[3][0];
 
     m_mtx[2][1] = tmp.m_mtx[2][0] * m.m_mtx[0][1] +
-                 tmp.m_mtx[2][1] * m.m_mtx[1][1] +
-                 tmp.m_mtx[2][2] * m.m_mtx[2][1] +
-                 tmp.m_mtx[2][3] * m.m_mtx[3][1];
+                  tmp.m_mtx[2][1] * m.m_mtx[1][1] +
+                  tmp.m_mtx[2][2] * m.m_mtx[2][1] +
+                  tmp.m_mtx[2][3] * m.m_mtx[3][1];
 
     m_mtx[2][2] = tmp.m_mtx[2][0] * m.m_mtx[0][2] +
-                 tmp.m_mtx[2][1] * m.m_mtx[1][2] +
-                 tmp.m_mtx[2][2] * m.m_mtx[2][2] +
-                 tmp.m_mtx[2][3] * m.m_mtx[3][2];
+                  tmp.m_mtx[2][1] * m.m_mtx[1][2] +
+                  tmp.m_mtx[2][2] * m.m_mtx[2][2] +
+                  tmp.m_mtx[2][3] * m.m_mtx[3][2];
 
     m_mtx[2][3] = tmp.m_mtx[2][0] * m.m_mtx[0][3] +
-                 tmp.m_mtx[2][1] * m.m_mtx[1][3] +
-                 tmp.m_mtx[2][2] * m.m_mtx[2][3] +
-                 tmp.m_mtx[2][3] * m.m_mtx[3][3];
+                  tmp.m_mtx[2][1] * m.m_mtx[1][3] +
+                  tmp.m_mtx[2][2] * m.m_mtx[2][3] +
+                  tmp.m_mtx[2][3] * m.m_mtx[3][3];
 
     m_mtx[3][0] = tmp.m_mtx[3][0] * m.m_mtx[0][0] +
-                 tmp.m_mtx[3][1] * m.m_mtx[1][0] +
-                 tmp.m_mtx[3][2] * m.m_mtx[2][0] +
-                 tmp.m_mtx[3][3] * m.m_mtx[3][0];
+                  tmp.m_mtx[3][1] * m.m_mtx[1][0] +
+                  tmp.m_mtx[3][2] * m.m_mtx[2][0] +
+                  tmp.m_mtx[3][3] * m.m_mtx[3][0];
 
     m_mtx[3][1] = tmp.m_mtx[3][0] * m.m_mtx[0][1] +
-                 tmp.m_mtx[3][1] * m.m_mtx[1][1] +
-                 tmp.m_mtx[3][2] * m.m_mtx[2][1] +
-                 tmp.m_mtx[3][3] * m.m_mtx[3][1];
+                  tmp.m_mtx[3][1] * m.m_mtx[1][1] +
+                  tmp.m_mtx[3][2] * m.m_mtx[2][1] +
+                  tmp.m_mtx[3][3] * m.m_mtx[3][1];
 
     m_mtx[3][2] = tmp.m_mtx[3][0] * m.m_mtx[0][2] +
-                 tmp.m_mtx[3][1] * m.m_mtx[1][2] +
-                 tmp.m_mtx[3][2] * m.m_mtx[2][2] +
-                 tmp.m_mtx[3][3] * m.m_mtx[3][2];
+                  tmp.m_mtx[3][1] * m.m_mtx[1][2] +
+                  tmp.m_mtx[3][2] * m.m_mtx[2][2] +
+                  tmp.m_mtx[3][3] * m.m_mtx[3][2];
 
     m_mtx[3][3] = tmp.m_mtx[3][0] * m.m_mtx[0][3] +
-                 tmp.m_mtx[3][1] * m.m_mtx[1][3] +
-                 tmp.m_mtx[3][2] * m.m_mtx[2][3] +
-                 tmp.m_mtx[3][3] * m.m_mtx[3][3];
+                  tmp.m_mtx[3][1] * m.m_mtx[1][3] +
+                  tmp.m_mtx[3][2] * m.m_mtx[2][3] +
+                  tmp.m_mtx[3][3] * m.m_mtx[3][3];
 
     return *this;
 }
@@ -385,6 +385,30 @@ void Matrix4::_setRotateFromQuat(float r, const Vector3& i)
     m_mtx[2][0] =       2.0 * (i[2] * i[0] + i[1] *    r);
     m_mtx[2][1] =       2.0 * (i[1] * i[2] - i[0] *    r);
     m_mtx[2][2] = 1.0 - 2.0 * (i[1] * i[1] + i[0] * i[0]);
+}
+
+/*
+    https://www.geertarien.com/blog/2017/07/30/breakdown-of-the-lookAt-function-in-OpenGL/
+*/
+Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up)
+{
+    Vector3 zAxis = at - eye;
+    zAxis.normalize();
+
+    Vector3 xAxis = cross(zAxis, up);
+    xAxis.normalize();
+
+    Vector3 yAxis = cross(xAxis, zAxis);
+
+    zAxis *= -1.0;
+
+    Matrix4 viewMatrix;
+    viewMatrix.set( xAxis.x(),  xAxis.y(),  xAxis.z(),  (double) -Math::dot(xAxis, eye),
+                    yAxis.x(),  yAxis.y(),  yAxis.z(),  (double) -Math::dot(yAxis, eye),
+                    zAxis.x(),  zAxis.y(),  zAxis.z(),  (double) -Math::dot(zAxis, eye),
+                    eye.x(),    eye.y(),    eye.z(),    1.0);
+
+    return viewMatrix;
 }
 
 //Matrix2::Matrix2()

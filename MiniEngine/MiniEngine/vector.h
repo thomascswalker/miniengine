@@ -80,12 +80,20 @@ public:
 	// Operators
 	double operator [] (int i) const
 	{
-		switch (i)
+		if (i == 0)
 		{
-			case 0: return _x;
-			case 1: return _y;
-			case 2: return _z;
+			return _x;
 		}
+		else if (i == 1)
+		{
+			return _y;
+		}
+		else if (i == 2)
+		{
+			return _z;
+		}
+
+		return 0;
 	}
 
 	bool operator == (const Vector3& v) const
@@ -111,6 +119,11 @@ public:
 	}
 	
 	Vector3 operator - (Vector3& v) const
+	{
+		return Vector3(_x - v.x(), _y - v.y(), _z - v.z());
+	}
+
+	const Vector3 operator - (const Vector3& v) const
 	{
 		return Vector3(_x - v.x(), _y - v.y(), _z - v.z());
 	}
@@ -190,6 +203,7 @@ protected:
 public:
 	Vector4();
 	Vector4(double x, double y, double z, double w);
+	Vector4(const Vector3& v, double w);
 
 	Vector4 copy() { return Vector4(_x, _y, _z, _w); }
 

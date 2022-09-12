@@ -1,10 +1,12 @@
 #ifndef FRAMEBUFFER_H
 #define FRAMEBUFFER_H
 
+#define NOMINMAX
+
 #include <memory>
 #include <typeinfo>
 #include <windows.h>
-#include <gdiplus.h>
+//#include <gdiplus.h>
 #include <cassert>
 #include <sstream>
 

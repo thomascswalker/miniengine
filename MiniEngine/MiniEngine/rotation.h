@@ -21,7 +21,7 @@ public:
 		return *this;
 	};
 
-	static Rotation& identity()
+	static Rotation identity()
 	{
 		Rotation rotation = Rotation(Vector3(0, 0, 0), 0);
 		return rotation;

@@ -54,6 +54,14 @@ Vector4::Vector4(double x, double y, double z, double w)
 	_z = w;
 }
 
+Vector4::Vector4(const Vector3& v, double w)
+{
+	_x = v.x();
+	_y = v.y();
+	_z = v.z();
+	_z = w;
+}
+
 std::string Vector4::toString()
 {
 	return std::format("[{}, {}, {}, {}]", _x, _y, _z, _w);

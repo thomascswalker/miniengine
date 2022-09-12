@@ -53,7 +53,7 @@ class Matrix4
 {
 public:
     // Constructors
-    Matrix4() = default;
+    Matrix4() { setIdentity(); }
     Matrix4(const double m[4][4]) { set(m); }
 
     // Methods
@@ -70,6 +70,7 @@ public:
     Matrix4&        setScale(const Vector3& scale);
 
     Matrix4         getInverse(double* detPtr = NULL);
+    
 
     std::string     toString();
 
@@ -104,6 +105,8 @@ private:
     Matrix4 _setRotateOnly(Quaternion &rot);
     void    _setRotateFromQuat(float r, const Vector3& i);
 };
+
+Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up);
 
 //class Matrix3
 //{
