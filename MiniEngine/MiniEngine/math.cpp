@@ -17,17 +17,17 @@ namespace Math
 	    return v1.x() * v2.x() + v1.y() * v2.y() + v1.z() * v2.z();
     }
 
-    int Math::clamp(int *value, int min, int max)
+    int Math::clamp(int &value, int min, int max)
     {
-        if (*value < min)
+        if (value < min)
         {
             return min;
         }
-        if (*value > max)
+        if (value > max)
         {
             return max;
         }
-        return *value;
+        return value;
     }
 
     float Math::area(Vector2 v1, Vector2 v2, Vector3 v3)
@@ -42,9 +42,17 @@ namespace Math
 
     double Math::distance(Vector2 v1, Vector2 v2)
     {
-        auto a = pow(v2.y() - v1.y(), 2);
-        auto b = pow(v2.x() - v1.x(), 2);
+        auto a = pow(v2.x() - v1.x(), 2);
+        auto b = pow(v2.y() - v1.y(), 2);
         return sqrt(a + b);
+    }
+
+    double Math::distance(Vector3 v1, Vector3 v2)
+    {
+        auto a = pow(v2.x() - v1.x(), 2);
+        auto b = pow(v2.y() - v1.y(), 2);
+        auto c = pow(v2.z() - v1.z(), 2);
+        return sqrt(a + b + c);
     }
 
     bool Math::isPointInTriangle(Vector2 p, Vector2 v1, Vector2 v2, Vector2 v3)

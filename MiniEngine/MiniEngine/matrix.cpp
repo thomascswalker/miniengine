@@ -36,6 +36,7 @@ Matrix4& Matrix4::setDiagonal(double v)
 Matrix4& Matrix4::setIdentity()
 {
     setDiagonal(1.0);
+    return (*this);
 }
 
 Matrix4& Matrix4::setTranslate(const Vector3& t)
@@ -196,8 +197,16 @@ Matrix4 Matrix4::getInverse(double* detPtr)
     }
 
     return inverse;
-
 };
+
+std::string Matrix4::toString()
+{
+    return std::format("[{}, {}, {}, {}]\n[{}, {}, {}, {}]\n[{}, {}, {}, {}]\n[{}, {}, {}, {}]\n",
+                        m_mtx[0][0], m_mtx[0][1], m_mtx[0][2], m_mtx[0][3],
+                        m_mtx[1][0], m_mtx[1][1], m_mtx[1][2], m_mtx[1][3],
+                        m_mtx[2][0], m_mtx[2][1], m_mtx[2][2], m_mtx[2][3],
+                        m_mtx[3][0], m_mtx[3][1], m_mtx[3][2], m_mtx[3][3]);
+}
 
 bool Matrix4::operator == (const Matrix4& m) const
 {
@@ -268,10 +277,99 @@ Matrix4& Matrix4::operator += (const Matrix4& m)
     return *this;
 }
 
+Matrix4& Matrix4::operator*=(const Matrix4& m)
+{
+    // Save current values before they are overwritten
+    Matrix4 tmp = *this;
+
+    m_mtx[0][0] = tmp.m_mtx[0][0] * m.m_mtx[0][0] +
+                 tmp.m_mtx[0][1] * m.m_mtx[1][0] +
+                 tmp.m_mtx[0][2] * m.m_mtx[2][0] +
+                 tmp.m_mtx[0][3] * m.m_mtx[3][0];
+
+    m_mtx[0][1] = tmp.m_mtx[0][0] * m.m_mtx[0][1] +
+                 tmp.m_mtx[0][1] * m.m_mtx[1][1] +
+                 tmp.m_mtx[0][2] * m.m_mtx[2][1] +
+                 tmp.m_mtx[0][3] * m.m_mtx[3][1];
+
+    m_mtx[0][2] = tmp.m_mtx[0][0] * m.m_mtx[0][2] +
+                 tmp.m_mtx[0][1] * m.m_mtx[1][2] +
+                 tmp.m_mtx[0][2] * m.m_mtx[2][2] +
+                 tmp.m_mtx[0][3] * m.m_mtx[3][2];
+
+    m_mtx[0][3] = tmp.m_mtx[0][0] * m.m_mtx[0][3] +
+                 tmp.m_mtx[0][1] * m.m_mtx[1][3] +
+                 tmp.m_mtx[0][2] * m.m_mtx[2][3] +
+                 tmp.m_mtx[0][3] * m.m_mtx[3][3];
+
+    m_mtx[1][0] = tmp.m_mtx[1][0] * m.m_mtx[0][0] +
+                 tmp.m_mtx[1][1] * m.m_mtx[1][0] +
+                 tmp.m_mtx[1][2] * m.m_mtx[2][0] +
+                 tmp.m_mtx[1][3] * m.m_mtx[3][0];
+
+    m_mtx[1][1] = tmp.m_mtx[1][0] * m.m_mtx[0][1] +
+                 tmp.m_mtx[1][1] * m.m_mtx[1][1] +
+                 tmp.m_mtx[1][2] * m.m_mtx[2][1] +
+                 tmp.m_mtx[1][3] * m.m_mtx[3][1];
+
+    m_mtx[1][2] = tmp.m_mtx[1][0] * m.m_mtx[0][2] +
+                 tmp.m_mtx[1][1] * m.m_mtx[1][2] +
+                 tmp.m_mtx[1][2] * m.m_mtx[2][2] +
+                 tmp.m_mtx[1][3] * m.m_mtx[3][2];
+
+    m_mtx[1][3] = tmp.m_mtx[1][0] * m.m_mtx[0][3] +
+                 tmp.m_mtx[1][1] * m.m_mtx[1][3] +
+                 tmp.m_mtx[1][2] * m.m_mtx[2][3] +
+                 tmp.m_mtx[1][3] * m.m_mtx[3][3];
+
+    m_mtx[2][0] = tmp.m_mtx[2][0] * m.m_mtx[0][0] +
+                 tmp.m_mtx[2][1] * m.m_mtx[1][0] +
+                 tmp.m_mtx[2][2] * m.m_mtx[2][0] +
+                 tmp.m_mtx[2][3] * m.m_mtx[3][0];
+
+    m_mtx[2][1] = tmp.m_mtx[2][0] * m.m_mtx[0][1] +
+                 tmp.m_mtx[2][1] * m.m_mtx[1][1] +
+                 tmp.m_mtx[2][2] * m.m_mtx[2][1] +
+                 tmp.m_mtx[2][3] * m.m_mtx[3][1];
+
+    m_mtx[2][2] = tmp.m_mtx[2][0] * m.m_mtx[0][2] +
+                 tmp.m_mtx[2][1] * m.m_mtx[1][2] +
+                 tmp.m_mtx[2][2] * m.m_mtx[2][2] +
+                 tmp.m_mtx[2][3] * m.m_mtx[3][2];
+
+    m_mtx[2][3] = tmp.m_mtx[2][0] * m.m_mtx[0][3] +
+                 tmp.m_mtx[2][1] * m.m_mtx[1][3] +
+                 tmp.m_mtx[2][2] * m.m_mtx[2][3] +
+                 tmp.m_mtx[2][3] * m.m_mtx[3][3];
+
+    m_mtx[3][0] = tmp.m_mtx[3][0] * m.m_mtx[0][0] +
+                 tmp.m_mtx[3][1] * m.m_mtx[1][0] +
+                 tmp.m_mtx[3][2] * m.m_mtx[2][0] +
+                 tmp.m_mtx[3][3] * m.m_mtx[3][0];
+
+    m_mtx[3][1] = tmp.m_mtx[3][0] * m.m_mtx[0][1] +
+                 tmp.m_mtx[3][1] * m.m_mtx[1][1] +
+                 tmp.m_mtx[3][2] * m.m_mtx[2][1] +
+                 tmp.m_mtx[3][3] * m.m_mtx[3][1];
+
+    m_mtx[3][2] = tmp.m_mtx[3][0] * m.m_mtx[0][2] +
+                 tmp.m_mtx[3][1] * m.m_mtx[1][2] +
+                 tmp.m_mtx[3][2] * m.m_mtx[2][2] +
+                 tmp.m_mtx[3][3] * m.m_mtx[3][2];
+
+    m_mtx[3][3] = tmp.m_mtx[3][0] * m.m_mtx[0][3] +
+                 tmp.m_mtx[3][1] * m.m_mtx[1][3] +
+                 tmp.m_mtx[3][2] * m.m_mtx[2][3] +
+                 tmp.m_mtx[3][3] * m.m_mtx[3][3];
+
+    return *this;
+}
+
 // Private //
 Matrix4 Matrix4::_setRotateOnly(Quaternion& rot)
 {
     Matrix4::_setRotateFromQuat(rot.getReal(), rot.getImaginary());
+    return (*this);
 }
 
 void Matrix4::_setRotateFromQuat(float r, const Vector3& i)

@@ -15,6 +15,9 @@ Framebuffer::Framebuffer(HWND hwnd)
 
     // Create a new default camera
     m_camera = Camera();
+    auto t = m_camera.getTransform();
+    t.setTranslation(Vector3(0, -10, -20));
+    m_camera.setTransform(t);
 }
 
 Framebuffer::~Framebuffer()
@@ -86,67 +89,34 @@ https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthogr
 */
 Vector2 Framebuffer::vertexToScreen(Vertex vertex)
 {
+    //Vector3 vertexPos = vertex.getTranslation();
+    //Transform cameraXForm = m_camera.getTransform();
+    //Vector3 cameraPos = cameraXForm.getTranslation();
 
-    Matrix4 cameraMatrix = m_camera.getTransform().getMatrix();
-    Matrix4 projectionMatrix = m_camera.getProjectionMatrix();
+    //double f = Math::distance(vertexPos, cameraPos);
 
-    Vector3 vertCamera, projectedVert;
+    //int x = ((vertexPos.x() - cameraPos.x()) * (f / vertexPos.z())) + cameraPos.x();
+    //int y = ((vertexPos.y() - cameraPos.y()) * (f / vertexPos.z())) + cameraPos.y();
 
-    Vector3 vertexPos = vertex.pos();
-    vertCamera = cameraMatrix * vertexPos;
-    projectedVert = projectionMatrix * vertCamera;
+    Matrix4 cameraMatrix     = m_camera.getTransform().getMatrix();
+    Matrix4 projectionMatrix = m_camera.getProjectionMatrix(m_width, m_height);
+    Vector3 vertexPos        = vertex.getTranslation();
+    Vector4 projectedVertex = projectionMatrix * cameraMatrix * (Vector4(vertexPos.x(), vertexPos.y(), vertexPos.z(), 1.0));
 
-    float x = (float)((projectedVert.x() + 1) * 0.5 * m_width);
-    float y = (float)((1 - (projectedVert.y() + 1) * 0.5) * m_height);
+    int x = (projectedVertex.x() + 1) * 0.5 * m_width;
+    int y = (1 - (projectedVertex.y() + 1) * 0.5) * m_height;
 
-    //Math::clamp((int)x, 0, m_width);
-    x = m_width - 1.0f < x ? m_width - 1.0f : x;
-    y = m_height - 1.0f < y ? m_height - 1.0f : y;
+    Math::clamp(x, 0, m_width);
+    Math::clamp(y, 0, m_height);
 
     return Vector2(x, y);
 }
 
-Vector2 Framebuffer::worldToScreen(Vector3 vector, Matrix4 matrix)
+bool Framebuffer::isPointInFrame(Vector2& p) const
 {
-
-    //Vector4 clipCoords;
-    //clipCoords.setX(vector.x() * matrix[0] +
-    //                vector.y() * matrix[4] +
-    //                vector.z() * matrix[8] +
-    //                matrix[12]);
-    //clipCoords.setY(vector.x() * matrix[1] +
-    //                vector.y() * matrix[5] +
-    //                vector.z() * matrix[9] +
-    //                matrix[13]);
-    //clipCoords.setZ(vector.x() * matrix[2] +
-    //                vector.y() * matrix[6] +
-    //                vector.z() * matrix[10] +
-    //                matrix[14]);
-    //clipCoords.setW(vector.x() * matrix[3] +
-    //                vector.y() * matrix[7] +
-    //                vector.z() * matrix[11] +
-    //                matrix[15]);
-
-    //if (clipCoords.w() < 0.1f)
-    //{
-    //    return Vector2();
-    //}
-
-    //Vector3 ndc; // Normalized device coordinates
-    //ndc.setX(clipCoords.x() / clipCoords.w());
-    //ndc.setY(clipCoords.y() / clipCoords.w());
-    //ndc.setZ(clipCoords.z() / clipCoords.w());
-
-    //// Transform to screen coordinates
-    //Vector2 screenCoord;
-    //screenCoord.setX((m_width / 2 * ndc.x()) + (ndc.x() + m_width / 2));
-    //screenCoord.setY((m_height / 2 * ndc.y()) + (ndc.y() + m_height / 2));
-
-    //// Clip screen coordinates to screen width/height
-    //screenCoord.setX(m_width  < screenCoord.x() ? m_width  : screenCoord.x());
-    //screenCoord.setY(m_height < screenCoord.y() ? m_height : screenCoord.y());
-
-    //return screenCoord;
+    int x = p.x();
+    int y = p.y();
+    return (x > 0 && y > 0 && x < m_width && y < m_height);
 }
 
 void Framebuffer::clear()
@@ -158,6 +128,10 @@ void Framebuffer::clear()
 
 void Framebuffer::setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB)
 {
+    if (x < 0 || y < 0 || x > m_width || y > m_height)
+    {
+        return;
+    }
     uint32* pixelPtr = 0;
 
     switch (buffer)
@@ -175,8 +149,8 @@ void Framebuffer::setPixel(int x, int y, Color color, Buffer buffer = Buffer::RG
         }
     }
 
-    Math::clamp(&x, 0, m_width);
-    Math::clamp(&y, 0, m_height);
+    Math::clamp(x, 0, m_width);
+    Math::clamp(y, 0, m_height);
     uint32 offset = x + (y * m_width);
     pixelPtr += offset;
     *pixelPtr = color.hex();
@@ -208,11 +182,11 @@ void Framebuffer::drawGradient()
 
 void Framebuffer::drawRect(int x0, int y0, int x1, int y1, Color color)
 {
-    x0 = Math::clamp(&x0, 0, m_width);
-    x1 = Math::clamp(&x1, 0, m_width);
+    x0 = Math::clamp(x0, 0, m_width);
+    x1 = Math::clamp(x1, 0, m_width);
     
-    y0 = Math::clamp(&y0, 0, m_height);
-    y1 = Math::clamp(&y1, 0, m_height);
+    y0 = Math::clamp(y0, 0, m_height);
+    y1 = Math::clamp(y1, 0, m_height);
 
     // For each pixel...
     for (int y = y0; y < y1; y++)
@@ -236,11 +210,11 @@ void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
     int y1 = cy + r;
 
     // Clamp based on buffer width/height
-    x0 = Math::clamp(&x0, 0, m_width);
-    y0 = Math::clamp(&y0, 0, m_height);
+    x0 = Math::clamp(x0, 0, m_width);
+    y0 = Math::clamp(y0, 0, m_height);
 
-    x1 = Math::clamp(&x1, 0, m_width);
-    y1 = Math::clamp(&y1, 0, m_height);
+    x1 = Math::clamp(x1, 0, m_width);
+    y1 = Math::clamp(y1, 0, m_height);
 
     auto rsqr = pow(r, 2);
 
@@ -274,6 +248,10 @@ void Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
         for (int x = minX; x < maxX; x++)                   // Left to right
         {
             Vector2 point(x,y);                             // Point at current x, y
+            if (!isPointInFrame(point))
+            {
+                continue;
+            }
             if (Math::isPointInTriangle(point, v1, v2, v3)) // Is this point in our triangle?
             {
                 setPixel(x, y, color);                      // If it is, colour here
@@ -323,6 +301,10 @@ void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
 
 void Framebuffer::drawScene(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
 {
+
+    Matrix4 cameraMatrix = m_camera.getTransform().getMatrix();
+    Core::print("------\nCamera Matrix:\n%s\r", cameraMatrix.toString().c_str());
+
     for (int i = 0; i < m_indices.size(); i++)
     {
         // Get vertex indices

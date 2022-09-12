@@ -20,6 +20,11 @@ public:
 	void			setScale(const Vector3& s);
 	const Vector3&	getScale() { return m_scale; }
 
+	const char*		toString()
+	{
+		
+	}
+
 
 private:
 	Vector3 m_translation;

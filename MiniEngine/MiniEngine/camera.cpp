@@ -4,59 +4,42 @@ Camera::Camera()
 {
     
 }
-//
-//void Camera::move(float x, float y, float z)
-//{
-//    m_position.setX(m_position.x() + x);
-//    m_position.setY(m_position.y() + y);
-//    m_position.setZ(m_position.z() + z);
-//}
-//
-//void Camera::move(Vector3& vec)
-//{
-//    move(vec.x(), vec.y(), vec.z());
-//}
-//
-//void Camera::setPosition(float x, float y, float z)
-//{
-//    m_position.setX(x);
-//    m_position.setY(y);
-//    m_position.setZ(z);
-//}
-//
-//void Camera::setPosition(Vector3& vec)
-//{
-//    setPosition(vec.x(), vec.y(), vec.z());
-//}
-//
-//Matrix4 Camera::getCameraMatrix()
-//{
-//    //auto m = Matrix4();
-//    //m[], m_position.x());
-//    //m.setIndex(10, m_position.y());
-//    //m.setIndex(11, m_position.z());
-//    //return m;
-//}
 
 /*
-https://www.scratchapixel.com/code.php?id=4&origin=/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
+    https://www.scratchapixel.com/code.php?id=4&origin=/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
+    https://jsantell.com/3d-projection/
+    http://xdpixel.com/decoding-a-projection-matrix/
+
+    [ 2n / r-1 ] [    0     ] [ r+l / r-l ] [     0     ]
+    [    0     ] [ 2n / t-b ] [ t+b / t-b ] [     0     ]
+    [    0     ] [    0     ] [ f+n / n-f ] [ 2fn / n-f ]
+    [    0     ] [    0     ] [    -1     ] [     0     ]
+
 */
-Matrix4 Camera::getProjectionMatrix()
+const Matrix4 Camera::getProjectionMatrix(const float width, const float height)
 {
-    float scale = 1.0f / tan(m_fieldOfView * 0.5 * Math::PI / 180.0f);
+    Matrix4 matrix;
+    matrix.setIdentity();
 
-    // Reset projection matrix
-    auto projectionMatrix = Matrix4();
+    const double l = 0;
+    const double r = width;
+    const double b = height;
+    const double t = 0;
+    const double n = m_nearClip;
+    const double f = m_farClip;
 
-    // Distance between near clip and far clip
-    float deltaClip = m_farClip - m_nearClip;
+    const double rl = r - l;
+    const double tb = t - b;
+    const double fn = f - n;
 
-    projectionMatrix[0][0] = scale;
-    projectionMatrix[1][1] = scale;
-    projectionMatrix[2][2] = -m_farClip / deltaClip;
-    projectionMatrix[2][3] = -m_farClip * m_nearClip / deltaClip;
-    projectionMatrix[3][2] = -1;
-    projectionMatrix[3][3] = 0;
+    matrix[0][0] = 2.0 * n / r - l;
+    matrix[1][1] = 2.0 * n / t - b;
+    matrix[2][2] = -(f + n) / n - f;
+    matrix[2][0] =  (r + l) / r - l;
+    matrix[2][1] =  (t + b) / t - b;
+    matrix[3][2] = -2.0 * n * f / n - f;
+    matrix[2][3] = -1.0;
+    matrix[3][3] =  0.0;
 
-    return projectionMatrix;
+    return matrix;
 }

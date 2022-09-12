@@ -1,4 +1,6 @@
 #include "application.h"
+#include <chrono>
+#include <thread>
 
 #ifndef MAIN_WINDOW_TIMER_ID
 #define MAIN_WINDOW_TIMER_ID 1001
@@ -235,7 +237,7 @@ int Application::run()
         m_buffer->clear();
 
         //// Move our camera
-        double d = 0.001f * frameTime;
+        double d = 0.01f * frameTime;
         if (W_DOWN)
         {
             m_buffer->camera()->move(Vector3(0, d, 0));
@@ -252,13 +254,6 @@ int Application::run()
         {
             m_buffer->camera()->move(Vector3(0, 0, d));
         }
-
-        auto xform = m_buffer->camera()->getTransform();
-        auto pos = xform.getTranslation();
-
-#if _DEBUG
-        Core::print("Camera position: [%f, %f, %f]\n", pos.x(), pos.y(), pos.z());
-#endif
 
         // Bind vertex and index buffers to the Framebuffer
         m_buffer->setVertexBufferData(mesh.getVertices(Coordinates::World));
@@ -284,6 +279,8 @@ int Application::run()
             SRCCOPY
         );
         ReleaseDC(m_hwnd, hdc);
+
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     };
 
     return 0;

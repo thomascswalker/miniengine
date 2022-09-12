@@ -53,7 +53,7 @@ public:
 
     // Math
     Vector2 vertexToScreen(Vertex vertex);
-    Vector2 worldToScreen(Vector3 vector, Matrix4 matrix);
+    bool isPointInFrame(Vector2& p) const;
 
     // Drawing
     void clear();

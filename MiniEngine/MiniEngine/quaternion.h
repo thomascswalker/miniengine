@@ -32,44 +32,44 @@ public:
 		return (m_real == q.m_real &&
 				m_imaginary == q.m_imaginary);
 	}
-	//Quaternion& operator *= (const Quaternion& q)
-	//{
-	//	double r1 = getReal();
-	//	double r2 = q.getReal();
-	//	const Vector3& i1 = getImaginary();
-	//	const Vector3& i2 = q.getImaginary();
+	Quaternion& operator *= (const Quaternion& q)
+	{
+		double r1 = m_real;
+		double r2 = q.m_real;
+		const Vector3& i1 = m_imaginary;
+		const Vector3& i2 = q.m_imaginary;
 
-	//	double r = r1 * r2 - Math::dot(i1, i2);
+		double r = r1 * r2 - Math::dot(i1, i2);
 
-	//	Vector3 i(r1 * i2[0] + r2 * i1[0] + (i1[1] * i2[2] - i1[2] * i2[1]),
-	//		r1 * i2[1] + r2 * i1[1] + (i1[2] * i2[0] - i1[0] * i2[2]),
-	//		r1 * i2[2] + r2 * i1[2] + (i1[0] * i2[1] - i1[1] * i2[0]));
+		Vector3 i(r1 * i2[0] + r2 * i1[0] + (i1[1] * i2[2] - i1[2] * i2[1]),
+				  r1 * i2[1] + r2 * i1[1] + (i1[2] * i2[0] - i1[0] * i2[2]),
+				  r1 * i2[2] + r2 * i1[2] + (i1[0] * i2[1] - i1[1] * i2[0]));
 
-	//	setReal(r);
-	//	setImaginary(i);
+		setReal(r);
+		setImaginary(i);
 
-	//	return *this;
-	//}
-	//Quaternion& operator *= (double s)
-	//{
-	//	m_real *= s;
-	//	m_imaginary = m_imaginary * s;
-	//	return *this;
-	//}
+		return *this;
+	}
+	Quaternion& operator *= (double s)
+	{
+		m_real *= s;
+		m_imaginary *= s;
+		return *this;
+	}
 	///// Scales this quaternion by 1 / \p s.
-	//Quaternion& operator /= (double s) {
-	//	return (*this) *= 1.0 / s;
-	//}
-	//friend Quaternion operator / (const Quaternion &q, double d)
-	//{
-	//	Quaternion qt = q;
-	//	return qt /= d;
-	//}
-	//friend Quaternion& operator * (Quaternion &q1, Quaternion &q2)
-	//{
-	//	Quaternion qt = q1;
-	//	return qt *= q2;
-	//}
+	Quaternion& operator /= (double s) {
+		return (*this) *= 1.0 / s;
+	}
+	friend Quaternion operator / (const Quaternion &q, double d)
+	{
+		Quaternion qt = q;
+		return qt /= d;
+	}
+	friend Quaternion& operator * (Quaternion &q1, Quaternion &q2)
+	{
+		Quaternion qt = q1;
+		return qt *= q2;
+	}
 
 private:
 	// Properties

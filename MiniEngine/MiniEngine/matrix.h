@@ -2,6 +2,8 @@
 #define MATRIX_H
 
 #include <vector>
+#include <string>
+#include <format>
 #include "math.h"
 #include "rotation.h"
 
@@ -69,6 +71,8 @@ public:
 
     Matrix4         getInverse(double* detPtr = NULL);
 
+    std::string     toString();
+
     // Operators
     double*         operator [] (int i) { return m_mtx[i]; }
     const double*   operator [] (int i) const { return m_mtx[i]; }
@@ -78,26 +82,21 @@ public:
     Matrix4&        operator *= (double v);
     Matrix4&        operator += (const Matrix4& m);
 
-    Vector3 operator*(Vector3& in) const
+    Matrix4&        operator *=(const Matrix4& m);
+    friend Matrix4& operator * (const Matrix4& m1, const Matrix4& m2)
     {
-        //out = in * Mproj;
-        Vector3 out;
-    
-        double x = in.x() * m_mtx[0][0] + in.y() * m_mtx[0][1] + in.z() * m_mtx[0][2] + m_mtx[0][3];
-        double y = in.x() * m_mtx[1][0] + in.y() * m_mtx[1][1] + in.z() * m_mtx[1][2] + m_mtx[1][3];
-        double z = in.x() * m_mtx[2][0] + in.y() * m_mtx[2][1] + in.z() * m_mtx[2][2] + m_mtx[2][3];
-        double w = in.x() * m_mtx[3][0] + in.y() * m_mtx[3][1] + in.z() * m_mtx[3][2] + m_mtx[3][3];
-     
-        // normalize if w is different than 1 (convert from homogeneous to Cartesian coordinates)
-        if (w != 1)
-        { 
-            x /= w;
-            y /= w;
-            z /= w;
-        }
-    
-        return Vector3(x, y, z);
+        Matrix4 tmp(m1);
+        tmp *= m2;
+        return tmp;
     }
+    friend inline Vector4 operator *(const Matrix4& m, const Vector4& vec)
+    {
+        return Vector4(vec[0] * m.m_mtx[0][0] + vec[1] * m.m_mtx[0][1] + vec[2] * m.m_mtx[0][2] + vec[3] * m.m_mtx[0][3],
+                       vec[0] * m.m_mtx[1][0] + vec[1] * m.m_mtx[1][1] + vec[2] * m.m_mtx[1][2] + vec[3] * m.m_mtx[1][3],
+                       vec[0] * m.m_mtx[2][0] + vec[1] * m.m_mtx[2][1] + vec[2] * m.m_mtx[2][2] + vec[3] * m.m_mtx[2][3],
+                       vec[0] * m.m_mtx[3][0] + vec[1] * m.m_mtx[3][1] + vec[2] * m.m_mtx[3][2] + vec[3] * m.m_mtx[3][3]);
+    }
+
 
 private:
     MatrixData<double, 4, 4> m_mtx;

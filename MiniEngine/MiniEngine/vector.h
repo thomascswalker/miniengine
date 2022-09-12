@@ -155,6 +155,16 @@ public:
 		return Vector3(-_x, -_y, -_z);
 	}
 
+	Vector3 operator *= (Vector3& v) const
+	{	
+		return (*this * v);
+	}
+
+	Vector3 operator *= (double d) const
+	{	
+		return (*this * d);
+	}
+
 	// Methods
 	double z() const { return _z; }
 	void setZ(double z) { _z = z; }
