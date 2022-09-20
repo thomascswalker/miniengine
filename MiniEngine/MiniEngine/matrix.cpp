@@ -41,10 +41,10 @@ Matrix4& Matrix4::setIdentity()
 
 Matrix4& Matrix4::setTranslate(const Vector3& t)
 {
-    m_mtx[0][0] = 1.0; m_mtx[0][1] = 0.0;   m_mtx[0][2] = 0.0;   m_mtx[0][3] = 0.0;
-    m_mtx[1][0] = 0.0;   m_mtx[1][1] = 1.0; m_mtx[1][2] = 0.0;   m_mtx[1][3] = 0.0;
-    m_mtx[2][0] = 0.0;   m_mtx[2][1] = 0.0;   m_mtx[2][2] = 1.0; m_mtx[2][3] = 0.0;
-    m_mtx[3][0] = t[0];   m_mtx[3][1] = t[1];   m_mtx[3][2] = t[2];   m_mtx[3][3] = 1.0;
+    m_mtx[0][0] = 1.0;  m_mtx[0][1] = 0.0;  m_mtx[0][2] = 0.0;  m_mtx[0][3] = 0.0;
+    m_mtx[1][0] = 0.0;  m_mtx[1][1] = 1.0;  m_mtx[1][2] = 0.0;  m_mtx[1][3] = 0.0;
+    m_mtx[2][0] = 0.0;  m_mtx[2][1] = 0.0;  m_mtx[2][2] = 1.0;  m_mtx[2][3] = 0.0;
+    m_mtx[3][0] = t[0]; m_mtx[3][1] = t[1]; m_mtx[3][2] = t[2]; m_mtx[3][3] = 1.0;
 
     return *this;
 }
@@ -198,6 +198,12 @@ Matrix4 Matrix4::getInverse(double* detPtr)
 
     return inverse;
 };
+
+Vector3& Matrix4::getTranslation() const
+{
+    auto t = Vector3(m_mtx[3][0], m_mtx[3][1], m_mtx[3][2]);
+    return t;
+}
 
 std::string Matrix4::toString()
 {

@@ -1,6 +1,9 @@
-#include "application.h"
 #include <chrono>
 #include <thread>
+
+#include "application.h"
+
+MINI_USING_DIRECTIVE
 
 #ifndef MAIN_WINDOW_TIMER_ID
 #define MAIN_WINDOW_TIMER_ID 1001
@@ -17,8 +20,8 @@ static double   currentTime         = 0.0;
 
 // Display options
 static bool     bDrawFaces          = true;
-static bool     bDrawEdges          = true;
-static bool     bDrawVertices       = false;
+static bool     bDrawEdges          = false;
+static bool     bDrawVertices       = true;
 
 // Keyboard input
 static WORD     keyCode;
@@ -32,42 +35,10 @@ static bool     E_DOWN = false;
 static bool     Q_DOWN = false;
 static bool     SPACEBAR_DOWN = false;
 
-static float ROTATION = 0.0f;
-
 static double GEO_SIZE = 0.1;
+static double CAMERA_SPEED = 0.05;
 
-// Create a pyramid
-std::vector<Vertex> pVertices = {
-    Vertex(0,  GEO_SIZE,  0),
-    Vertex(-GEO_SIZE, -GEO_SIZE,  GEO_SIZE),
-    Vertex(GEO_SIZE, -GEO_SIZE,  GEO_SIZE),
-    Vertex(0,  GEO_SIZE,  0),
-    Vertex(GEO_SIZE, -GEO_SIZE,  GEO_SIZE),
-    Vertex(GEO_SIZE, -GEO_SIZE, -GEO_SIZE),
-    Vertex(0,  GEO_SIZE,  0),
-    Vertex(GEO_SIZE, -GEO_SIZE, -GEO_SIZE),
-    Vertex(-GEO_SIZE, -GEO_SIZE, -GEO_SIZE),
-    Vertex(0,  GEO_SIZE,  0),
-    Vertex(-GEO_SIZE, -GEO_SIZE, -GEO_SIZE),
-    Vertex(-GEO_SIZE, -GEO_SIZE,  GEO_SIZE)
-};
-std::vector<int> pIndices = {
-    1, 0, 0, 1,
-    0, 1, 0, 1,
-    0, 0, 1, 1,
-    1, 0, 0, 1,
-    0, 0, 1, 1,
-    0, 1, 0, 1,
-    1, 0, 0, 1,
-    0, 1, 0, 1,
-    0, 0, 1, 1,
-    1, 0, 0, 1,
-    0, 0, 1, 1,
-    0, 1, 0, 1
-
-};
-
-// Create a cube
+// Create a triangle
 std::vector<Vertex> vertices = {
     Vertex(-GEO_SIZE, -GEO_SIZE,  GEO_SIZE),   //0
     Vertex(GEO_SIZE, -GEO_SIZE,  GEO_SIZE),    //1
@@ -78,6 +49,7 @@ std::vector<Vertex> vertices = {
     Vertex(-GEO_SIZE,  GEO_SIZE, -GEO_SIZE),   //6
     Vertex(GEO_SIZE,  GEO_SIZE, -GEO_SIZE)     //7
 };
+
 std::vector<int> indices = {
     //Top
     2, 6, 7,
@@ -146,6 +118,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case 'D': D_DOWN = false; break;
                 case 'E': E_DOWN = false; break;
                 case 'Q': Q_DOWN = false; break;
+                //case VK_ESCAPE: bIsRunning = false; break;
                 //case VK_SPACE: SPACEBAR_DOWN = false; break;
             }
             break;
@@ -164,6 +137,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case 'D': D_DOWN = true; break;
                 case 'E': E_DOWN = true; break;
                 case 'Q': Q_DOWN = true; break;
+                //case VK_ESCAPE: bIsRunning = false; break;
                 //case VK_SPACE: SPACEBAR_DOWN = true; break;
             }
             break;
@@ -239,6 +213,9 @@ void Application::init()
         NULL                                // Additional application data
     );
 
+    // Initialize our rendering pipeline
+    //auto p = Pipeline::getPipelineInstance();
+
     // Initialize our framebuffer
     m_buffer = new Framebuffer(m_hwnd);
     m_buffer->setSize(initWidth, initHeight);
@@ -277,7 +254,7 @@ int Application::run()
         m_buffer->clear();
 
         //// Move our camera
-        double d = 0.01f * frameTime;
+        double d = CAMERA_SPEED * frameTime;
         if (W_DOWN)
         {
             m_buffer->camera()->move(Vector3(0, 0, d));
@@ -303,15 +280,19 @@ int Application::run()
             m_buffer->camera()->move(Vector3(0, -d, 0));
         }
 
+        auto c = m_buffer->camera()->getTranslation();
+        
+        Core::print("Camera: %s\n", c.toString().c_str());
+
         // Bind vertex and index buffers to the Framebuffer
-        m_buffer->setVertexBufferData(mesh.getVertices());
-        m_buffer->setIndexBufferData(mesh.getIndices());
+        m_buffer->bindVertexBuffer(mesh.getVertices());
+        m_buffer->bindIndexBuffer(mesh.getIndices());
 
         // Draw our scene geometry as triangles
-        m_buffer->drawScene(bDrawFaces, bDrawEdges, bDrawVertices);
+        m_buffer->render(bDrawFaces, bDrawEdges, bDrawVertices);
 
         // Draw a mouse cursor
-        m_buffer->drawCircle(m_mouseX, m_mouseY, 6, Color::red());
+        m_buffer->drawCircle(m_mouseX, m_mouseY, 5, Color::green());
 
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);
@@ -327,8 +308,6 @@ int Application::run()
             SRCCOPY
         );
         ReleaseDC(m_hwnd, hdc);
-
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     };
 
     return 0;

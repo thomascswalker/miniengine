@@ -43,7 +43,7 @@ Vector4::Vector4()
 	_x = 0;
 	_y = 0;
 	_z = 0;
-	_z = 0;
+	_w = 0;
 }
 
 Vector4::Vector4(double x, double y, double z, double w)
@@ -51,7 +51,7 @@ Vector4::Vector4(double x, double y, double z, double w)
 	_x = x;
 	_y = y;
 	_z = z;
-	_z = w;
+	_w = w;
 }
 
 Vector4::Vector4(const Vector3& v, double w)
@@ -59,7 +59,7 @@ Vector4::Vector4(const Vector3& v, double w)
 	_x = v.x();
 	_y = v.y();
 	_z = v.z();
-	_z = w;
+	_w = w;
 }
 
 std::string Vector4::toString()

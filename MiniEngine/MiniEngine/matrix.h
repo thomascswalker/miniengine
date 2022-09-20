@@ -70,6 +70,7 @@ public:
     Matrix4&        setScale(const Vector3& scale);
 
     Matrix4         getInverse(double* detPtr = NULL);
+    Vector3&        getTranslation() const;
     
 
     std::string     toString();

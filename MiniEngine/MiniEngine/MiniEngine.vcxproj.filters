@@ -111,5 +111,8 @@
     <ClInclude Include="object.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
+    <ClInclude Include="api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
