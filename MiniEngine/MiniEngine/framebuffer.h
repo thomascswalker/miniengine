@@ -1,18 +1,27 @@
 #ifndef FRAMEBUFFER_H
 #define FRAMEBUFFER_H
 
+#define NOMINMAX
+
 #include <memory>
 #include <typeinfo>
 #include <windows.h>
-#include <gdiplus.h>
+//#include <gdiplus.h>
 #include <cassert>
 #include <sstream>
 
+#include "camera.h"
 #include "color.h"
 #include "matrix.h"
-#include "math.h"
 #include "mesh.h"
 #include "vertex.h"
+
+enum Buffer
+{
+    RGB,
+    DEPTH,
+    NORMAL
+};
 
 class Framebuffer
 {
@@ -28,6 +37,9 @@ public:
     void setSize(Core::Size size);
     void setSize(int width, int height);
 
+    // Camera
+    Camera* camera() { return &m_camera; }
+
     // Pixel buffer
     HWND getHwnd() { return m_hwnd; }
     void allocate();
@@ -36,22 +48,23 @@ public:
     int getBufferSize() { return m_width * m_height * sizeof(unsigned int); }
 
     // Vertex buffer
-    void setVertexBufferData(std::vector<Vertex> data);
-    void setIndexBufferData(std::vector<int> data);
+    void bindVertexBuffer(std::vector<Vertex> data);
+    void bindIndexBuffer(std::vector<int> data);
     int getNumVertices();
     int getNumIndices();
 
     // Math
-    Vector2 worldToScreen(Vector3 vector, Matrices::Matrix4 matrix);
+    Vector2 vertexToScreen(Vertex vertex);
+    bool isPointInFrame(Vector2& p) const;
 
     // Drawing
     void clear();
-    void setPixel(int x, int y, Color color);
+    void setPixel(int x, int y, Color color, Buffer buffer);
     void drawRect(int x0, int y0, int x1, int y1, Color color);
     void drawCircle(int cx, int cy, int r, Color color);
     void drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color);
     void drawLine(Vector2& v1, Vector2& v2, Color color);
-    void drawScene(Matrices::Matrix4 m, bool bDrawFaces, bool bDrawEdges, bool bDrawVertices);
+    void render(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices);
     void drawGradient();
 
 protected:
@@ -84,6 +97,11 @@ private:
     int m_posOffset = 0;
     int m_colOffset = 12;
     int m_texOffset = 24;
+
+    std::vector<Vector2> m_screenVertices;
+
+    // Camera and matrices
+    Camera m_camera;
 };
 
 #endif

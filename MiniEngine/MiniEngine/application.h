@@ -5,7 +5,10 @@
 #include <windowsx.h>
 #include <string>
 
+#include "api.h"
 #include "framebuffer.h"
+
+MINI_NAMESPACE_OPEN
 
 class Application
 {
@@ -41,5 +44,7 @@ private:
     int m_mouseX = 0;
     int m_mouseY = 0;
 };
+
+MINI_NAMESPACE_CLOSE
 
 #endif

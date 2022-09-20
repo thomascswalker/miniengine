@@ -2,17 +2,32 @@
 
 namespace Math
 {
-    int Math::clamp(int *value, int min, int max)
+    double Math::degreesToRadians(double d)
     {
-        if (*value < min)
+        return d * (Math::PI / 180.0);
+    }
+
+    double Math::radiansToDegrees(double r)
+    {
+        return r * (180 / Math::PI);
+    }
+
+    float Math::dot(Vector3 v1, Vector3 v2)
+    {
+	    return v1.x() * v2.x() + v1.y() * v2.y() + v1.z() * v2.z();
+    }
+
+    int Math::clamp(int &value, int min, int max)
+    {
+        if (value < min)
         {
             return min;
         }
-        if (*value > max)
+        if (value > max)
         {
             return max;
         }
-        return *value;
+        return value;
     }
 
     float Math::area(Vector2 v1, Vector2 v2, Vector3 v3)
@@ -27,41 +42,38 @@ namespace Math
 
     double Math::distance(Vector2 v1, Vector2 v2)
     {
-        auto a = pow(v2.y() - v1.y(), 2);
-        auto b = pow(v2.x() - v1.x(), 2);
+        auto a = pow(v2.x() - v1.x(), 2);
+        auto b = pow(v2.y() - v1.y(), 2);
         return sqrt(a + b);
+    }
+
+    double Math::distance(Vector3 v1, Vector3 v2)
+    {
+        auto a = pow(v2.x() - v1.x(), 2);
+        auto b = pow(v2.y() - v1.y(), 2);
+        auto c = pow(v2.z() - v1.z(), 2);
+        return sqrt(a + b + c);
     }
 
     bool Math::isPointInTriangle(Vector2 p, Vector2 v1, Vector2 v2, Vector2 v3)
     {
         // Get each vector
-        auto ab = v1 - v2;
-        auto ap = v1 - p;
-        auto bc = v2 - v3;
-        auto bp = v2 - p;
-        auto ca = v3 - v1;
-        auto cp = v3 - p;
+        Vector2 ab = v1 - v2;
+        Vector2 ap = v1 - p;
+        Vector2 bc = v2 - v3;
+        Vector2 bp = v2 - p;
+        Vector2 ca = v3 - v1;
+        Vector2 cp = v3 - p;
 
         // Cross product of each edge/point
-        auto d1 = ab.cross(ap);
-        auto d2 = bc.cross(bp);
-        auto d3 = ca.cross(cp);
+        float d1 = cross(ab, ap);
+        float d2 = cross(bc, bp);
+        float d3 = cross(ca, cp);
 
         // Are either positive, or negative?
         bool isNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
         bool isPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
 
         return !(isNeg && isPos);
-    }
-
-    void Math::rotate(Vector3 v1, Vector3 v2, float rotation)
-    {
-        float values[12] = { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 };
-        Matrices::Matrix4 axis(values);
-    }
-
-    void Math::rotate(Vector3 v, float rotation)
-    {
-        rotate(v, Vector3(), rotation);
     }
 }

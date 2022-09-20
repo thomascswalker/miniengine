@@ -1,4 +1,9 @@
+#include <chrono>
+#include <thread>
+
 #include "application.h"
+
+MINI_USING_DIRECTIVE
 
 #ifndef MAIN_WINDOW_TIMER_ID
 #define MAIN_WINDOW_TIMER_ID 1001
@@ -8,32 +13,41 @@
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
 static UINT     globalFrameRate     = 1;       // 60 FPS
-static int      initWidth           = 300;     // Standard HD
-static int      initHeight          = 300;
+static int      initWidth           = 720;     // Standard HD
+static int      initHeight          = 720;
 static int      tickRate            = 60;
 static double   currentTime         = 0.0;
 
 // Display options
 static bool     bDrawFaces          = true;
-static bool     bDrawEdges          = true;
-static bool     bDrawVertices       = false;
+static bool     bDrawEdges          = false;
+static bool     bDrawVertices       = true;
 
 // Keyboard input
 static WORD     keyCode;
 static WORD     keyFlags;
 
-static float ROTATION = 0.0f;
+static bool     W_DOWN              = false;
+static bool     A_DOWN              = false;
+static bool     S_DOWN              = false;
+static bool     D_DOWN              = false;
+static bool     E_DOWN              = false;
+static bool     Q_DOWN              = false;
+static bool     SPACEBAR_DOWN       = false;
+
+static double   GEO_SIZE            = 0.1;
+static double   CAMERA_SPEED        = 0.05;
 
 // Create a triangle
 std::vector<Vertex> vertices = {
-    Vertex(-0.5, -0.5,  0.5),   //0
-    Vertex(0.5, -0.5,  0.5),    //1
-    Vertex(-0.5,  0.5,  0.5),   //2
-    Vertex(0.5,  0.5,  0.5),    //3
-    Vertex(-0.5, -0.5, -0.5),   //4
-    Vertex(0.5, -0.5, -0.5),    //5
-    Vertex(-0.5,  0.5, -0.5),   //6
-    Vertex(0.5,  0.5, -0.5)     //7
+    Vertex(-GEO_SIZE, -GEO_SIZE,  GEO_SIZE),   //0
+    Vertex(GEO_SIZE, -GEO_SIZE,  GEO_SIZE),    //1
+    Vertex(-GEO_SIZE,  GEO_SIZE,  GEO_SIZE),   //2
+    Vertex(GEO_SIZE,  GEO_SIZE,  GEO_SIZE),    //3
+    Vertex(-GEO_SIZE, -GEO_SIZE, -GEO_SIZE),   //4
+    Vertex(GEO_SIZE, -GEO_SIZE, -GEO_SIZE),    //5
+    Vertex(-GEO_SIZE,  GEO_SIZE, -GEO_SIZE),   //6
+    Vertex(GEO_SIZE,  GEO_SIZE, -GEO_SIZE)     //7
 };
 
 std::vector<int> indices = {
@@ -63,6 +77,7 @@ std::vector<int> indices = {
 };
 
 auto mesh = Mesh(vertices, indices);
+//auto mesh = Mesh(pVertices, pIndices);
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -97,10 +112,33 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case '1': bDrawFaces = !bDrawFaces; break;
                 case '2': bDrawEdges = !bDrawEdges; break;
                 case '3': bDrawVertices = !bDrawVertices; break;
-                //case 'W': forceUp = 0; break;
-                //case 'A': forceRight = 0; break;
-                //case 'S': forceUp = 0; break;
-                //case 'D': forceRight = 0; break;
+                case 'W': W_DOWN = false; break;
+                case 'A': A_DOWN = false; break;
+                case 'S': S_DOWN = false; break;
+                case 'D': D_DOWN = false; break;
+                case 'E': E_DOWN = false; break;
+                case 'Q': Q_DOWN = false; break;
+                //case VK_ESCAPE: bIsRunning = false; break;
+                //case VK_SPACE: SPACEBAR_DOWN = false; break;
+            }
+            break;
+        }
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+        {
+            keyCode  = LOWORD(wParam);
+            keyFlags = HIWORD(lParam);
+
+            switch (keyCode)
+            {
+                case 'W': W_DOWN = true; break;
+                case 'A': A_DOWN = true; break;
+                case 'S': S_DOWN = true; break;
+                case 'D': D_DOWN = true; break;
+                case 'E': E_DOWN = true; break;
+                case 'Q': Q_DOWN = true; break;
+                //case VK_ESCAPE: bIsRunning = false; break;
+                //case VK_SPACE: SPACEBAR_DOWN = true; break;
             }
             break;
         }
@@ -186,7 +224,8 @@ int Application::run()
 
     currentTime = Core::getCurrentTime();
 
-    auto m = Matrices::Matrix4();
+    auto m = Matrix4();
+    auto camera = Camera();
 
     // Run the message loop.
     while (!bIsRunning)
@@ -211,19 +250,46 @@ int Application::run()
         // Clear the framebuffer
         m_buffer->clear();
 
-        // Rotate our mesh
-        m.rotateX(ROTATION);
-        ROTATION += 0.001f * frameTime;
+        //// Move our camera
+        double d = CAMERA_SPEED * frameTime;
+        if (W_DOWN)
+        {
+            m_buffer->camera()->move(Vector3(0, 0, d));
+        }
+        if (A_DOWN)
+        {
+            m_buffer->camera()->move(Vector3(-d, 0, 0));
+        }
+        if (S_DOWN)
+        {
+            m_buffer->camera()->move(Vector3(0, 0, -d));
+        }
+        if (D_DOWN)
+        {
+            m_buffer->camera()->move(Vector3(d, 0, 0));
+        }
+        if (E_DOWN)
+        {
+            m_buffer->camera()->move(Vector3(0, d, 0));
+        }
+        if (Q_DOWN)
+        {
+            m_buffer->camera()->move(Vector3(0, -d, 0));
+        }
+
+        auto c = m_buffer->camera()->getTranslation();
         
+        Core::print("Camera: %s\n", c.toString().c_str());
+
         // Bind vertex and index buffers to the Framebuffer
-        m_buffer->setVertexBufferData(mesh.getVertices(Coordinates::World));
-        m_buffer->setIndexBufferData(mesh.getIndices());
+        m_buffer->bindVertexBuffer(mesh.getVertices());
+        m_buffer->bindIndexBuffer(mesh.getIndices());
 
         // Draw our scene geometry as triangles
-        m_buffer->drawScene(m, bDrawFaces, bDrawEdges, bDrawVertices);
+        m_buffer->render(bDrawFaces, bDrawEdges, bDrawVertices);
 
         // Draw a mouse cursor
-        m_buffer->drawCircle(m_mouseX, m_mouseY, 6, Color::red());
+        m_buffer->drawCircle(m_mouseX, m_mouseY, 5, Color::green());
 
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);
