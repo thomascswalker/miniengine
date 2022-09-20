@@ -16,6 +16,7 @@ std::vector<Vertex> Mesh::getVertices(Coordinates::CoordSpace space)
 {
     switch (space)
     {
+        default:
         case Coordinates::Local:
         {
             return m_vertices;
@@ -30,9 +31,9 @@ std::vector<Vertex> Mesh::getVertices(Coordinates::CoordSpace space)
                 Vertex worldVertex = Vertex();
 
                 // Set the world position via position
-                auto localPos = localVertex.pos();
+                auto localPos = localVertex.getTranslation();
                 auto worldPos = getPosition();
-                worldVertex.setPos(localPos + worldPos);
+                worldVertex.setTranslation(localPos + worldPos);
 
                 // Set the world position via rotation
 

@@ -1,26 +1,25 @@
 #ifndef CAMERA_H
 #define CAMERA_H
-#endif
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include "vector.h"
+#include "object.h"
+#include "math.h"
 
-constexpr double x = 43.2667;
-
-class Camera
+class Camera : public Object
 {
 public:
-	Camera() {};
+	Camera();
 
-	float getFov() { m_fov; }
+	const float		getFieldOfView() { return m_fieldOfView; }
+	const float		getNearClip() { return m_nearClip; }
+	const float		getFarClip() { return m_farClip; }
+
+	const Matrix4   getViewMatrix();
+	const Matrix4	getProjectionMatrix(const double width, const double height);
 
 private:
-	float m_fov = 90.0f;
-	float m_pitch = 0;
-	float m_yaw = 0;
-	float m_roll = 0;
-
-	float m_near = 0;
-	float m_far = 100;
+	float m_fieldOfView = 90.0;
+	float m_nearClip	= 1;
+	float m_farClip		= 1000;
 };
+
+#endif
