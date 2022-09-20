@@ -27,16 +27,16 @@ static bool     bDrawVertices       = true;
 static WORD     keyCode;
 static WORD     keyFlags;
 
-static bool     W_DOWN = false;
-static bool     A_DOWN = false;
-static bool     S_DOWN = false;
-static bool     D_DOWN = false;
-static bool     E_DOWN = false;
-static bool     Q_DOWN = false;
-static bool     SPACEBAR_DOWN = false;
+static bool     W_DOWN              = false;
+static bool     A_DOWN              = false;
+static bool     S_DOWN              = false;
+static bool     D_DOWN              = false;
+static bool     E_DOWN              = false;
+static bool     Q_DOWN              = false;
+static bool     SPACEBAR_DOWN       = false;
 
-static double GEO_SIZE = 0.1;
-static double CAMERA_SPEED = 0.05;
+static double   GEO_SIZE            = 0.1;
+static double   CAMERA_SPEED        = 0.05;
 
 // Create a triangle
 std::vector<Vertex> vertices = {
@@ -212,9 +212,6 @@ void Application::init()
         m_hInstance,                        // Instance handle
         NULL                                // Additional application data
     );
-
-    // Initialize our rendering pipeline
-    //auto p = Pipeline::getPipelineInstance();
 
     // Initialize our framebuffer
     m_buffer = new Framebuffer(m_hwnd);

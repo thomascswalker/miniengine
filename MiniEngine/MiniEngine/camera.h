@@ -14,10 +14,10 @@ public:
 	const float		getFarClip() { return m_farClip; }
 
 	const Matrix4   getViewMatrix();
-	const Matrix4	getProjectionMatrix(const float width, const float height);
+	const Matrix4	getProjectionMatrix(const double width, const double height);
 
 private:
-	float m_fieldOfView = 43.0;
+	float m_fieldOfView = 90.0;
 	float m_nearClip	= 1;
 	float m_farClip		= 1000;
 };

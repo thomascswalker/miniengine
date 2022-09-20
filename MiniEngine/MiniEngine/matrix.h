@@ -17,13 +17,15 @@ public:
     /// Return a pointer to a \a row of data.
     T *operator[](int row)
     {
-        return _data + (row * Columns);
+        int offset = row * Columns;
+        return _data + offset;
     }
 
     /// Return a const pointer to a \a row of data.
     T const *operator[](int row) const
     {
-        return _data + (row * Columns);
+        int offset = row * Columns;
+        return _data + offset;
     }
 
     /// Return a pointer to the start of all the data.

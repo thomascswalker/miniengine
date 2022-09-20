@@ -123,8 +123,8 @@ Framebuffer::vertexToScreen(Vertex vertex)
 bool
 Framebuffer::isPointInFrame(Vector2& p) const
 {
-    int x = p.x();
-    int y = p.y();
+    auto x = p.x();
+    auto y = p.y();
     return (x > 0 && y > 0 && x < m_width && y < m_height);
 }
 
@@ -258,9 +258,9 @@ Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
     auto minY = *std::min_element(std::begin(yList), std::end(yList));
     auto maxY = *std::max_element(std::begin(yList), std::end(yList));
 
-    for (int y = minY; y < maxY; y++)                       // Bottom to top
+    for (auto y = minY; y < maxY; y++)                       // Bottom to top
     {
-        for (int x = minX; x < maxX; x++)                   // Left to right
+        for (auto x = minX; x < maxX; x++)                   // Left to right
         {
             Vector2 point(x,y);                             // Point at current x, y
             if (!isPointInFrame(point))
@@ -289,10 +289,10 @@ Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
     auto minY = *std::min_element(std::begin(yList), std::end(yList));
     auto maxY = *std::max_element(std::begin(yList), std::end(yList));
 
-    float step;
+    double step;
 
-    float dx = maxX - minX;
-    float dy = maxY - minY;
+    double dx = maxX - minX;
+    double dy = maxY - minY;
 
     auto adx = abs(dx);
     auto ady = abs(dy);
@@ -301,8 +301,8 @@ Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
     dx = dx / step;
     dy = dy / step;
 
-    float x = minX;
-    float y = minY;
+    double x = minX;
+    double y = minY;
     int i = 1;
 
     while (i <= step)
@@ -329,34 +329,33 @@ Framebuffer::render(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
     int step = 3;
     for (int i = 0; i < m_indices.size(); i += step)
     {
-        int v1 = m_indices[i];
-        int v2 = m_indices[i + 1];
-        int v3 = m_indices[i + 2];
-
-        Vector2 vtx1s = m_screenVertices[v1];
-        Vector2 vtx2s = m_screenVertices[v2];
-        Vector2 vtx3s = m_screenVertices[v3];
+        int i1 = i;
+        Vector2 v1 = m_screenVertices[m_indices[i1]];
+        int i2 = i + 1;
+        Vector2 v2 = m_screenVertices[m_indices[i2]];
+        int i3 = i + 2;
+        Vector2 v3 = m_screenVertices[m_indices[i3]];
 
         // Draw each face
         if (bDrawFaces)
         {
-            drawTri(vtx1s, vtx2s, vtx3s, Color::white());
+            drawTri(v1, v2, v3, Color::white());
         }
 
         // Draw each edge
         if (bDrawEdges)
         {
-            drawLine(vtx2s, vtx1s, Color::blue());
-            drawLine(vtx3s, vtx1s, Color::blue());
-            drawLine(vtx3s, vtx2s, Color::blue());
+            drawLine(v2, v1, Color::blue());
+            drawLine(v3, v1, Color::blue());
+            drawLine(v3, v2, Color::blue());
         }
 
         // Draw each vertex
         if (bDrawVertices)
         {
-            drawCircle(vtx1s.x(), vtx1s.y(), 3, Color::orange());
-            drawCircle(vtx2s.x(), vtx2s.y(), 3, Color::orange());
-            drawCircle(vtx3s.x(), vtx3s.y(), 3, Color::orange());
+            drawCircle(v1.x(), v1.y(), 3, Color::orange());
+            drawCircle(v2.x(), v2.y(), 3, Color::orange());
+            drawCircle(v3.x(), v3.y(), 3, Color::orange());
         }
     }
 }

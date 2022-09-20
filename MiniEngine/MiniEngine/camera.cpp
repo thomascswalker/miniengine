@@ -57,7 +57,7 @@ const Matrix4 Camera::getViewMatrix()
     [    0     ] [    0     ] [    -1     ] [     0     ]
 
 */
-const Matrix4 Camera::getProjectionMatrix(const float width, const float height)
+const Matrix4 Camera::getProjectionMatrix(const double width, const double height)
 {
     Matrix4 proj;
     proj.setIdentity();
