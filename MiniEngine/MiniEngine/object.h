@@ -1,7 +1,6 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include "api.h"
 #include "transform.h"
 
 class Object

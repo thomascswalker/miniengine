@@ -118,8 +118,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case 'D': D_DOWN = false; break;
                 case 'E': E_DOWN = false; break;
                 case 'Q': Q_DOWN = false; break;
-                //case VK_ESCAPE: bIsRunning = false; break;
-                //case VK_SPACE: SPACEBAR_DOWN = false; break;
+                case VK_ESCAPE: bIsRunning = false; break;
             }
             break;
         }
@@ -137,8 +136,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case 'D': D_DOWN = true; break;
                 case 'E': E_DOWN = true; break;
                 case 'Q': Q_DOWN = true; break;
-                //case VK_ESCAPE: bIsRunning = false; break;
-                //case VK_SPACE: SPACEBAR_DOWN = true; break;
+                case VK_ESCAPE: bIsRunning = false; break;
             }
             break;
         }
@@ -276,10 +274,6 @@ int Application::run()
         {
             m_buffer->camera()->move(Vector3(0, -d, 0));
         }
-
-        auto c = m_buffer->camera()->getTranslation();
-        
-        Core::print("Camera: %s\n", c.toString().c_str());
 
         // Bind vertex and index buffers to the Framebuffer
         m_buffer->bindVertexBuffer(mesh.getVertices());

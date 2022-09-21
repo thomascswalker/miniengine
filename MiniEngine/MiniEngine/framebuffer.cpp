@@ -16,7 +16,7 @@ Framebuffer::Framebuffer(HWND hwnd)
     // Create a new default camera
     m_camera = Camera();
     auto t = m_camera.getTransform();
-    t.setTranslation(Vector3(25.0, 25.0, -25.0));
+    t.setTranslation(Vector3(10.0, 10.0, -10.0));
     m_camera.setTransform(t);
 }
 
@@ -137,7 +137,7 @@ Framebuffer::clear()
 }
 
 void
-Framebuffer::setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB)
+Framebuffer::setPixel(int x, int y, Color color, Buffer buffer)
 {
     if (x < 0 || y < 0 || x > m_width || y > m_height)
     {
@@ -165,6 +165,14 @@ Framebuffer::setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB)
     uint32 offset = x + (y * m_width);
     pixelPtr += offset;
     *pixelPtr = color.hex();
+}
+
+void
+Framebuffer::setPixel(Vector2& v, Color color, Buffer buffer)
+{
+    int x = (int)v.x();
+    int y = (int)v.y();
+    setPixel(x, y, color, buffer);
 }
 
 void
@@ -207,7 +215,8 @@ Framebuffer::drawRect(int x0, int y0, int x1, int y1, Color color)
         for (int x = x0; x < x1; x++)
         {
             // Set the color at this position in memory
-            setPixel(x, y, color);
+            Vector2 point(x, y);
+            setPixel(point, color);
         }
     }
 }
@@ -240,10 +249,19 @@ Framebuffer::drawCircle(int cx, int cy, int r, Color color)
             auto dy = y - cy;
             if (pow(dx, 2) + pow(dy, 2) <= rsqr)
             {
-                setPixel(x, y, color);
+                Vector2 point(x, y);
+                setPixel(point, color);
             }
         }
     }
+}
+
+void
+Framebuffer::drawCircle(Vector2& v, int r, Color color)
+{
+    int x = (int)v.x();
+    int y = (int)v.y();
+    drawCircle(x, y, r, color);
 }
 
 void
@@ -269,7 +287,7 @@ Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
             }
             if (Math::isPointInTriangle(point, v1, v2, v3)) // Is this point in our triangle?
             {
-                setPixel(x, y, color);                      // If it is, colour here
+                setPixel(point, color);                      // If it is, colour here
             }
         }
     }
@@ -307,7 +325,8 @@ Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
 
     while (i <= step)
     {
-        setPixel(x, y, color);
+        Vector2 point(x, y);
+        setPixel(point, color);
 
         x += dx;
         y += dy;
@@ -353,9 +372,9 @@ Framebuffer::render(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
         // Draw each vertex
         if (bDrawVertices)
         {
-            drawCircle(v1.x(), v1.y(), 3, Color::orange());
-            drawCircle(v2.x(), v2.y(), 3, Color::orange());
-            drawCircle(v3.x(), v3.y(), 3, Color::orange());
+            drawCircle(v1, 3, Color::orange());
+            drawCircle(v2, 3, Color::orange());
+            drawCircle(v3, 3, Color::orange());
         }
     }
 }
