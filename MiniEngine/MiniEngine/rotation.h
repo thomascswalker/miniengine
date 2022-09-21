@@ -27,6 +27,16 @@ public:
 		return rotation;
 	};
 
+	const Vector3& getAxis()
+	{
+		return m_axis;
+	}
+
+	double getAngle()
+	{
+		return m_angle;
+	}
+
 	Rotation getInverse() const
 	{
 		return Rotation(m_axis, -m_angle);

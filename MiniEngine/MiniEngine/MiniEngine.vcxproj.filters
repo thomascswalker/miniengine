@@ -87,9 +87,6 @@
     <ClInclude Include="pixel.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
-    <ClInclude Include="scene.h">
-      <Filter>Header Files\engine</Filter>
-    </ClInclude>
     <ClInclude Include="vector.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>

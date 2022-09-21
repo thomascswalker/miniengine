@@ -180,7 +180,6 @@
     <ClInclude Include="pixel.h" />
     <ClInclude Include="quaternion.h" />
     <ClInclude Include="rotation.h" />
-    <ClInclude Include="scene.h" />
     <ClInclude Include="transform.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="application.h" />

@@ -10,7 +10,6 @@ public:
 
 	Transform&		identity();
 
-	void			setMatrix(const Matrix4& m);
 	Matrix4			getMatrix() const;
 
 	void			setTranslation(const Vector3& t);
@@ -20,10 +19,7 @@ public:
 	void			setScale(const Vector3& s);
 	const Vector3&	getScale() { return m_scale; }
 
-	const char*		toString()
-	{
-		
-	}
+	const Vector3&  getFront();
 
 
 private:

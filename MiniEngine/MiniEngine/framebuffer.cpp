@@ -103,7 +103,8 @@ Framebuffer::vertexToScreen(Vertex vertex)
     // View matrix
     auto up = Vector3(0, 1, 0);
     auto at = Vector3(0, 0, 0);
-    Matrix4 view = lookAt(m_camera.getTranslation(), at, up); // m_camera.getTransform().getMatrix().getInverse();  //
+
+    Matrix4 view = lookAt(m_camera.getTranslation(), at, up); // m_camera.getTransform().getMatrix().getInverse(); //
 
     // Projection matrix
     Matrix4 proj  = m_camera.getProjectionMatrix(m_width, m_height);

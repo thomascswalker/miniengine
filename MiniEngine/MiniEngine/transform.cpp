@@ -12,16 +12,6 @@ Transform& Transform::identity()
     return *this;
 }
 
-void Transform::setMatrix(const Matrix4& m)
-{
-    //Matrix4 mPivotPos, mPivotPosInv;
-    //mPivotPos.setTranslate(m_pivotPosition);
-    //mPivotPosInv.setTranslate(-m_pivotPosition);
-
-    //Matrix4 mNoPivot = mPivotPos * m * mPivotPosInv;
-    //Matrix4 shearRotMat, rotMat, projMat;
-}
-
 Matrix4 Transform::getMatrix() const
 {
     Matrix4 temp;
@@ -59,4 +49,20 @@ void Transform::setRotation(const Rotation& r)
 void Transform::setScale(const Vector3& s)
 {
     m_scale = s;
+}
+
+const Vector3& Transform::getFront()
+{
+    Vector3 front;
+    Vector3 axis = m_rotation.getAxis();
+    double x = cos(Math::degreesToRadians(axis.x())) * cos(Math::degreesToRadians(axis.x()));
+    double y = sin(Math::degreesToRadians(axis.z()));
+    double z = sin(Math::degreesToRadians(axis.x())) * cos(Math::degreesToRadians(axis.x()));
+    
+    front.setX(x);
+    front.setY(y);
+    front.setZ(z);
+    front.normalize();
+
+    return front;
 }
