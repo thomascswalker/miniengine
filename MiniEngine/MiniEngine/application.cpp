@@ -13,8 +13,8 @@ MINI_USING_DIRECTIVE
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
 static UINT     globalFrameRate     = 1;       // 60 FPS
-static int      initWidth           = 720;     // Standard HD
-static int      initHeight          = 720;
+static int      initWidth           = 240;     // Standard HD
+static int      initHeight          = 240;
 static int      tickRate            = 60;
 static double   currentTime         = 0.0;
 
