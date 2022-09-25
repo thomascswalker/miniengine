@@ -7,6 +7,7 @@
 
 #include "api.h"
 #include "framebuffer.h"
+#include "meshloader.h"
 
 MINI_NAMESPACE_OPEN
 

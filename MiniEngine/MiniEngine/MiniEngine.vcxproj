@@ -159,6 +159,7 @@
     <ClCompile Include="math.cpp" />
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="meshloader.cpp" />
     <ClCompile Include="object.cpp" />
     <ClCompile Include="pixel.cpp" />
     <ClCompile Include="quaternion.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="math.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="meshloader.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="pixel.h" />
     <ClInclude Include="quaternion.h" />

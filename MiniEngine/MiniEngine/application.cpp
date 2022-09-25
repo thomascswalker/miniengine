@@ -36,48 +36,10 @@ static bool     Q_DOWN              = false;
 static bool     SPACEBAR_DOWN       = false;
 
 static double   GEO_SIZE            = 0.1;
-static double   CAMERA_SPEED        = 0.05;
+static double   CAMERA_SPEED        = 0.25;
 
-// Create a triangle
-std::vector<Vertex> vertices = {
-    Vertex(-GEO_SIZE, -GEO_SIZE,  GEO_SIZE),   //0
-    Vertex(GEO_SIZE, -GEO_SIZE,  GEO_SIZE),    //1
-    Vertex(-GEO_SIZE,  GEO_SIZE,  GEO_SIZE),   //2
-    Vertex(GEO_SIZE,  GEO_SIZE,  GEO_SIZE),    //3
-    Vertex(-GEO_SIZE, -GEO_SIZE, -GEO_SIZE),   //4
-    Vertex(GEO_SIZE, -GEO_SIZE, -GEO_SIZE),    //5
-    Vertex(-GEO_SIZE,  GEO_SIZE, -GEO_SIZE),   //6
-    Vertex(GEO_SIZE,  GEO_SIZE, -GEO_SIZE)     //7
-};
-
-std::vector<int> indices = {
-    //Top
-    2, 6, 7,
-    2, 3, 7,
-
-    //Bottom
-    0, 4, 5,
-    0, 1, 5,
-
-    //Left
-    0, 2, 6,
-    0, 4, 6,
-
-    //Right
-    1, 3, 7,
-    1, 5, 7,
-
-    //Front
-    0, 2, 3,
-    0, 1, 3,
-
-    //Back
-    4, 6, 7,
-    4, 5, 7
-};
-
-auto mesh = Mesh(vertices, indices);
-//auto mesh = Mesh(pVertices, pIndices);
+std::string filename = "C:\\Users\\Tom\\Desktop\\teapot.obj";
+auto mesh = MeshLoader::load(filename);
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -221,9 +183,6 @@ int Application::run()
     ShowWindow(m_hwnd, 1);
 
     currentTime = Core::getCurrentTime();
-
-    auto m = Matrix4();
-    auto camera = Camera();
 
     // Run the message loop.
     while (!bIsRunning)
