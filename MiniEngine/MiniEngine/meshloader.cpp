@@ -1,71 +1,60 @@
 // https://github.com/tinyobjloader/tinyobjloader/blob/master/tiny_obj_loader.h
 
 #include "meshloader.h"
-#include <cassert>
 
-#define IS_SPACE(x) (((x) == ' ') || ((x) == '\t'))
-#define IS_DIGIT(x) (static_cast<unsigned int>((x) - '0') < static_cast<unsigned int>(10))
-#define IS_NEW_LINE(x) (((x) == '\r') || ((x) == '\n') || ((x) == '\0'))
-
-//template <typename Out>
-//void split(const std::string& s, char delim, Out result)
-//{
-//	std::istringstream iss(s);
-//	std::string item;
-//	while (std::getline(iss, item, delim)) {
-//		*result++ = item;
-//	}
-//}
-//
-//std::vector<std::string> split(const std::string& s, char delim)
-//{
-//	std::vector<std::string> elems;
-//	split(s, delim, std::back_inserter(elems));
-//	return elems;
-//}
-
-std::istream& readLine(std::istream& stream, std::string& line)
+std::istream&
+readLine(std::istream& stream, std::string& line)
 {
 	// Clear the content of the line
 	line.clear();
 
+	// Prepare stream for input
+	std::istream::sentry sentry(stream, true);
+	if (!sentry)
+	{
+		return stream;
+	}
+
 	// Create a new buffer from our stream
 	std::streambuf* streamBuffer = stream.rdbuf();
 
-	// Read the current character
-	int currentChar = streamBuffer->sbumpc();
-
+	
 	// Switch on current char
-	switch (currentChar)
+	while (true)
 	{
-		// For \n
-		case '\n':
+		// Read the current character
+		int currentChar = streamBuffer->sbumpc();
+		switch (currentChar)
 		{
-			break;	
-		}
-		// For \r\n
-		case '\r':
-		{
-			// If the next character is a new line, we'll bump to that next line
-			if (streamBuffer->sgetc() == '\n')
+			// For \n
+			case '\n':
 			{
-				streamBuffer->sbumpc();
+				return stream;
 			}
-			break;
-		}
-		// For \r
-		case EOF: // -1
-		{
-			if (line.empty())
+			// For \r\n
+			case '\r':
 			{
-				stream.setstate(std::ios::eofbit);
+				// If the next character is a new line, we'll bump to that next line
+				if (streamBuffer->sgetc() == '\n')
+				{
+					streamBuffer->sbumpc();
+				}
+				return stream;
 			}
-			break;
-		}
-		// All other cases, the rest of the line
-		default:
-		{
-			line += (char) currentChar;
+			// For \r
+			case EOF: // -1
+			{
+				if (line.empty())
+				{
+					stream.setstate(std::ios::eofbit);
+				}
+				return stream;
+			}
+			// All other cases, the rest of the line
+			default:
+			{
+				line += static_cast<char>(currentChar);
+			}
 		}
 	}
 
@@ -73,145 +62,104 @@ std::istream& readLine(std::istream& stream, std::string& line)
 }
 
 template <typename T>
-static bool parseValue(const char* current, const char* end, T *result)
+static bool
+parseValue(std::string value, T *result)
 {
-	if (current >= end)
+	try
 	{
-		return false;
+		*result = std::stod(value);
+		return true;
 	}
-
-	char sign = '+';
-
-	// Get the current sign (+ or -)
-	if (*current == '+' || *current == '-')
-	{
-		sign = *current;
-		current++;
-	}
-	else if (IS_DIGIT(*current))
-	{
-		// Pass
-	}
-	else
+	catch (std::invalid_argument)
 	{
 		return false;
 	}
 }
 
-Mesh MeshLoader::load(std::string filename, FileType type)
+Mesh
+MeshLoader::load(std::string filename, FileType type)
 {
-	std::vector<Vertex> vertices;
-	std::vector<int> indices;
+	std::vector<Vertex> vertices;	// Empty vertex array
+	std::vector<int> indices;		// Empty index array
 
-	std::ifstream file(filename);
+	std::ifstream file(filename);	// New filestream
 	if (file)
 	{
-		std::stringstream stream;
-		stream << file.rdbuf(); // Read data
+		std::stringstream stream;	// New string stream
+		stream << file.rdbuf();		// Read data
 		
-		std::string lineBuffer;
-		size_t lineNum = 0;
+		std::string lineBuffer;		// New buffer for the current line
 
 		// Keep reading until end-of-file
 		while (stream.peek() != -1)
 		{
 			// (Safely) get the current line
 			readLine(stream, lineBuffer);
-			lineNum++;
 
-			int index = 0;
-			// Trim trailing whitespace
-			if (lineBuffer.size() > 0)
-			{
-				// Find the index of the last char before ' ' or '\t'
-				index = lineBuffer.find_last_not_of(" \t") + 1;
-				lineBuffer = lineBuffer.substr(0, index);
-			}
-
-			// Trim newlines
-			if (lineBuffer.size() > 0)
-			{
-				index = lineBuffer.size() - 1;
-				if (lineBuffer[index] == '\r')
-				{
-					lineBuffer.erase(index);
-				}
-			}
-
-			// Skip if the line is now empty
-			if (lineBuffer.empty())
-			{
-				continue;
-			}
-
-			// Pointer to first char in line
+			// Pointer to first character in line
 			const char *token = lineBuffer.c_str();
 
-			// Skip over leading space
-			token += strspn(token, " \t"); // Add number of occurences of spaces/tabs to pointer
-
-			// Skip if the line is now empty
-			if (token[0] == '\0')
+			// Skip if the line is empty
+			if (*token == '\0')
 			{
 				continue;
 			}
 
 			// Skip if the line is commented
-			if (token[0] == '#')
+			if (*token == '#')
 			{
 				continue;
 			}
 
 			// Vertices
-			if (token[0] == 'v')
+			if (*token == 'v')	// v 0.5 2.32843 -1.23
 			{
-				// Skip initial 'v' char and space
-				token += 2;
+				std::istringstream istream(lineBuffer);
+				std::string str;
+				std::vector<double> values;
 
-				double x, y, z;
-				if (!parseValue(token, token, &x) || !parseValue(token, token, &x); || !parseValue(token, token, &x))
+				// Split the line by spaces
+				while (std::getline(istream, str, ' '))
 				{
-					assert ("Failed to load!");
+					// Attempt to parse the result to a double
+					double result = 0.0;
+					if (parseValue(str, &result))
+					{
+						// If it is a valid double, we'll append to our values array
+						values.push_back(result);
+					}
 				}
+
+				// Create a new Vertex and append it to the vertices array
+				Vertex vtx(values[0], values[1], values[2]);
+				vertices.push_back(vtx);
+			}
+
+			// Indices
+			if (*token == 'f')	// f 0 2 3
+			{
+				std::istringstream istream(lineBuffer);
+				std::string str;
+				std::vector<int> values;
+
+				// Split the line by spaces
+				while (std::getline(istream, str, ' '))
+				{
+					// Attempt to parse the result to a integer
+					int result = 0;
+					if (parseValue(str, &result))
+					{
+						// If it is a valid integer, we'll append to our values array
+						values.push_back(result);
+					}
+				}
+
+				// Append each index to the indices array
+				indices.push_back(values[0]);
+				indices.push_back(values[1]);
+				indices.push_back(values[2]);
 			}
 		}
-		//while (std::getline(stream, line, '\n'))
-		//{
-		//	// If line is commented or is empty, we'll continue
-		//	if (!line.starts_with('v') && !line.starts_with('f'))
-		//	{
-		//		continue;
-		//	}
-
-		//	// Vertex positions
-		//	if (line.starts_with('v'))
-		//	{
-		//		std::vector<std::string> elements;
-		//		split(line, ' ', std::back_inserter(elements));
-
-		//		double x = std::stod(elements[2]);
-		//		double y = std::stod(elements[3]);
-		//		double z = std::stod(elements[4]);
-
-		//		Vertex vtx(x, y, z);
-		//		vertices.push_back(vtx);
-		//	}
-
-		//	// Face indices
-		//	if (line.starts_with('f'))
-		//	{
-		//		std::vector<std::string> elements;
-		//		split(line, ' ', std::back_inserter(elements));
-
-		//		int i1 = std::stoi(elements[1]);
-		//		int i2 = std::stoi(elements[2]);
-		//		int i3 = std::stoi(elements[3]);
-
-		//		indices.push_back(i1);
-		//		indices.push_back(i2);
-		//		indices.push_back(i3);
-		//	}
-		//}
 	}
 
 	Mesh mesh(vertices, indices);
