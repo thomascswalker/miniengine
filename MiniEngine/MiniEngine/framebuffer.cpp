@@ -373,9 +373,9 @@ Framebuffer::render(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
         // Draw each vertex
         if (bDrawVertices)
         {
-            drawCircle(v1, 3, Color::orange());
-            drawCircle(v2, 3, Color::orange());
-            drawCircle(v3, 3, Color::orange());
+            drawCircle(v1, 2, Color::orange());
+            drawCircle(v2, 2, Color::orange());
+            drawCircle(v3, 2, Color::orange());
         }
     }
 }

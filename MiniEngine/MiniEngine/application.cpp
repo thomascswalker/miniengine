@@ -19,7 +19,7 @@ static int      tickRate            = 60;
 static double   currentTime         = 0.0;
 
 // Display options
-static bool     bDrawFaces          = true;
+static bool     bDrawFaces          = false;
 static bool     bDrawEdges          = false;
 static bool     bDrawVertices       = true;
 
@@ -38,7 +38,7 @@ static float    MOUSE_WHEEL_DELTA   = 0.0;
 
 static double   CAMERA_SPEED        = 1.0;
 
-std::string filename = "C:\\Users\\Tom\\Desktop\\pumpkin.obj";
+std::string filename = "C:\\Users\\Tom\\Desktop\\teapot.obj";
 auto mesh = MeshLoader::load(filename);
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
