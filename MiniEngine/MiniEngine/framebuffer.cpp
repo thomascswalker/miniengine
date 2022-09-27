@@ -16,7 +16,7 @@ Framebuffer::Framebuffer(HWND hwnd)
     // Create a new default camera
     m_camera = Camera();
     auto t = m_camera.getTransform();
-    t.setTranslation(Vector3(10.0, 10.0, -250.0));
+    t.setTranslation(Vector3(0, 0, -100.0));
     m_camera.setTransform(t);
 }
 
@@ -102,9 +102,9 @@ Framebuffer::vertexToScreen(Vertex vertex)
 
     // View matrix
     auto up = Vector3(0.0, 1.0, 0.0);
-    auto at = Vector3(0.0, 0.0, 0.0);
+    auto at = Vector3(0.0, 5.0, 0.0);
 
-    Matrix4 view = lookAt(m_camera.getTranslation(), at, up); // m_camera.getTransform().getMatrix().getInverse(); //
+    Matrix4 view = lookAt(m_camera.getTranslation(), at, up);
 
     // Projection matrix
     Matrix4 proj  = m_camera.getProjectionMatrix(m_width, m_height);

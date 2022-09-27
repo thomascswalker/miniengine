@@ -67,13 +67,25 @@ parseValue(std::string value, T *result)
 {
 	try
 	{
-		*result = std::stod(value);
-		return true;
+		if constexpr (std::is_floating_point_v<T>)
+		{
+			*result = std::stod(value, NULL);
+		}
+		else if (std::is_integral_v<T>)
+		{
+			*result = std::stoi(value, NULL);
+		}
+		else
+		{
+			return false;
+		}
 	}
-	catch (std::invalid_argument)
+	catch (...)
 	{
 		return false;
 	}
+
+	return true;
 }
 
 Mesh
@@ -161,7 +173,6 @@ MeshLoader::load(std::string filename, FileType type)
 			}
 		}
 	}
-
 	Mesh mesh(vertices, indices);
 	return mesh;
 }

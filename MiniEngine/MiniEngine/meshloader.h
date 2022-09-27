@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 
+#include "core.h"
 #include "mesh.h"
 
 enum FileType
