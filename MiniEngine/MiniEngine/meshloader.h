@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iterator>
 #include <fstream>
+#include <set>
 #include <sstream>
 #include <string>
 

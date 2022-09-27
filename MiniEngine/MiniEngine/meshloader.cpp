@@ -1,5 +1,3 @@
-// https://github.com/tinyobjloader/tinyobjloader/blob/master/tiny_obj_loader.h
-
 #include "meshloader.h"
 
 std::istream&
@@ -53,7 +51,7 @@ readLine(std::istream& stream, std::string& line)
 			// All other cases, the rest of the line
 			default:
 			{
-				line += static_cast<char>(currentChar);
+				line += (char)currentChar;
 			}
 		}
 	}
@@ -61,31 +59,52 @@ readLine(std::istream& stream, std::string& line)
 	return stream;
 }
 
-template <typename T>
 static bool
-parseValue(std::string value, T *result)
+doesStringContainAny(std::string str, std::string value)
 {
-	try
-	{
-		if constexpr (std::is_floating_point_v<T>)
-		{
-			*result = std::stod(value, NULL);
-		}
-		else if (std::is_integral_v<T>)
-		{
-			*result = std::stoi(value, NULL);
-		}
-		else
-		{
-			return false;
-		}
-	}
-	catch (...)
+	if (str == "")
 	{
 		return false;
 	}
+	bool result = false;
+	for (const char s : str)
+	{
+		for (const char v : value)
+		{
+			if (s == v)
+			{
+				result = true;
+			}
+		}
+	}
+	return result;
+}
 
-	return true;
+static bool
+isStringANumber(std::string str)
+{
+	return doesStringContainAny(str, "0123456789");
+}
+
+/*Given a string, attempt to parse a number from it.*/
+template <typename T>
+static bool
+parseNumber(std::string value, T *result)
+{
+	if constexpr (std::is_floating_point_v<T>)
+	{
+		*result = std::stod(value);
+		return true;
+	}
+	else if (std::is_integral_v<T>)
+	{
+		*result = std::stoi(value);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 Mesh
@@ -133,13 +152,22 @@ MeshLoader::load(std::string filename, FileType type)
 				// Split the line by spaces
 				while (std::getline(istream, str, ' '))
 				{
+					if (str == "v" || str == "" || str == " ")
+					{
+						continue;
+					}
 					// Attempt to parse the result to a double
 					double result = 0.0;
-					if (parseValue(str, &result))
+					if (parseNumber(str, &result))
 					{
 						// If it is a valid double, we'll append to our values array
 						values.push_back(result);
 					}
+				}
+
+				if (values.size() != 3)
+				{
+					throw std::runtime_error("Incorrect vertex definition.");
 				}
 
 				// Create a new Vertex and append it to the vertices array
@@ -157,13 +185,22 @@ MeshLoader::load(std::string filename, FileType type)
 				// Split the line by spaces
 				while (std::getline(istream, str, ' '))
 				{
+					if (str == "f" || str == "" || str == " ")
+					{
+						continue;
+					}
 					// Attempt to parse the result to a integer
 					int result = 0;
-					if (parseValue(str, &result))
+					if (parseNumber(str, &result))
 					{
 						// If it is a valid integer, we'll append to our values array
 						values.push_back(result);
 					}
+				}
+
+				if (values.size() != 3)
+				{
+					throw std::runtime_error("Incorrect index definition.");
 				}
 
 				// Append each index to the indices array
