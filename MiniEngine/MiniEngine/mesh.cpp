@@ -1,5 +1,22 @@
 #include "mesh.h"
 
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<int> indices)
+    : m_vertices(vertices), m_indices(indices)
+{
+    for (int i = 0; i < indices.size(); i++)
+    {
+        int i1 = indices[i]; i++;
+        int i2 = indices[i]; i++;
+        int i3 = indices[i];
+
+        auto v1 = vertices[i1];
+        auto v2 = vertices[i2];
+        auto v3 = vertices[i3];
+
+        addTri(v1, v2, v3);
+    }
+}
+
 void Mesh::addTri(Vertex v1, Vertex v2, Vertex v3)
 {
     auto t = Triangle(v1, v2, v3);
@@ -18,34 +35,5 @@ size_t Mesh::numVertices()
 
 std::vector<Vertex> Mesh::getVertices(Coordinates::CoordSpace space)
 {
-    switch (space)
-    {
-        default:
-        case Coordinates::Local:
-        {
-            return m_vertices;
-        }
-        case Coordinates::World:
-        {
-            std::vector<Vertex> worldVertices;
-
-            for (Vertex localVertex : m_vertices)
-            {
-                // Create a new world-space vertex
-                Vertex worldVertex = Vertex();
-
-                // Set the world position via position
-                auto localPos = localVertex.getTranslation();
-                auto worldPos = getPosition();
-                worldVertex.setTranslation(localPos + worldPos);
-
-                // Set the world position via rotation
-
-                // Add this world-space vertex to the worldVertices list
-                worldVertices.push_back(worldVertex);
-            }
-
-            return worldVertices;
-        }
-    }
+    return m_vertices;
 }

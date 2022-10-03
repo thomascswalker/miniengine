@@ -74,6 +74,7 @@ public:
 	// Constructors
 	Vector3();
 	Vector3(double x, double y, double z);
+	Vector3(Vector2& v);
 
 	Vector3 copy() { return Vector3(_x, _y, _z); }
 

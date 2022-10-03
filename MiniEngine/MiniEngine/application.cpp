@@ -19,9 +19,9 @@ static int      tickRate            = 60;
 static double   currentTime         = 0.0;
 
 // Display options
-static bool     bDrawFaces          = false;
+static bool     bDrawFaces          = true;
 static bool     bDrawEdges          = false;
-static bool     bDrawVertices       = true;
+static bool     bDrawVertices       = false;
 
 // Keyboard input
 static WORD     keyCode;
@@ -248,8 +248,9 @@ int Application::run()
         }
 
         // Bind vertex and index buffers to the Framebuffer
-        m_buffer->bindVertexBuffer(mesh.getVertices());
-        m_buffer->bindIndexBuffer(mesh.getIndices());
+        //m_buffer->bindVertexBuffer(mesh.getVertices());
+        //m_buffer->bindIndexBuffer(mesh.getIndices());
+        m_buffer->bindTriangleBuffer(mesh.getTris());
 
         // Draw our scene geometry as triangles
         m_buffer->render(bDrawFaces, bDrawEdges, bDrawVertices);

@@ -164,6 +164,7 @@
     <ClCompile Include="pixel.cpp" />
     <ClCompile Include="quaternion.cpp" />
     <ClCompile Include="transform.cpp" />
+    <ClCompile Include="triangle.cpp" />
     <ClCompile Include="vector.cpp" />
     <ClCompile Include="application.cpp" />
   </ItemGroup>

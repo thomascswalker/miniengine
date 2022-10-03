@@ -28,6 +28,7 @@ namespace Math
     double degreesToRadians(double d);
     double radiansToDegrees(double r);
 
+    double dot(Vector2 v1, Vector2 v2);
     double dot(Vector3 v1, Vector3 v2);
     double area(Vector2 v1, Vector2 v2, Vector3 v3);
     double distance(Vector2 v1, Vector2 v2);
