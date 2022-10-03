@@ -123,5 +123,8 @@
     <ClInclude Include="meshloader.h">
       <Filter>Header Files\assets</Filter>
     </ClInclude>
+    <ClInclude Include="triangle.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

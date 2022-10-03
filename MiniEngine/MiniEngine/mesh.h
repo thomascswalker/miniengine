@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "coordinates.h"
-#include "vertex.h"
+#include "triangle.h"
 
 class Mesh
 {
@@ -13,6 +13,7 @@ public:
 	Mesh(std::vector<Vertex> vertices, std::vector<int> indices) : m_vertices(vertices), m_indices(indices) {};
 
 	void addTri(Vertex v1, Vertex v2, Vertex v3);
+	void addTri(Triangle t);
 	size_t numVertices();
 
 	std::vector<Vertex> getVertices() { return m_vertices;}
@@ -34,6 +35,8 @@ public:
 private:
 	std::vector<Vertex> m_vertices;
 	std::vector<int> m_indices;
+
+	std::vector<Triangle> m_triangles;
 
 	Vector3 m_position = {0, 0, 0};
 	Vector3 m_rotation = {0, 0, 0};

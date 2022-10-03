@@ -14,7 +14,6 @@
 #include "color.h"
 #include "matrix.h"
 #include "mesh.h"
-#include "vertex.h"
 
 enum Buffer
 {

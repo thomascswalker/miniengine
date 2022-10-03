@@ -2,9 +2,13 @@
 
 void Mesh::addTri(Vertex v1, Vertex v2, Vertex v3)
 {
-    m_vertices.push_back(v1);
-    m_vertices.push_back(v2);
-    m_vertices.push_back(v3);
+    auto t = Triangle(v1, v2, v3);
+    addTri(t);
+}
+
+void Mesh::addTri(Triangle t)
+{
+    m_triangles.push_back(t);
 }
 
 size_t Mesh::numVertices()
