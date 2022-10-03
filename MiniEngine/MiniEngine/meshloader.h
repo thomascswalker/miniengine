@@ -4,9 +4,11 @@
 #include <iostream>
 #include <iterator>
 #include <fstream>
+#include <set>
 #include <sstream>
 #include <string>
 
+#include "core.h"
 #include "mesh.h"
 
 enum FileType

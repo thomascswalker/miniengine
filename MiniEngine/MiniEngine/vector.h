@@ -148,6 +148,11 @@ public:
 		return Vector3(_x / v.x(), _y / v.y(), _z / v.z());
 	}
 
+	Vector3 operator / (double d) const
+	{
+		return Vector3(_x / d, _y / d, _z / d);
+	}
+
 	bool operator < (Vector3& v) const
 	{
 		return _x < v.x() && _y < v.y() && _z < v.z();

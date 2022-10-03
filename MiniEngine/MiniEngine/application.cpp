@@ -19,7 +19,7 @@ static int      tickRate            = 60;
 static double   currentTime         = 0.0;
 
 // Display options
-static bool     bDrawFaces          = true;
+static bool     bDrawFaces          = false;
 static bool     bDrawEdges          = false;
 static bool     bDrawVertices       = true;
 
@@ -34,9 +34,9 @@ static bool     D_DOWN              = false;
 static bool     E_DOWN              = false;
 static bool     Q_DOWN              = false;
 static bool     SPACEBAR_DOWN       = false;
+static float    MOUSE_WHEEL_DELTA   = 0.0;
 
-static double   GEO_SIZE            = 0.1;
-static double   CAMERA_SPEED        = 0.25;
+static double   CAMERA_SPEED        = 1.0;
 
 std::string filename = "C:\\Users\\Tom\\Desktop\\teapot.obj";
 auto mesh = MeshLoader::load(filename);
@@ -61,6 +61,11 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         case WM_DESTROY:
         {
             bIsRunning = true;
+            break;
+        }
+        case WM_MOUSEWHEEL:
+        {
+            MOUSE_WHEEL_DELTA += GET_WHEEL_DELTA_WPARAM(wParam);
             break;
         }
         case WM_KEYUP:
@@ -187,6 +192,8 @@ int Application::run()
     // Run the message loop.
     while (!bIsRunning)
     {
+        MOUSE_WHEEL_DELTA = 0.0; // Reset mouse delta
+
         double newTime = Core::getCurrentTime();
         double frameTime = newTime - currentTime;
         currentTime = newTime;
@@ -232,6 +239,12 @@ int Application::run()
         if (Q_DOWN)
         {
             m_buffer->camera()->move(Vector3(0, -d, 0));
+        }
+
+        if (MOUSE_WHEEL_DELTA != 0)
+        {
+            auto fov = m_buffer->camera()->getFieldOfView() + (MOUSE_WHEEL_DELTA / 240.0);
+            m_buffer->camera()->setFieldOfView(fov);
         }
 
         // Bind vertex and index buffers to the Framebuffer
