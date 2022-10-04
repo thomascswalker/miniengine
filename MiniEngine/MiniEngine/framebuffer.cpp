@@ -16,7 +16,7 @@ Framebuffer::Framebuffer(HWND hwnd)
     // Create a new default camera
     m_camera = Camera();
     auto t = m_camera.getTransform();
-    t.setTranslation(Vector3(0, 0, -100.0));
+    t.setTranslation(Vector3(0, 0, -25.0));
     m_camera.setTransform(t);
 }
 

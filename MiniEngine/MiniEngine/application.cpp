@@ -187,7 +187,7 @@ int Application::run()
     currentTime = Core::getCurrentTime();
 
     // Load our mesh
-    std::string filename = "C:\\Users\\Tom\\Desktop\\pumpkin.obj";
+    std::string filename = "C:\\Users\\Tom\\Desktop\\box.obj";
     Mesh mesh;
     MeshLoader::load(filename, mesh);
 
@@ -245,13 +245,11 @@ int Application::run()
 
         if (MOUSE_WHEEL_DELTA != 0)
         {
-            auto fov = m_buffer->camera()->getFieldOfView() + (MOUSE_WHEEL_DELTA / 240.0);
+            auto fov = m_buffer->camera()->getFieldOfView() - (MOUSE_WHEEL_DELTA / 240.0);
             m_buffer->camera()->setFieldOfView(fov);
         }
 
         // Bind vertex and index buffers to the Framebuffer
-        //m_buffer->bindVertexBuffer(mesh.getVertices());
-        //m_buffer->bindIndexBuffer(mesh.getIndices());
         m_buffer->bindTriangleBuffer(mesh.getTris());
 
         // Draw our scene geometry as triangles
