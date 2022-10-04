@@ -9,17 +9,21 @@ class Camera : public Object
 public:
 	Camera();
 
-	const float		getFieldOfView() { return m_fieldOfView; }
-	const float		getNearClip() { return m_nearClip; }
-	const float		getFarClip() { return m_farClip; }
+	const double			getFieldOfView() { return m_fieldOfView; }
+	void					setFieldOfView(double fov)
+	{
+		m_fieldOfView = Math::clamp(fov, 1.0, 179.0);
+	}
+	const double			getNearClip() { return m_nearClip; }
+	const double			getFarClip() { return m_farClip; }
 
-	const Matrix4   getViewMatrix();
-	const Matrix4	getProjectionMatrix(const double width, const double height);
+	const Matrix4			getViewMatrix();
+	const Matrix4			getProjectionMatrix(const double width, const double height);
 
 private:
-	float m_fieldOfView = 90.0;
-	float m_nearClip	= 1;
-	float m_farClip		= 1000;
+	double m_fieldOfView	= 120.0;
+	double m_nearClip		= 0.1;
+	double m_farClip		= 10000.0;
 };
 
 #endif

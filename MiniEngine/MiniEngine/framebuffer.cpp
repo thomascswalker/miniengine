@@ -16,7 +16,7 @@ Framebuffer::Framebuffer(HWND hwnd)
     // Create a new default camera
     m_camera = Camera();
     auto t = m_camera.getTransform();
-    t.setTranslation(Vector3(10.0, 10.0, -10.0));
+    t.setTranslation(Vector3(0, 0, -100.0));
     m_camera.setTransform(t);
 }
 
@@ -79,16 +79,28 @@ Framebuffer::bindIndexBuffer(std::vector<int> data)
     m_indices = data;
 }
 
-int
-Framebuffer::getNumVertices()
+void
+Framebuffer::bindTriangleBuffer(std::vector<Triangle> data)
 {
-    return m_numVertices;
+    m_triangles = data;
 }
 
-int
+size_t
+Framebuffer::getNumVertices()
+{
+    return m_vertices.size();
+}
+
+size_t
 Framebuffer::getNumIndices()
 {
-    return m_numIndices;
+    return m_indices.size();
+}
+
+size_t
+Framebuffer::getNumTriangles()
+{
+    return m_triangles.size();
 }
 
 /*
@@ -101,10 +113,10 @@ Framebuffer::vertexToScreen(Vertex vertex)
     Vector4 model = Vector4(vertex.getTranslation(), 1.0);
 
     // View matrix
-    auto up = Vector3(0, 1, 0);
-    auto at = Vector3(0, 0, 0);
+    auto up = Vector3(0.0, 1.0, 0.0);
+    auto at = Vector3(0.0, 5.0, 0.0);
 
-    Matrix4 view = lookAt(m_camera.getTranslation(), at, up); // m_camera.getTransform().getMatrix().getInverse(); //
+    Matrix4 view = lookAt(m_camera.getTranslation(), at, up);
 
     // Projection matrix
     Matrix4 proj  = m_camera.getProjectionMatrix(m_width, m_height);
@@ -277,19 +289,40 @@ Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
     auto minY = *std::min_element(std::begin(yList), std::end(yList));
     auto maxY = *std::max_element(std::begin(yList), std::end(yList));
 
-    for (auto y = minY; y < maxY; y++)                       // Bottom to top
+    Vector2 min(minX, minY);
+    Vector2 max(maxX, maxY);
+
+    for (double i = min.x(); i < max.x(); i++)
     {
-        for (auto x = minX; x < maxX; x++)                   // Left to right
+        for (double j = min.y(); j < max.y(); j++)
         {
-            Vector2 point(x,y);                             // Point at current x, y
+            Vector2 point(i, j);
             if (!isPointInFrame(point))
             {
                 continue;
             }
-            if (Math::isPointInTriangle(point, v1, v2, v3)) // Is this point in our triangle?
+
+            // Get barycentric coordinates of triangle (uvw)
+            Vector3 coords = Triangle::getBarycentricCoords(v1, v2, v3, point);
+
+            // If the total != 1.0, or all of the coord axes are less than 0,
+            // we'll skip this (it's not in the triangle!)
+            double total = coords.x() + coords.y() + coords.z();
+            if (coords.x() < 0 || coords.y() < 0 || coords.z() < 0)
             {
-                setPixel(point, color);                      // If it is, colour here
+                continue;
             }
+
+            // Calculate vertex colours
+            double ar = 255, bg = 255, cb = 255;
+            double ag = 0, ab = 0, br = 0, bb = 0, cr = 0, cg = 0;
+
+            double r = coords.x() * ar + coords.y() * br + coords.z() * cr;
+            double g = coords.x() * ag + coords.y() * bg + coords.z() * cg;
+            double b = coords.x() * ab + coords.y() * bb + coords.z() * cb;
+
+            Color color = Color((int)r, (int)g, (int)b);
+            setPixel(point, color);
         }
     }
 }
@@ -338,24 +371,12 @@ Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
 void
 Framebuffer::render(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
 {
-    m_screenVertices.clear();
-    for (int i = 0; i < m_vertices.size(); i++)
+    for (auto tri : m_triangles)
     {
-        Vertex vtx3d = m_vertices[i];
-        Vector2 vtx2d = vertexToScreen(vtx3d);
-        m_screenVertices.push_back(vtx2d);
-    }
-
-    int step = 3;
-    for (int i = 0; i < m_indices.size(); i += step)
-    {
-        int i1 = i;
-        Vector2 v1 = m_screenVertices[m_indices[i1]];
-        int i2 = i + 1;
-        Vector2 v2 = m_screenVertices[m_indices[i2]];
-        int i3 = i + 2;
-        Vector2 v3 = m_screenVertices[m_indices[i3]];
-
+        Vector2 v1 = vertexToScreen(tri.v1());
+        Vector2 v2 = vertexToScreen(tri.v2());
+        Vector2 v3 = vertexToScreen(tri.v3());
+        
         // Draw each face
         if (bDrawFaces)
         {
@@ -373,9 +394,9 @@ Framebuffer::render(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
         // Draw each vertex
         if (bDrawVertices)
         {
-            drawCircle(v1, 3, Color::orange());
-            drawCircle(v2, 3, Color::orange());
-            drawCircle(v3, 3, Color::orange());
+            drawCircle(v1, 2, Color::orange());
+            drawCircle(v2, 2, Color::orange());
+            drawCircle(v3, 2, Color::orange());
         }
     }
 }

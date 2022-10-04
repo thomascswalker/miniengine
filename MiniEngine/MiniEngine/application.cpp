@@ -13,15 +13,15 @@ MINI_USING_DIRECTIVE
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
 static UINT     globalFrameRate     = 1;       // 60 FPS
-static int      initWidth           = 720;     // Standard HD
-static int      initHeight          = 720;
+static int      initWidth           = 240;     // Standard HD
+static int      initHeight          = 240;
 static int      tickRate            = 60;
 static double   currentTime         = 0.0;
 
 // Display options
 static bool     bDrawFaces          = true;
 static bool     bDrawEdges          = false;
-static bool     bDrawVertices       = true;
+static bool     bDrawVertices       = false;
 
 // Keyboard input
 static WORD     keyCode;
@@ -34,50 +34,9 @@ static bool     D_DOWN              = false;
 static bool     E_DOWN              = false;
 static bool     Q_DOWN              = false;
 static bool     SPACEBAR_DOWN       = false;
+static float    MOUSE_WHEEL_DELTA   = 0.0;
 
-static double   GEO_SIZE            = 0.1;
-static double   CAMERA_SPEED        = 0.05;
-
-// Create a triangle
-std::vector<Vertex> vertices = {
-    Vertex(-GEO_SIZE, -GEO_SIZE,  GEO_SIZE),   //0
-    Vertex(GEO_SIZE, -GEO_SIZE,  GEO_SIZE),    //1
-    Vertex(-GEO_SIZE,  GEO_SIZE,  GEO_SIZE),   //2
-    Vertex(GEO_SIZE,  GEO_SIZE,  GEO_SIZE),    //3
-    Vertex(-GEO_SIZE, -GEO_SIZE, -GEO_SIZE),   //4
-    Vertex(GEO_SIZE, -GEO_SIZE, -GEO_SIZE),    //5
-    Vertex(-GEO_SIZE,  GEO_SIZE, -GEO_SIZE),   //6
-    Vertex(GEO_SIZE,  GEO_SIZE, -GEO_SIZE)     //7
-};
-
-std::vector<int> indices = {
-    //Top
-    2, 6, 7,
-    2, 3, 7,
-
-    //Bottom
-    0, 4, 5,
-    0, 1, 5,
-
-    //Left
-    0, 2, 6,
-    0, 4, 6,
-
-    //Right
-    1, 3, 7,
-    1, 5, 7,
-
-    //Front
-    0, 2, 3,
-    0, 1, 3,
-
-    //Back
-    4, 6, 7,
-    4, 5, 7
-};
-
-auto mesh = Mesh(vertices, indices);
-//auto mesh = Mesh(pVertices, pIndices);
+static double   CAMERA_SPEED        = 1.0;
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -99,6 +58,11 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         case WM_DESTROY:
         {
             bIsRunning = true;
+            break;
+        }
+        case WM_MOUSEWHEEL:
+        {
+            MOUSE_WHEEL_DELTA += GET_WHEEL_DELTA_WPARAM(wParam);
             break;
         }
         case WM_KEYUP:
@@ -222,12 +186,16 @@ int Application::run()
 
     currentTime = Core::getCurrentTime();
 
-    auto m = Matrix4();
-    auto camera = Camera();
+    // Load our mesh
+    std::string filename = "C:\\Users\\Tom\\Desktop\\pumpkin.obj";
+    Mesh mesh;
+    MeshLoader::load(filename, mesh);
 
     // Run the message loop.
     while (!bIsRunning)
     {
+        MOUSE_WHEEL_DELTA = 0.0; // Reset mouse delta
+
         double newTime = Core::getCurrentTime();
         double frameTime = newTime - currentTime;
         currentTime = newTime;
@@ -275,9 +243,16 @@ int Application::run()
             m_buffer->camera()->move(Vector3(0, -d, 0));
         }
 
+        if (MOUSE_WHEEL_DELTA != 0)
+        {
+            auto fov = m_buffer->camera()->getFieldOfView() + (MOUSE_WHEEL_DELTA / 240.0);
+            m_buffer->camera()->setFieldOfView(fov);
+        }
+
         // Bind vertex and index buffers to the Framebuffer
-        m_buffer->bindVertexBuffer(mesh.getVertices());
-        m_buffer->bindIndexBuffer(mesh.getIndices());
+        //m_buffer->bindVertexBuffer(mesh.getVertices());
+        //m_buffer->bindIndexBuffer(mesh.getIndices());
+        m_buffer->bindTriangleBuffer(mesh.getTris());
 
         // Draw our scene geometry as triangles
         m_buffer->render(bDrawFaces, bDrawEdges, bDrawVertices);

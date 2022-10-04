@@ -74,6 +74,7 @@ public:
 	// Constructors
 	Vector3();
 	Vector3(double x, double y, double z);
+	Vector3(Vector2& v);
 
 	Vector3 copy() { return Vector3(_x, _y, _z); }
 
@@ -146,6 +147,11 @@ public:
 	Vector3 operator / (Vector3& v) const
 	{
 		return Vector3(_x / v.x(), _y / v.y(), _z / v.z());
+	}
+
+	Vector3 operator / (double d) const
+	{
+		return Vector3(_x / d, _y / d, _z / d);
 	}
 
 	bool operator < (Vector3& v) const

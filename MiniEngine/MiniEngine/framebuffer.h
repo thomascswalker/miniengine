@@ -14,7 +14,6 @@
 #include "color.h"
 #include "matrix.h"
 #include "mesh.h"
-#include "vertex.h"
 
 enum Buffer
 {
@@ -47,11 +46,13 @@ public:
     void* getMemoryPtr() { return (unsigned int*)m_colorBuffer; }
     int getBufferSize() { return m_width * m_height * sizeof(unsigned int); }
 
-    // Vertex buffer
+    // Vertex, index, triangle buffer
     void bindVertexBuffer(std::vector<Vertex> data);
     void bindIndexBuffer(std::vector<int> data);
-    int getNumVertices();
-    int getNumIndices();
+    void bindTriangleBuffer(std::vector<Triangle> data);
+    size_t getNumVertices();
+    size_t getNumIndices();
+    size_t getNumTriangles();
 
     // Math
     Vector2 vertexToScreen(Vertex vertex);
@@ -89,12 +90,15 @@ private:
     int m_rowLength = 0;
 
     // Vertex memory
-    void* m_vertexBuffer;
+    //void* m_vertexBuffer;
     std::vector<Vertex> m_vertices;
-    int m_numVertices;
-    void* m_indexBuffer;
+
+    //void* m_indexBuffer;
     std::vector<int> m_indices;
-    int m_numIndices;
+
+    //void* m_triangleBuffer;
+    std::vector<Triangle> m_triangles;
+
     int m_stride    = 12; // Should be 32 with X, Y, Z, R, G, B, U, V
     int m_posOffset = 0;
     int m_colOffset = 12;

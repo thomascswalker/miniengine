@@ -38,9 +38,9 @@ const Matrix4 Camera::getViewMatrix()
     view[2][2] = z.z();
     view[2][3] = 0;
 
-    view[3][0] = Math::dot(x, eye) * -1;
-    view[3][1] = Math::dot(y, eye) * -1;
-    view[3][2] = Math::dot(z, eye) * -1;
+    view[3][0] = Math::dot(x, eye) * -1.0;
+    view[3][1] = Math::dot(y, eye) * -1.0;
+    view[3][2] = Math::dot(z, eye) * -1.0;
     view[3][3] = 1;
     
     return view;
