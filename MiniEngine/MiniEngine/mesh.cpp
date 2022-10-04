@@ -3,18 +3,7 @@
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<int> indices)
     : m_vertices(vertices), m_indices(indices)
 {
-    for (int i = 0; i < indices.size(); i++)
-    {
-        int i1 = indices[i]; i++;
-        int i2 = indices[i]; i++;
-        int i3 = indices[i];
-
-        auto v1 = vertices[i1];
-        auto v2 = vertices[i2];
-        auto v3 = vertices[i3];
-
-        addTri(v1, v2, v3);
-    }
+    bindTris();
 }
 
 void Mesh::addTri(Vertex v1, Vertex v2, Vertex v3)
@@ -36,4 +25,30 @@ size_t Mesh::numVertices()
 std::vector<Vertex> Mesh::getVertices(Coordinates::CoordSpace space)
 {
     return m_vertices;
+}
+
+void Mesh::setVertices(const std::vector<Vertex> data)
+{
+    m_vertices = data;
+}
+
+void Mesh::setIndices(const std::vector<int> data)
+{
+    m_indices = data;
+}
+
+void Mesh::bindTris()
+{
+    for (int i = 0; i < m_indices.size(); i++)
+    {
+        int i1 = m_indices[i]; i++;
+        int i2 = m_indices[i]; i++;
+        int i3 = m_indices[i];
+
+        Vertex* v1 = &m_vertices[i1];
+        Vertex* v2 = &m_vertices[i2];
+        Vertex* v3 = &m_vertices[i3];
+
+        addTri(*v1, *v2, *v3);
+    }
 }

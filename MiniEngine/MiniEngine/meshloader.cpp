@@ -107,8 +107,8 @@ parseNumber(std::string value, T *result)
 	}
 }
 
-Mesh
-MeshLoader::load(std::string filename, FileType type)
+void
+MeshLoader::load(std::string filename, Mesh& mesh)
 {
 	std::vector<Vertex> vertices;	// Empty vertex array
 	std::vector<int> indices;		// Empty index array
@@ -194,7 +194,7 @@ MeshLoader::load(std::string filename, FileType type)
 					if (parseNumber(str, &result))
 					{
 						// If it is a valid integer, we'll append to our values array
-						values.push_back(result);
+						values.push_back(result - 1); // Account for 3ds Max .obj export being 1-based
 					}
 				}
 
@@ -210,6 +210,8 @@ MeshLoader::load(std::string filename, FileType type)
 			}
 		}
 	}
-	Mesh mesh(vertices, indices);
-	return mesh;
+	
+	mesh.setVertices(vertices);
+	mesh.setIndices(indices);
+	mesh.bindTris();
 }

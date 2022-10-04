@@ -38,9 +38,6 @@ static float    MOUSE_WHEEL_DELTA   = 0.0;
 
 static double   CAMERA_SPEED        = 1.0;
 
-std::string filename = "C:\\Users\\Tom\\Desktop\\teapot.obj";
-auto mesh = MeshLoader::load(filename);
-
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     auto app = Application::getAppInstance();
@@ -188,6 +185,11 @@ int Application::run()
     ShowWindow(m_hwnd, 1);
 
     currentTime = Core::getCurrentTime();
+
+    // Load our mesh
+    std::string filename = "C:\\Users\\Tom\\Desktop\\pumpkin.obj";
+    Mesh mesh;
+    MeshLoader::load(filename, mesh);
 
     // Run the message loop.
     while (!bIsRunning)

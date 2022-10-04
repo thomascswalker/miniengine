@@ -19,7 +19,7 @@ enum FileType
 class MeshLoader
 {
 public:
-	static Mesh load(std::string filename, FileType type = OBJ);
+	static void load(std::string filename, Mesh& mesh);
 };
 
 
