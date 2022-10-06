@@ -187,7 +187,7 @@ int Application::run()
     currentTime = Core::getCurrentTime();
 
     // Load our mesh
-    std::string filename = "C:\\Users\\Tom\\Desktop\\box.obj";
+    std::string filename = "C:\\Users\\Tom\\Desktop\\teapot.obj";
     Mesh mesh;
     MeshLoader::load(filename, mesh);
 
