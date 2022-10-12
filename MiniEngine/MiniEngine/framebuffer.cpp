@@ -28,11 +28,18 @@ Framebuffer::~Framebuffer()
 void
 Framebuffer::allocate()
 {
-    // Clear the memory buffer
+    // Clear the color buffer
     if (m_colorBuffer)
     {
         VirtualFree(m_colorBuffer, 0, MEM_RELEASE);
         m_colorBuffer = nullptr;
+    }
+
+    // Clear the depth buffer
+    if (m_depthBuffer)
+    {
+        VirtualFree(m_depthBuffer, 0, MEM_RELEASE);
+        m_depthBuffer = nullptr;
     }
 
     // Calculate the new buffer size and allocate memory of that size
@@ -40,6 +47,8 @@ Framebuffer::allocate()
 
     // Allocate the memory buffer
     m_colorBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    m_depthBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
 
     // Update the buffer BitmapInfo struct with the updated buffer size,
     // and width and height
@@ -106,7 +115,7 @@ Framebuffer::getNumTriangles()
 /*
 https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix
 */
-Vector2
+Vector3
 Framebuffer::vertexToScreen(Vertex vertex)
 {
     // Model matrix
@@ -126,11 +135,11 @@ Framebuffer::vertexToScreen(Vertex vertex)
     mvp.setW(1.0);
 
     // Convert to normalized device coords
-    Vector2 ndc = Vector2((mvp.x() / mvp.w()), (mvp.y() / mvp.w()));
+    Vector3 ndc = Vector3((mvp.x() / mvp.w()), (mvp.y() / mvp.w()), (mvp.z() / mvp.w()));
     double x = ((ndc.x() + 1) * m_width) / 2;
     double y = ((ndc.y() + 1) * m_height) / 2;
 
-    return Vector2(x, y);
+    return Vector3(x, y, ndc.z());
 }
 
 bool
@@ -277,8 +286,9 @@ Framebuffer::drawCircle(Vector2& v, int r, Color color)
     drawCircle(x, y, r, color);
 }
 
+/* https://medium.com/@aminere/software-rendering-from-scratch-f60127a7cd58 */
 void
-Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
+Framebuffer::drawTri(Vector3& v1, Vector3& v2, Vector3& v3, Color color)
 {
     // Determine the min/max threshold for drawing
     std::vector<double> xList = {v1.x(), v2.x(), v3.x()};
@@ -296,6 +306,7 @@ Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
     {
         for (double j = min.y(); j < max.y(); j++)
         {
+            int index = (i * m_width) + j;
             Vector2 point(i, j);
             if (!isPointInFrame(point))
             {
@@ -313,6 +324,13 @@ Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
                 continue;
             }
 
+            //auto newZ = coords.x() * v1.z() + coords.y() * v2.z() + coords.z() * v3.z();
+            ////double* oldZ = getDepth(i, j);
+            //if (newZ > *oldZ)
+            //{
+            //    continue;
+            //}
+
             // Calculate vertex colours
             double ar = 255, bg = 255, cb = 255;
             double ag = 0, ab = 0, br = 0, bb = 0, cr = 0, cg = 0;
@@ -321,9 +339,10 @@ Framebuffer::drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color)
             double g = coords.x() * ag + coords.y() * bg + coords.z() * cg;
             double b = coords.x() * ab + coords.y() * bb + coords.z() * cb;
 
+            // Set color buffer
             Color color = Color((int)r, (int)g, (int)b);
-            setPixel(point, color);
-        }
+            setPixel(point, color, RGB);
+        }   
     }
 }
 
@@ -373,9 +392,9 @@ Framebuffer::render(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
 {
     for (auto tri : m_triangles)
     {
-        Vector2 v1 = vertexToScreen(tri.v1());
-        Vector2 v2 = vertexToScreen(tri.v2());
-        Vector2 v3 = vertexToScreen(tri.v3());
+        Vector3 v1 = vertexToScreen(tri.v1());
+        Vector3 v2 = vertexToScreen(tri.v2());
+        Vector3 v3 = vertexToScreen(tri.v3());
         
         // Draw each face
         if (bDrawFaces)
@@ -383,21 +402,21 @@ Framebuffer::render(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
             drawTri(v1, v2, v3, Color::white());
         }
 
-        // Draw each edge
-        if (bDrawEdges)
-        {
-            drawLine(v2, v1, Color::blue());
-            drawLine(v3, v1, Color::blue());
-            drawLine(v3, v2, Color::blue());
-        }
+        //// Draw each edge
+        //if (bDrawEdges)
+        //{
+        //    drawLine(v2, v1, Color::blue());
+        //    drawLine(v3, v1, Color::blue());
+        //    drawLine(v3, v2, Color::blue());
+        //}
 
-        // Draw each vertex
-        if (bDrawVertices)
-        {
-            drawCircle(v1, 2, Color::orange());
-            drawCircle(v2, 2, Color::orange());
-            drawCircle(v3, 2, Color::orange());
-        }
+        //// Draw each vertex
+        //if (bDrawVertices)
+        //{
+        //    drawCircle(v1, 2, Color::orange());
+        //    drawCircle(v2, 2, Color::orange());
+        //    drawCircle(v3, 2, Color::orange());
+        //}
     }
 }
 

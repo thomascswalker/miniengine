@@ -55,17 +55,19 @@ public:
     size_t getNumTriangles();
 
     // Math
-    Vector2 vertexToScreen(Vertex vertex);
+    Vector3 vertexToScreen(Vertex vertex);
     bool isPointInFrame(Vector2& p) const;
 
     // Drawing
     void clear();
     void setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB);
     void setPixel(Vector2& v, Color color, Buffer buffer = Buffer::RGB);
+
+
     void drawRect(int x0, int y0, int x1, int y1, Color color);
     void drawCircle(int cx, int cy, int r, Color color);
     void drawCircle(Vector2& v, int r, Color color);
-    void drawTri(Vector2& v1, Vector2& v2, Vector2& v3, Color color);
+    void drawTri(Vector3& v1, Vector3& v2, Vector3& v3, Color color);
     void drawLine(Vector2& v1, Vector2& v2, Color color);
     void render(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices);
     void drawGradient();
