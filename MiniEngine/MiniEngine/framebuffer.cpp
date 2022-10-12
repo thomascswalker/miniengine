@@ -22,33 +22,25 @@ Framebuffer::Framebuffer(HWND hwnd)
 
 Framebuffer::~Framebuffer()
 {
-    
+    clear();
 }
 
 void
 Framebuffer::allocate()
 {
     // Clear the color buffer
-    if (m_colorBuffer)
+    if (m_memoryBuffer)
     {
-        VirtualFree(m_colorBuffer, 0, MEM_RELEASE);
-        m_colorBuffer = nullptr;
-    }
-
-    // Clear the depth buffer
-    if (m_depthBuffer)
-    {
-        VirtualFree(m_depthBuffer, 0, MEM_RELEASE);
-        m_depthBuffer = nullptr;
+        VirtualFree(m_memoryBuffer, 0, MEM_RELEASE);
+        m_memoryBuffer = nullptr;
     }
 
     // Calculate the new buffer size and allocate memory of that size
     int bufferSize = m_width * m_height * m_bytesPerPixel;
 
     // Allocate the memory buffer
-    m_colorBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    m_memoryBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     m_depthBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-
 
     // Update the buffer BitmapInfo struct with the updated buffer size,
     // and width and height
@@ -58,6 +50,14 @@ Framebuffer::allocate()
 
     // Set the row length to the current window width * bytes per pixel (4)
     m_rowLength = m_width * m_bytesPerPixel;
+}
+
+void
+Framebuffer::clear()
+{
+    drawRect(0, 0,              // Origin
+             m_width, m_height, // Width, height
+             Color::black());   // Color
 }
 
 void
@@ -112,26 +112,24 @@ Framebuffer::getNumTriangles()
     return m_triangles.size();
 }
 
-/*
-https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix/building-basic-perspective-projection-matrix
-*/
 Vector3
-Framebuffer::vertexToScreen(Vertex vertex)
+Framebuffer::worldToScreen(Vector3& v)
 {
     // Model matrix
-    Vector4 model = Vector4(vertex.getTranslation(), 1.0);
+    Matrix4 model;
+    model.setTranslate(v);
 
     // View matrix
-    auto up = Vector3(0.0, 1.0, 0.0);
-    auto at = Vector3(0.0, 5.0, 0.0);
-
-    Matrix4 view = lookAt(m_camera.getTranslation(), at, up);
+    auto c = m_camera.getTransform();
+    Vector3 cameraPosition = m_camera.getTranslation();
+    Vector3 cameraForward = c.getForward();
+    Matrix4 view = lookAt(cameraPosition, cameraForward + cameraPosition, Vector3(0.0, 1.0, 0.0));
 
     // Projection matrix
     Matrix4 proj  = m_camera.getProjectionMatrix(m_width, m_height);
 
-    // MVP vertex
-    Vector4 mvp = proj * view * model;
+    // MVP matrix, converted to Vector4
+    Vector4 mvp = proj * view * model * Vector4(v, 1.0);
     mvp.setW(1.0);
 
     // Convert to normalized device coords
@@ -139,7 +137,11 @@ Framebuffer::vertexToScreen(Vertex vertex)
     double x = ((ndc.x() + 1) * m_width) / 2;
     double y = ((ndc.y() + 1) * m_height) / 2;
 
-    return Vector3(x, y, ndc.z());
+    v.setX(x);
+    v.setY(y);
+    v.setZ(ndc.z());
+
+    return v;
 }
 
 bool
@@ -150,13 +152,7 @@ Framebuffer::isPointInFrame(Vector2& p) const
     return (x > 0 && y > 0 && x < m_width && y < m_height);
 }
 
-void
-Framebuffer::clear()
-{
-    drawRect(0, 0,              // Origin
-             m_width, m_height, // Width, height
-             Color::black());   // Color
-}
+
 
 void
 Framebuffer::setPixel(int x, int y, Color color, Buffer buffer)
@@ -172,12 +168,7 @@ Framebuffer::setPixel(int x, int y, Color color, Buffer buffer)
         default:
         case RGB:
         {
-            pixelPtr = (uint32*)m_colorBuffer;
-            break;
-        }
-        case DEPTH:
-        {
-            pixelPtr = (uint32*)m_depthBuffer;
+            pixelPtr = (uint32*)m_memoryBuffer;
             break;
         }
     }
@@ -195,31 +186,6 @@ Framebuffer::setPixel(Vector2& v, Color color, Buffer buffer)
     int x = (int)v.x();
     int y = (int)v.y();
     setPixel(x, y, color, buffer);
-}
-
-void
-Framebuffer::drawGradient()
-{
-    // The start position of the current row
-    uint8 *rowPtr = (uint8*)m_colorBuffer;
-
-    for (int y = 0; y < m_height; y++)
-    {
-        // Initial pointer position in our memory buffer
-        uint32 *pixel = (uint32*)rowPtr;
-        for (int x = 0; x < m_width; x++)
-        {
-            uint8 red = x;      // Red channel gradient getting brighter left -> right
-            uint8 green = y;    // Green channel gradient getting brighter top -> down
-            uint8 blue = 0;     // No blue
-            auto color = Color(red, green, blue);
-
-            // Set the color at this position in memory
-            *pixel++ = color.hex();
-        }
-
-        rowPtr += m_rowLength;
-    }
 }
 
 void
@@ -286,66 +252,6 @@ Framebuffer::drawCircle(Vector2& v, int r, Color color)
     drawCircle(x, y, r, color);
 }
 
-/* https://medium.com/@aminere/software-rendering-from-scratch-f60127a7cd58 */
-void
-Framebuffer::drawTri(Vector3& v1, Vector3& v2, Vector3& v3, Color color)
-{
-    // Determine the min/max threshold for drawing
-    std::vector<double> xList = {v1.x(), v2.x(), v3.x()};
-    std::vector<double> yList = {v1.y(), v2.y(), v3.y()};
-
-    auto minX = *std::min_element(std::begin(xList), std::end(xList));
-    auto maxX = *std::max_element(std::begin(xList), std::end(xList));
-    auto minY = *std::min_element(std::begin(yList), std::end(yList));
-    auto maxY = *std::max_element(std::begin(yList), std::end(yList));
-
-    Vector2 min(minX, minY);
-    Vector2 max(maxX, maxY);
-
-    for (double i = min.x(); i < max.x(); i++)
-    {
-        for (double j = min.y(); j < max.y(); j++)
-        {
-            int index = (i * m_width) + j;
-            Vector2 point(i, j);
-            if (!isPointInFrame(point))
-            {
-                continue;
-            }
-
-            // Get barycentric coordinates of triangle (uvw)
-            Vector3 coords = Triangle::getBarycentricCoords(v1, v2, v3, point);
-
-            // If the total != 1.0, or all of the coord axes are less than 0,
-            // we'll skip this (it's not in the triangle!)
-            double total = coords.x() + coords.y() + coords.z();
-            if (coords.x() < 0 || coords.y() < 0 || coords.z() < 0)
-            {
-                continue;
-            }
-
-            //auto newZ = coords.x() * v1.z() + coords.y() * v2.z() + coords.z() * v3.z();
-            ////double* oldZ = getDepth(i, j);
-            //if (newZ > *oldZ)
-            //{
-            //    continue;
-            //}
-
-            // Calculate vertex colours
-            double ar = 255, bg = 255, cb = 255;
-            double ag = 0, ab = 0, br = 0, bb = 0, cr = 0, cg = 0;
-
-            double r = coords.x() * ar + coords.y() * br + coords.z() * cr;
-            double g = coords.x() * ag + coords.y() * bg + coords.z() * cg;
-            double b = coords.x() * ab + coords.y() * bb + coords.z() * cb;
-
-            // Set color buffer
-            Color color = Color((int)r, (int)g, (int)b);
-            setPixel(point, color, RGB);
-        }   
-    }
-}
-
 /*
 https://en.wikipedia.org/wiki/Line_drawing_algorithm
 */
@@ -388,35 +294,73 @@ Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
 }
 
 void
-Framebuffer::render(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices)
+Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 {
-    for (auto tri : m_triangles)
+    // Convert world-space to screenspace
+    worldToScreen(v1);
+    worldToScreen(v2);
+    worldToScreen(v3);
+
+    // Determine the screen bounding box
+    std::vector<double> xList = {v1.x(), v2.x(), v3.x()};
+    std::vector<double> yList = {v1.y(), v2.y(), v3.y()};
+
+    auto minX = *std::min_element(std::begin(xList), std::end(xList));
+    auto maxX = *std::max_element(std::begin(xList), std::end(xList));
+    auto minY = *std::min_element(std::begin(yList), std::end(yList));
+    auto maxY = *std::max_element(std::begin(yList), std::end(yList));
+
+    Vector2 min(minX, minY);
+    Vector2 max(maxX, maxY);
+
+    for (double i = min.x(); i < max.x(); i++)
     {
-        Vector3 v1 = vertexToScreen(tri.v1());
-        Vector3 v2 = vertexToScreen(tri.v2());
-        Vector3 v3 = vertexToScreen(tri.v3());
-        
-        // Draw each face
-        if (bDrawFaces)
+        for (double j = min.y(); j < max.y(); j++)
         {
-            drawTri(v1, v2, v3, Color::white());
-        }
+            Vector2 point(i, j);
+            if (!isPointInFrame(point))
+            {
+                continue;
+            }
 
-        //// Draw each edge
-        //if (bDrawEdges)
-        //{
-        //    drawLine(v2, v1, Color::blue());
-        //    drawLine(v3, v1, Color::blue());
-        //    drawLine(v3, v2, Color::blue());
-        //}
+            // Get barycentric coordinates of triangle (uvw)
+            Vector3 coords = Triangle::getBarycentricCoords(v1, v2, v3, point);
 
-        //// Draw each vertex
-        //if (bDrawVertices)
-        //{
-        //    drawCircle(v1, 2, Color::orange());
-        //    drawCircle(v2, 2, Color::orange());
-        //    drawCircle(v3, 2, Color::orange());
-        //}
+            // If the total != 1.0, or all of the coord axes are less than 0,
+            // we'll skip this (it's not in the triangle!)
+            double total = coords.x() + coords.y() + coords.z();
+            if (coords.x() < 0 || coords.y() < 0 || coords.z() < 0)
+            {
+                continue;
+            }
+
+            // Calculate vertex colours
+            double ar = 255, bg = 255, cb = 255;
+            double ag = 0, ab = 0, br = 0, bb = 0, cr = 0, cg = 0;
+
+            double r = coords.x() * ar + coords.y() * br + coords.z() * cr;
+            double g = coords.x() * ag + coords.y() * bg + coords.z() * cg;
+            double b = coords.x() * ab + coords.y() * bb + coords.z() * cb;
+
+            // Set color buffer
+            Color color = Color((int)r, (int)g, (int)b);
+            setPixel(point, color, RGB);
+        }   
+    }
+}
+
+
+
+void
+Framebuffer::render()
+{
+    for (auto t : m_triangles)
+    {
+        auto v1 = t.v1().getTranslation();
+        auto v2 = t.v2().getTranslation();
+        auto v3 = t.v3().getTranslation();
+
+        drawTriangle(v1, v2, v3);
     }
 }
 

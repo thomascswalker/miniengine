@@ -74,6 +74,7 @@ public:
 
     Matrix4         getInverse(double* detPtr = NULL);
     Vector3&        getTranslation() const;
+    Rotation&       getRotation() const;
     
 
     std::string     toString();
@@ -111,5 +112,8 @@ private:
 };
 
 Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up);
+Matrix4 makeTranslate(const Vector3& v);
+Matrix4 makeViewport(double w, double h);
+Matrix4 makeRotation(const Vector3 rotation);
 
 #endif

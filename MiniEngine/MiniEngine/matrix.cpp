@@ -205,9 +205,49 @@ Vector3& Matrix4::getTranslation() const
     return t;
 }
 
+Rotation& Matrix4::getRotation() const
+{
+    int i;
+
+    if (m_mtx[0][0] > m_mtx[1][1])
+    {
+    	i = (m_mtx[0][0] > m_mtx[2][2] ? 0 : 2);
+    }
+    else
+    {
+        i = (m_mtx[1][1] > m_mtx[2][2] ? 1 : 2);
+    }
+
+    Vector3 imaginary;
+    double  real;
+
+    if (m_mtx[0][0] + m_mtx[1][1] + m_mtx[2][2] > m_mtx[i][i])
+    {
+	    real = 0.5 * sqrt(m_mtx[0][0] + m_mtx[1][1] + m_mtx[2][2] + m_mtx[3][3]);
+	    imaginary.set((m_mtx[1][2] - m_mtx[2][1]) / (4.0 * real),
+	                  (m_mtx[2][0] - m_mtx[0][2]) / (4.0 * real),
+	                  (m_mtx[0][1] - m_mtx[1][0]) / (4.0 * real));
+    }
+    else
+    {
+	    int j = (i + 1) % 3;
+	    int k = (i + 2) % 3;
+	    double q = 0.5 * sqrt(m_mtx[i][i] - m_mtx[j][j] - m_mtx[k][k] + m_mtx[3][3]); 
+
+        imaginary.setX(q);
+        imaginary.setY((m_mtx[i][j] + m_mtx[j][i]) / (4 * q));
+        imaginary.setZ((m_mtx[k][i] + m_mtx[i][k]) / (4 * q));
+	    real         = (m_mtx[j][k] - m_mtx[k][j]) / (4 * q);
+    }
+
+    Quaternion quat(Math::clamp(real, -1.0, 1.0), imaginary);
+    auto q = Rotation(quat);
+    return q;
+}
+
 std::string Matrix4::toString()
 {
-    return std::format("[{}, {}, {}, {}]\n[{}, {}, {}, {}]\n[{}, {}, {}, {}]\n[{}, {}, {}, {}]\n",
+    return std::format("[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n",
                         m_mtx[0][0], m_mtx[0][1], m_mtx[0][2], m_mtx[0][3],
                         m_mtx[1][0], m_mtx[1][1], m_mtx[1][2], m_mtx[1][3],
                         m_mtx[2][0], m_mtx[2][1], m_mtx[2][2], m_mtx[2][3],
@@ -415,4 +455,59 @@ Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up)
                     eye.x(),    eye.y(),    eye.z(),    1.0);
 
     return viewMatrix;
+}
+
+
+
+Matrix4 makeViewport(double w, double h)
+{
+    Matrix4 view;
+    view.set(w / 2.0,   0.0,        0.0,            w / 2.0,
+             0.0,       h / 2.0,    0.0,            h / 2.0,
+             0.0,       0.0,        255.0 / 2.0,    255.0 / 2.0,
+             0.0,       0.0,        0.0,            1.0);
+    return view;
+}
+
+Matrix4 makeTranslate(const Vector3& v)
+{
+    Matrix4 view;
+    view.set(1.0,   0.0,    0.0,    v.x(),
+             0.0,   1.0,    0.0,    v.y(),
+             0.0,   0.0,    1.0,    v.z(),
+             0.0,   0.0,    0.0,    1.0);
+    return view;
+}
+
+Matrix4 makeRotation(const Vector3 rotation)
+{
+    float x = Math::degreesToRadians(rotation.x());
+    float y = Math::degreesToRadians(rotation.y());
+    float z = Math::degreesToRadians(rotation.z());
+
+    Matrix4 rx;
+    rx.set(
+        1.0,   0.0,       0.0,     0.0,
+        0.0,   cosf(x),    -sinf(x), 0.0,
+        0.0,   sinf(x),    cosf(x),  0.0,
+        0.0,   0.0,       0.0,     1.0
+    );
+
+    Matrix4 ry;
+    ry.set(
+        cosf(y), 0.0,      -sinf(y),   0.0,
+        0.0,    1.0,      0.0,       0.0,
+        sinf(y), 0.0,      cosf(y),    0.0,
+        0.0,    0.0,      0.0,       1.0
+    );
+
+    Matrix4 rz;
+    rz.set(
+        cosf(z), -sinf(z),  0.0,       0.0,
+        sinf(z), cosf(z),   0.0,       0.0,
+        0.0,    0.0,      1.0,       0.0,
+        0.0,    0.0,      0.0,       1.0
+    );
+
+    return rx * ry * rz;
 }

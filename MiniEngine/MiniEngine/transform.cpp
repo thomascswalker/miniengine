@@ -12,28 +12,46 @@ Transform& Transform::identity()
     return *this;
 }
 
+// http://www.codinglabs.net/article_world_view_projection_matrix.aspx
 Matrix4 Transform::getMatrix() const
 {
-    Matrix4 temp;
+    // Translate
+    Matrix4 t;
+    t.set(1.0, 0.0, 0.0, m_translation.x(),
+          0.0, 1.0, 0.0, m_translation.y(),
+          0.0, 0.0, 1.0, m_translation.z(),
+          0.0, 0.0, 0.0, 1.0);
 
-    // Pivot
-    temp.setTranslate(-m_pivotPosition);
+    // Rotate
+    Quaternion q = m_rotation.getQuaternion();
+    Vector3 r = q.getImaginary();
+
+    Matrix4 rx;
+    rx.set(1.0, 0.0,         0.0,           0.0,
+           0.0, cosf(r.x()), -sinf(r.x()),  0.0,
+           0.0, sinf(r.x()), cosf(r.x()),   0.0,
+           0.0, 0.0,         0.0,           1.0);
+
+    Matrix4 ry;
+    ry.set(cosf(r.y()),  0.0, sinf(r.y()),  0.0,
+           0.0,          1.0, 0.0,          0.0,
+           -sinf(r.y()), 0.0, cosf(r.y()),  0.0,
+           0.0,          0.0, 0.0,          1.0);
+
+    Matrix4 rz;
+    rz.set(cosf(r.y()), -sinf(r.y()), 0.0, 0.0,
+           sinf(r.y()), cosf(r.y()),  0.0, 0.0,
+           0.0,         0.0,          1.0, 0.0,
+           0.0,         0.0,          0.0, 1.0);
 
     // Scale
-    temp.setRotation(m_pivotOrientation.getInverse());
-    temp.setScale(m_scale);
-    temp.setRotation(m_pivotOrientation);
+    Matrix4 s;
+    s.set(m_scale.x(), 0.0,         0.0,         0.0,
+          0.0,         m_scale.y(), 0.0,         0.0,
+          0.0,         0.0,         m_scale.z(), 0.0,
+          0.0,         0.0,         0.0,         1.0);
 
-    // Rotation
-    temp.setRotation(m_rotation);
-
-    // Pivot (again)
-    temp.setTranslate(m_pivotPosition);
-
-    // Translation
-    temp.setTranslate(m_translation);
-
-    return temp;
+    return rx * ry * rz * t * s;
 }
 
 void Transform::setTranslation(const Vector3& t)
@@ -51,18 +69,20 @@ void Transform::setScale(const Vector3& s)
     m_scale = s;
 }
 
-const Vector3& Transform::getFront()
+const Vector3& Transform::getForward()
 {
-    Vector3 front;
-    Vector3 axis = m_rotation.getAxis();
-    double x = cos(Math::degreesToRadians(axis.x())) * cos(Math::degreesToRadians(axis.x()));
-    double y = sin(Math::degreesToRadians(axis.z()));
-    double z = sin(Math::degreesToRadians(axis.x())) * cos(Math::degreesToRadians(axis.x()));
-    
-    front.setX(x);
-    front.setY(y);
-    front.setZ(z);
-    front.normalize();
+    Matrix4 m = getMatrix();
+    return Vector3(m[0][0], m[1][0], m[2][0]);
+}
 
-    return front;
+const Vector3& Transform::getRight()
+{
+    Matrix4 m = getMatrix();
+    return Vector3(m[0][1], m[1][1], m[2][1]);
+}
+
+const Vector3& Transform::getUp()
+{
+    Matrix4 m = getMatrix();
+    return Vector3(m[0][2], m[1][2], m[2][2]);
 }

@@ -36,7 +36,7 @@ static bool     Q_DOWN              = false;
 static bool     SPACEBAR_DOWN       = false;
 static float    MOUSE_WHEEL_DELTA   = 0.0;
 
-static double   CAMERA_SPEED        = 1.0;
+static double   CAMERA_SPEED        = 0.1;
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -187,7 +187,7 @@ int Application::run()
     currentTime = Core::getCurrentTime();
 
     // Load our mesh
-    std::string filename = "C:\\Users\\Tom\\Desktop\\teapot.obj";
+    std::string filename = "C:\\Users\\Tom\\Desktop\\box.obj";
     Mesh mesh;
     MeshLoader::load(filename, mesh);
 
@@ -218,30 +218,32 @@ int Application::run()
 
         //// Move our camera
         double d = CAMERA_SPEED * frameTime;
+        Vector3 offset;
         if (W_DOWN)
         {
-            m_buffer->camera()->move(Vector3(0, 0, d));
+            offset = Vector3(0, 0, d);
         }
         if (A_DOWN)
         {
-            m_buffer->camera()->move(Vector3(-d, 0, 0));
+            offset = Vector3(-d, 0, 0);
         }
         if (S_DOWN)
         {
-            m_buffer->camera()->move(Vector3(0, 0, -d));
+            offset = Vector3(0, 0, -d);
         }
         if (D_DOWN)
         {
-            m_buffer->camera()->move(Vector3(d, 0, 0));
+            offset = Vector3(d, 0, 0);
         }
         if (E_DOWN)
         {
-            m_buffer->camera()->move(Vector3(0, d, 0));
+            offset = Vector3(0, d, 0);
         }
         if (Q_DOWN)
         {
-            m_buffer->camera()->move(Vector3(0, -d, 0));
+            offset = Vector3(0, -d, 0);
         }
+        m_buffer->camera()->move(offset);
 
         if (MOUSE_WHEEL_DELTA != 0)
         {
@@ -253,7 +255,7 @@ int Application::run()
         m_buffer->bindTriangleBuffer(mesh.getTris());
 
         // Draw our scene geometry as triangles
-        m_buffer->render(bDrawFaces, bDrawEdges, bDrawVertices);
+        m_buffer->render();
 
         // Draw a mouse cursor
         m_buffer->drawCircle(m_mouseX, m_mouseY, 5, Color::green());
@@ -271,6 +273,20 @@ int Application::run()
             DIB_RGB_COLORS,
             SRCCOPY
         );
+
+        Matrix4 cm = m_buffer->camera()->getViewMatrix();
+        std::string matrixText = cm.toString();
+        std::wstring stemp = std::wstring(matrixText.begin(), matrixText.end());
+        LPCWSTR text = stemp.c_str();
+
+        RECT rect;
+        GetClientRect(m_hwnd, &rect);
+        SetTextColor(hdc, Color::white().hex());
+        SetBkMode(hdc, TRANSPARENT);
+        rect.left = 40;
+        rect.top = 40;
+        DrawText(hdc, text, -1, &rect, DT_NOCLIP);
+
         ReleaseDC(m_hwnd, hdc);
     };
 

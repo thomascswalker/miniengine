@@ -19,7 +19,9 @@ public:
 	void			setScale(const Vector3& s);
 	const Vector3&	getScale() { return m_scale; }
 
-	const Vector3&  getFront();
+	const Vector3&  getForward();
+	const Vector3&  getRight();
+	const Vector3&  getUp();
 
 
 private:

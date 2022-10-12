@@ -12,6 +12,36 @@ public:
 	{
 		setAxisAngle(axis, angle);
 	};
+	Rotation(Quaternion& q)
+	{
+		setQuaternion(q);
+	}
+
+	Rotation& setIdentity()
+	{
+		m_axis.set(1.0, 0.0, 0.0);
+		m_angle = 0.0;
+		return *this;
+	}
+
+	Rotation& setQuaternion(Quaternion& q)
+	{
+		double len = q.getImaginary().length();
+
+		if (len < 1e-10) // Minimum vector length
+		{
+			auto r = q.getReal();
+			double x = acos(Math::clamp(r, -1.0, 1.0));
+			setAxisAngle(q.getImaginary() / len,
+						 2.0 * Math::radiansToDegrees(x));
+		}
+		else
+		{
+			setIdentity();
+		}
+
+		return *this;
+	}
 
 	Rotation& setAxisAngle(const Vector3& axis, double angle)
 	{
