@@ -2,16 +2,6 @@
 
 using namespace Math;
 
-double Math::degreesToRadians(double d)
-{
-    return d * (PI / 180.0);
-}
-
-double Math::radiansToDegrees(double r)
-{
-    return r * (180 / PI);
-}
-
 double Math::dot(Vector2 v1, Vector2 v2)
 {
     return v1.x() * v2.x() + v1.y() * v2.y();
@@ -24,7 +14,7 @@ double Math::dot(Vector3 v1, Vector3 v2)
 
 double Math::area(Vector2 v1, Vector2 v2, Vector3 v3)
 {
-    return abs((v1.x() * (v2.y() - v3.y()) + v2.x() * (v3.y() - v1.y()) + v3.x() * (v1.y() - v2.y())) / 2.0f);
+    return abs((v1.x() * (v2.y() - v3.y()) + v2.x() * (v3.y() - v1.y()) + v3.x() * (v1.y() - v2.y())) / 2.0);
 }
 
 double Math::distance(Vector2 v1, Vector2 v2)
@@ -58,8 +48,8 @@ bool Math::isPointInTriangle(Vector2 p, Vector2 v1, Vector2 v2, Vector2 v3)
     double d3 = cross(ca, cp);
 
     // Are either positive, or negative?
-    bool isNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
-    bool isPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+    bool isNeg = (d1 < 0.0) || (d2 < 0.0) || (d3 < 0.0);
+    bool isPos = (d1 > 0.0) || (d2 > 0.0) || (d3 > 0.0);
 
     return !(isNeg && isPos);
 }

@@ -2,7 +2,7 @@
 
 std::string Vector2::toString()
 {
-	return std::format("[{}, {}]", _x, _y);;
+	return std::format("[{:.2f}, {:.2f}]", _x, _y);;
 }
 
 Vector3::Vector3()
@@ -28,7 +28,7 @@ Vector3::Vector3(Vector2& v)
 
 std::string Vector3::toString()
 {
-	return std::format("[{}, {}, {}]", _x, _y, _z);
+	return std::format("[{:.2f}, {:.2f}, {:.2f}]", _x, _y, _z);
 }
 
 
@@ -42,7 +42,7 @@ void Vector3::normalize()
 
 Vector3 Vector3::identity()
 {
-	return Vector3(1.0f, 1.0f, 1.0f);
+	return Vector3(1.0, 1.0, 1.0);
 }
 
 
@@ -52,6 +52,14 @@ Vector4::Vector4()
 	_y = 0;
 	_z = 0;
 	_w = 0;
+}
+
+Vector4::Vector4(double d)
+{
+	_x = d;
+	_y = d;
+	_z = d;
+	_w = d;
 }
 
 Vector4::Vector4(double x, double y, double z, double w)
@@ -72,7 +80,7 @@ Vector4::Vector4(const Vector3& v, double w)
 
 std::string Vector4::toString()
 {
-	return std::format("[{}, {}, {}, {}]", _x, _y, _z, _w);
+	return std::format("[{:.2f}, {:.2f}, {:.2f}, {:.2f}]", _x, _y, _z, _w);
 }
 
 void Vector4::normalize()
@@ -86,7 +94,7 @@ void Vector4::normalize()
 
 Vector4 Vector4::identity()
 {
-	return Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	return Vector4(1.0, 1.0, 1.0, 1.0);
 }
 
 double cross(const Vector2& v1, const Vector2& v2)

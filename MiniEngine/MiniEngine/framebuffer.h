@@ -68,6 +68,11 @@ public:
     void drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3);
     void render();
 
+    // Matrices
+    Vector3 getTargetTranslation() { return m_targetPosition; };
+    Matrix4 getViewMatrix() { return m_view; };
+    Matrix4 getProjectionMatrix() { return m_proj; };
+
 protected:
     friend bool operator == (const Framebuffer&,
                              const Framebuffer&);
@@ -106,6 +111,9 @@ private:
 
     // Camera and matrices
     Camera m_camera;
+    Vector3 m_targetPosition;
+    Matrix4 m_view;
+    Matrix4 m_proj;
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <format>
+#include <cmath>
 
 class Vector2
 {
@@ -78,6 +79,10 @@ public:
 
 	Vector3 copy() { return Vector3(_x, _y, _z); }
 
+	static Vector3 forward() { return Vector3(0.0, 0.0, 1.0); }
+	static Vector3 up() { return Vector3(0.0, 1.0, 0.0); }
+	static Vector3 right() { return Vector3(1.0, 0.0, 0.0); }
+
 	// Operators
 	double operator [] (int i) const
 	{
@@ -115,6 +120,11 @@ public:
 	}
 
 	Vector3 operator += (Vector3& v) const
+	{
+		return Vector3(_x + v.x(), _y + v.y(), _z + v.z());
+	}
+
+	Vector3 operator += (const Vector3& v) const
 	{
 		return Vector3(_x + v.x(), _y + v.y(), _z + v.z());
 	}
@@ -196,7 +206,7 @@ public:
 	static Vector3 identity();
 	double length()
 	{
-		return sqrtf((float)(_x * _x) + (float)(_y * _y) + (float)(_z * _z));
+		return sqrt(_x * _x + _y * _y + _z * _z);
 	}
 	void set(double x, double y, double z) {_x = x, _y = y, _z = z;}
 };
@@ -208,6 +218,7 @@ protected:
 
 public:
 	Vector4();
+	Vector4(double d);
 	Vector4(double x, double y, double z, double w);
 	Vector4(const Vector3& v, double w);
 
@@ -258,7 +269,7 @@ public:
 
 	void normalize();
 	static Vector4 identity();
-	double length() { return sqrtf((float)(_x * _x + _y * _y + _z * _z + _w * _w)); }
+	double length() { return sqrt(_x * _x + _y * _y + _z * _z + _w * _w); }
 	void set(double x, double y, double z, double w) {_x = x, _y = y, _z = z, _w = w;}
 };
 

@@ -15,10 +15,10 @@ Matrix4& Matrix4::set(double m00, double m01, double m02, double m03,
 
 Matrix4& Matrix4::set(const double m[4][4])
 {
-    m_mtx[0][0] = m[0][0]; m_mtx[0][1] = m[0][1]; m_mtx[0][2] = m[0][2]; m_mtx[0][3] = m[0][3];
-    m_mtx[1][0] = m[1][0]; m_mtx[1][1] = m[1][1]; m_mtx[1][2] = m[1][2]; m_mtx[1][3] = m[1][3];
-    m_mtx[2][0] = m[2][0]; m_mtx[2][1] = m[2][1]; m_mtx[2][2] = m[2][2]; m_mtx[2][3] = m[2][3];
-    m_mtx[3][0] = m[3][0]; m_mtx[3][1] = m[3][1]; m_mtx[3][2] = m[3][2]; m_mtx[3][3] = m[3][3];
+    m_mtx[0][0] = m[0][0]; m_mtx[0][1] = m[0][1]; m_mtx[0][2] = m[0][1]; m_mtx[0][3] = m[0][1];
+    m_mtx[1][0] = m[1][0]; m_mtx[1][1] = m[1][1]; m_mtx[1][2] = m[1][1]; m_mtx[1][3] = m[1][1];
+    m_mtx[2][0] = m[2][0]; m_mtx[2][1] = m[2][1]; m_mtx[2][2] = m[2][1]; m_mtx[2][3] = m[2][1];
+    m_mtx[3][0] = m[3][0]; m_mtx[3][1] = m[3][1]; m_mtx[3][2] = m[3][1]; m_mtx[3][3] = m[3][1];
 
     return *this;
 }
@@ -39,13 +39,30 @@ Matrix4& Matrix4::setIdentity()
     return (*this);
 }
 
+///
+///  1, 0, 0, t.x,
+///  0, 1, 0, t.y,
+///  0, 0, 1, t.z,
+///  0, 0, 0, 1
+///
+Vector3& Matrix4::getTranslation() const
+{
+    auto t = Vector3(m_mtx[0][3], m_mtx[1][3], m_mtx[2][3]);
+    return t;
+}
+
+///
+///  1, 0, 0, t.x,
+///  0, 1, 0, t.y,
+///  0, 0, 1, t.z,
+///  0, 0, 0, 1
+///
 Matrix4& Matrix4::setTranslate(const Vector3& t)
 {
-    m_mtx[0][0] = 1.0;  m_mtx[0][1] = 0.0;  m_mtx[0][2] = 0.0;  m_mtx[0][3] = 0.0;
-    m_mtx[1][0] = 0.0;  m_mtx[1][1] = 1.0;  m_mtx[1][2] = 0.0;  m_mtx[1][3] = 0.0;
-    m_mtx[2][0] = 0.0;  m_mtx[2][1] = 0.0;  m_mtx[2][2] = 1.0;  m_mtx[2][3] = 0.0;
-    m_mtx[3][0] = t[0]; m_mtx[3][1] = t[1]; m_mtx[3][2] = t[2]; m_mtx[3][3] = 1.0;
-
+    setIdentity();
+    m_mtx[0][3] = t.x();
+    m_mtx[1][3] = t.y();
+    m_mtx[2][3] = t.z();
     return *this;
 }
 
@@ -54,35 +71,33 @@ Matrix4& Matrix4::setRotation(const Rotation& r)
     auto quat = r.getQuaternion();
     _setRotateFromQuat(quat.getReal(), quat.getImaginary());
 
-    m_mtx[0][3] = 0.0;
-    m_mtx[1][3] = 0.0;
-    m_mtx[2][3] = 0.0;
-
     m_mtx[3][0] = 0.0;
     m_mtx[3][1] = 0.0;
     m_mtx[3][2] = 0.0;
+
+    m_mtx[0][3] = 0.0;
+    m_mtx[1][3] = 0.0;
+    m_mtx[2][3] = 0.0;
     m_mtx[3][3] = 1.0;
 
     return *this;
 }
 
-Matrix4& Matrix4::setScale(double scale)
+Matrix4& Matrix4::setScale(double s)
 {
-    m_mtx[0][0] = scale; m_mtx[0][1] = 0.0;   m_mtx[0][2] = 0.0;   m_mtx[0][3] = 0.0;
-    m_mtx[1][0] = 0.0;   m_mtx[1][1] = scale; m_mtx[1][2] = 0.0;   m_mtx[1][3] = 0.0;
-    m_mtx[2][0] = 0.0;   m_mtx[2][1] = 0.0;   m_mtx[2][2] = scale; m_mtx[2][3] = 0.0;
-    m_mtx[3][0] = 0.0;   m_mtx[3][1] = 0.0;   m_mtx[3][2] = 0.0;   m_mtx[3][3] = 1.0;
-
+    setIdentity();
+    m_mtx[0][0] = s;
+    m_mtx[1][1] = s;
+    m_mtx[2][2] = s;
     return *this;
 }
 
-Matrix4& Matrix4::setScale(const Vector3& scale)
+Matrix4& Matrix4::setScale(const Vector3& s)
 {
-    m_mtx[0][0] = scale[0]; m_mtx[0][1] = 0.0;      m_mtx[0][2] = 0.0;      m_mtx[0][3] = 0.0;
-    m_mtx[1][0] = 0.0;      m_mtx[1][1] = scale[1]; m_mtx[1][2] = 0.0;      m_mtx[1][3] = 0.0;
-    m_mtx[2][0] = 0.0;      m_mtx[2][1] = 0.0;      m_mtx[2][2] = scale[2]; m_mtx[2][3] = 0.0;
-    m_mtx[3][0] = 0.0;      m_mtx[3][1] = 0.0;      m_mtx[3][2] = 0.0;      m_mtx[3][3] = 1.0;
-
+    setIdentity();
+    m_mtx[0][0] = s.x();
+    m_mtx[1][1] = s.y();
+    m_mtx[2][2] = s.z();
     return *this;
 }
 
@@ -168,7 +183,7 @@ Matrix4 Matrix4::getInverse(double* detPtr)
 
     Matrix4 inverse;
 
-    if (abs(det) > Math::EPSILON)
+    if (abs(det) > EPSILON)
     {
         double rcp = 1.0 / det;
 
@@ -199,10 +214,27 @@ Matrix4 Matrix4::getInverse(double* detPtr)
     return inverse;
 };
 
-Vector3& Matrix4::getTranslation() const
+Matrix4& Matrix4::getTranspose()
 {
-    auto t = Vector3(m_mtx[3][0], m_mtx[3][1], m_mtx[3][2]);
-    return t;
+    Matrix4 m;
+    m[0][0] = m_mtx[0][0];
+    m[1][0] = m_mtx[0][1];
+    m[2][0] = m_mtx[0][2];
+    m[3][0] = m_mtx[0][3];
+    m[0][1] = m_mtx[1][0];
+    m[1][1] = m_mtx[1][1];
+    m[2][1] = m_mtx[1][2];
+    m[3][1] = m_mtx[1][3];
+    m[0][2] = m_mtx[2][0];
+    m[1][2] = m_mtx[2][1];
+    m[2][2] = m_mtx[2][2];
+    m[3][2] = m_mtx[2][3];
+    m[0][3] = m_mtx[3][0];
+    m[1][3] = m_mtx[3][1];
+    m[2][3] = m_mtx[3][2];
+    m[3][3] = m_mtx[3][3];
+
+    return m;
 }
 
 Rotation& Matrix4::getRotation() const
@@ -247,7 +279,7 @@ Rotation& Matrix4::getRotation() const
 
 std::string Matrix4::toString()
 {
-    return std::format("[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n",
+    return std::format("[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n[{:.2f}, {:.2f}, {:.2f}, {:.2f}]",
                         m_mtx[0][0], m_mtx[0][1], m_mtx[0][2], m_mtx[0][3],
                         m_mtx[1][0], m_mtx[1][1], m_mtx[1][2], m_mtx[1][3],
                         m_mtx[2][0], m_mtx[2][1], m_mtx[2][2], m_mtx[2][3],
@@ -435,26 +467,48 @@ void Matrix4::_setRotateFromQuat(double r, const Vector3& i)
 
 /*
     https://www.geertarien.com/blog/2017/07/30/breakdown-of-the-lookAt-function-in-OpenGL/
+    https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/lookat-function
+    https://learnopengl.com/Getting-started/Camera
 */
 Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up)
 {
-    Vector3 zAxis = at - eye;
-    zAxis.normalize();
+    // Forward
+    Vector3 forward = eye - at;
+    forward.normalize();
 
-    Vector3 xAxis = cross(zAxis, up);
-    xAxis.normalize();
+    // Right
+    Vector3 right = cross(up, forward);
+    right.normalize();
 
-    Vector3 yAxis = cross(xAxis, zAxis);
+    // Up
+    Vector3 newUp = cross(forward, right);
 
-    zAxis *= -1.0;
+    Matrix4 m;
+    m[0][0] = right.x();
+    m[0][1] = right.y();
+    m[0][2] = right.z();
+    m[1][0] = newUp.x();
+    m[1][1] = newUp.y();
+    m[1][2] = newUp.z();
+    m[2][0] = forward.x();
+    m[2][1] = forward.y();
+    m[2][2] = forward.z();
+    m[0][3] = -Math::dot(right, eye);
+    m[1][3] = -Math::dot(newUp, eye);
+    m[2][3] = -Math::dot(forward, eye);
 
-    Matrix4 viewMatrix;
-    viewMatrix.set( xAxis.x(),  xAxis.y(),  xAxis.z(),  (double) -Math::dot(xAxis, eye),
-                    yAxis.x(),  yAxis.y(),  yAxis.z(),  (double) -Math::dot(yAxis, eye),
-                    zAxis.x(),  zAxis.y(),  zAxis.z(),  (double) -Math::dot(zAxis, eye),
-                    eye.x(),    eye.y(),    eye.z(),    1.0);
+    return m;
 
-    return viewMatrix;
+    //// Lookat matrix
+    //Matrix4 view;
+    //view.set(
+    //    right.x(), newUp.x(), forward.x(), eye.x(),
+    //    right.y(), newUp.y(), forward.y(), eye.y(),
+    //    right.z(), newUp.z(), forward.z(), eye.z(),
+    //    0.0,       0.0,       0.0,          1.0
+    //);
+
+    //return view;
 }
 
 
@@ -469,45 +523,94 @@ Matrix4 makeViewport(double w, double h)
     return view;
 }
 
-Matrix4 makeTranslate(const Vector3& v)
+Matrix4 makeTranslate(const Vector3& translation)
 {
-    Matrix4 view;
-    view.set(1.0,   0.0,    0.0,    v.x(),
-             0.0,   1.0,    0.0,    v.y(),
-             0.0,   0.0,    1.0,    v.z(),
-             0.0,   0.0,    0.0,    1.0);
-    return view;
+    Matrix4 t;
+    t[0][3] = translation.x();
+    t[1][3] = translation.y();
+    t[2][3] = translation.z();
+    return t;
 }
 
-Matrix4 makeRotation(const Vector3 rotation)
+Matrix4 makeRotationX(double x)
 {
-    float x = Math::degreesToRadians(rotation.x());
-    float y = Math::degreesToRadians(rotation.y());
-    float z = Math::degreesToRadians(rotation.z());
+    Matrix4 m;
 
-    Matrix4 rx;
-    rx.set(
-        1.0,   0.0,       0.0,     0.0,
-        0.0,   cosf(x),    -sinf(x), 0.0,
-        0.0,   sinf(x),    cosf(x),  0.0,
-        0.0,   0.0,       0.0,     1.0
-    );
+    double c = cos(x);
+    double s = sin(x);
 
-    Matrix4 ry;
-    ry.set(
-        cosf(y), 0.0,      -sinf(y),   0.0,
-        0.0,    1.0,      0.0,       0.0,
-        sinf(y), 0.0,      cosf(y),    0.0,
-        0.0,    0.0,      0.0,       1.0
-    );
+    m[1][1] = c;
+    m[1][2] = -s;
+    m[2][1] = s;
+    m[2][2] = c;
 
-    Matrix4 rz;
-    rz.set(
-        cosf(z), -sinf(z),  0.0,       0.0,
-        sinf(z), cosf(z),   0.0,       0.0,
-        0.0,    0.0,      1.0,       0.0,
-        0.0,    0.0,      0.0,       1.0
-    );
+    return m;
+}
 
-    return rx * ry * rz;
+Matrix4 makeRotationY(double y)
+{
+    Matrix4 m;
+
+    double c = cos(y);
+    double s = sin(y);
+
+    m[0][0] = c;
+    m[0][2] = s;
+    m[2][0] = -s;
+    m[2][2] = c;
+
+    return m;
+}
+
+Matrix4 makeRotationZ(double z)
+{
+    Matrix4 m;
+
+    double c = cos(z);
+    double s = sin(z);
+
+    m[0][0] = c;
+    m[0][1] = -s;
+    m[1][0] = s;
+    m[0][1] = c;
+
+    return m;
+}
+
+Matrix4 makeRotation(const Rotation& rotation)
+{
+    Quaternion q = rotation.getQuaternion();
+
+    Vector3 axis = q.getImaginary();
+    axis.normalize();
+
+    double angle = q.getReal();
+    double c = cos(angle);
+    double s = sin(angle);
+
+    Matrix4 m;
+
+    m[0][0] = axis.x() * axis.x() * (1 - c) + c;
+    m[0][1] = axis.y() * axis.x() * (1 - c) - s * axis.z();
+    m[0][2] = axis.z() * axis.x() * (1 - c) + s * axis.y();
+
+    m[1][0] = axis.x() * axis.y() * (1 - c) + s * axis.z();
+    m[1][1] = axis.y() * axis.y() * (1 - c) + c;
+    m[1][2] = axis.z() * axis.y() * (1 - c) - s * axis.x();
+
+    m[2][0] = axis.x() * axis.z() * (1 - c) - s * axis.y();
+    m[2][1] = axis.y() * axis.z() * (1 - c) + s * axis.x();
+    m[2][2] = axis.z() * axis.z() * (1 - c) + c;
+
+    return m;
+}
+
+Matrix4 makeScale(const Vector3& scale)
+{
+    Matrix4 s;
+    s.set(scale.x(), 0.0,       0.0,       0.0,
+          0.0,       scale.y(), 0.0,       0.0,
+          0.0,       0.0,       scale.z(), 0.0,
+          0.0,       0.0,       0.0,       1.0);
+    return s;
 }

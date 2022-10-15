@@ -33,7 +33,7 @@ public:
 			auto r = q.getReal();
 			double x = acos(Math::clamp(r, -1.0, 1.0));
 			setAxisAngle(q.getImaginary() / len,
-						 2.0 * Math::radiansToDegrees(x));
+						 2.0 * RADIANS(x));
 		}
 		else
 		{
@@ -73,7 +73,7 @@ public:
 	}
 	Quaternion getQuaternion() const
 	{
-		double radians = Math::degreesToRadians(m_angle) / 2.0;
+		double radians = RADIANS(m_angle) / 2.0;
 
 		double sinR = sin(radians);
 		double cosR = cos(radians);
@@ -81,6 +81,11 @@ public:
 		Vector3 axis = m_axis * sinR;
 		auto q = Quaternion(cosR, axis);
 		return q.getNormalized();
+	}
+
+	std::string toString()
+	{
+		return m_axis.toString();
 	}
 
 private:

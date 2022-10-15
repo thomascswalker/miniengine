@@ -48,10 +48,7 @@ private:
 
 
 // 4x4 Matrix
-// [ 0, 0, 0, 0 ]
-// [ 0, 0, 0, 0 ]
-// [ 0, 0, 0, 0 ]
-// [ 0, 0, 0, 0 ]
+// Row-major
 class Matrix4
 {
 public:
@@ -69,13 +66,14 @@ public:
     Matrix4&        setIdentity();
     Matrix4&        setTranslate(const Vector3 &t);
     Matrix4&        setRotation(const Rotation& r);
-    Matrix4&        setScale(double scale);
-    Matrix4&        setScale(const Vector3& scale);
+    Matrix4&        setScale(double s);
+    Matrix4&        setScale(const Vector3& s);
 
     Matrix4         getInverse(double* detPtr = NULL);
+    Matrix4&        getTranspose();
+
     Vector3&        getTranslation() const;
     Rotation&       getRotation() const;
-    
 
     std::string     toString();
 
@@ -95,12 +93,37 @@ public:
         tmp *= m2;
         return tmp;
     }
+
+    friend inline Vector3 operator *(const Matrix4& m, const Vector3& vec)
+    {
+        double x, y, z, w;
+
+        x = vec[0] * m.m_mtx[0][0] + vec[1] * m.m_mtx[0][1] + vec[2] * m.m_mtx[0][2];
+        y = vec[0] * m.m_mtx[0][1] + vec[1] * m.m_mtx[1][1] + vec[2] * m.m_mtx[1][2];
+        z = vec[0] * m.m_mtx[0][2] + vec[1] * m.m_mtx[2][1] + vec[2] * m.m_mtx[2][2];
+        w = vec[0] * m.m_mtx[0][3] + vec[1] * m.m_mtx[3][1] + vec[2] * m.m_mtx[3][2];
+
+        if (w != 1.0)
+        {
+            x /= w;
+            y /= w;
+            z /= w;
+        }
+
+        return Vector3(x, y, z);
+    }
+
+    // https://mathinsight.org/matrix_vector_multiplication
     friend inline Vector4 operator *(const Matrix4& m, const Vector4& vec)
     {
-        return Vector4(vec[0] * m.m_mtx[0][0] + vec[1] * m.m_mtx[0][1] + vec[2] * m.m_mtx[0][2] + vec[3] * m.m_mtx[0][3],
-                       vec[0] * m.m_mtx[1][0] + vec[1] * m.m_mtx[1][1] + vec[2] * m.m_mtx[1][2] + vec[3] * m.m_mtx[1][3],
-                       vec[0] * m.m_mtx[2][0] + vec[1] * m.m_mtx[2][1] + vec[2] * m.m_mtx[2][2] + vec[3] * m.m_mtx[2][3],
-                       vec[0] * m.m_mtx[3][0] + vec[1] * m.m_mtx[3][1] + vec[2] * m.m_mtx[3][2] + vec[3] * m.m_mtx[3][3]);
+        double x, y, z, w;
+
+        x = vec[0] * m.m_mtx[0][0] + vec[1] * m.m_mtx[0][1] + vec[2] * m.m_mtx[0][2] + vec[3] * m.m_mtx[0][3];
+        y = vec[0] * m.m_mtx[1][0] + vec[1] * m.m_mtx[1][1] + vec[2] * m.m_mtx[1][2] + vec[3] * m.m_mtx[1][3];
+        z = vec[0] * m.m_mtx[2][0] + vec[1] * m.m_mtx[2][1] + vec[2] * m.m_mtx[2][2] + vec[3] * m.m_mtx[2][3];
+        w = vec[0] * m.m_mtx[3][0] + vec[1] * m.m_mtx[3][1] + vec[2] * m.m_mtx[3][2] + vec[3] * m.m_mtx[3][3];
+
+        return Vector4(x, y, z, w);
     }
 
 
@@ -112,8 +135,12 @@ private:
 };
 
 Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up);
-Matrix4 makeTranslate(const Vector3& v);
 Matrix4 makeViewport(double w, double h);
-Matrix4 makeRotation(const Vector3 rotation);
+Matrix4 makeTranslate(const Vector3& translation);
+Matrix4 makeRotationX(double x);
+Matrix4 makeRotationY(double x);
+Matrix4 makeRotationZ(double x);
+Matrix4 makeRotation(const Rotation& rotation);
+Matrix4 makeScale(const Vector3& scale);
 
 #endif

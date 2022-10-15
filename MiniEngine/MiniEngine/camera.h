@@ -14,6 +14,11 @@ public:
 	{
 		m_fieldOfView = Math::clamp(fov, 1.0, 179.0);
 	}
+
+	const double			getFocalLength()
+	{
+		// TODO
+	}
 	const double			getNearClip() { return m_nearClip; }
 	const double			getFarClip() { return m_farClip; }
 
@@ -21,9 +26,9 @@ public:
 	const Matrix4			getProjectionMatrix(const double width, const double height);
 
 private:
-	double m_fieldOfView	= 120.0;
+	double m_fieldOfView	= 90.0;	// Degrees
 	double m_nearClip		= 0.1;
-	double m_farClip		= 10000.0;
+	double m_farClip		= 100.0;
 };
 
 #endif

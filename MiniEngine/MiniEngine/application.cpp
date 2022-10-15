@@ -13,8 +13,8 @@ MINI_USING_DIRECTIVE
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
 static UINT     globalFrameRate     = 1;       // 60 FPS
-static int      initWidth           = 240;     // Standard HD
-static int      initHeight          = 240;
+static int      initWidth           = 256;     // Standard HD
+static int      initHeight          = 256;
 static int      tickRate            = 60;
 static double   currentTime         = 0.0;
 
@@ -36,7 +36,7 @@ static bool     Q_DOWN              = false;
 static bool     SPACEBAR_DOWN       = false;
 static float    MOUSE_WHEEL_DELTA   = 0.0;
 
-static double   CAMERA_SPEED        = 0.1;
+static double   CAMERA_SPEED        = 0.001;
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -183,11 +183,11 @@ void Application::init()
 int Application::run()
 {
     ShowWindow(m_hwnd, 1);
-
+    
     currentTime = Core::getCurrentTime();
 
     // Load our mesh
-    std::string filename = "C:\\Users\\Tom\\Desktop\\box.obj";
+    std::string filename = "C:\\Users\\Tom\\Desktop\\pumpkin.obj";
     Mesh mesh;
     MeshLoader::load(filename, mesh);
 
@@ -219,6 +219,13 @@ int Application::run()
         //// Move our camera
         double d = CAMERA_SPEED * frameTime;
         Vector3 offset;
+        Transform xform = m_buffer->camera()->getTransform();
+        Vector3 translate = xform.getTranslation();
+        Rotation rotate = xform.getRotation();
+        Vector3 scale = xform.getScale();
+        Vector3 right = xform.getRight();
+        Vector3 forward = xform.getForward();
+        Vector3 up = xform.getUp();
         if (W_DOWN)
         {
             offset = Vector3(0, 0, d);
@@ -243,6 +250,7 @@ int Application::run()
         {
             offset = Vector3(0, -d, 0);
         }
+        offset += xform.getTranslation();
         m_buffer->camera()->move(offset);
 
         if (MOUSE_WHEEL_DELTA != 0)
@@ -258,7 +266,7 @@ int Application::run()
         m_buffer->render();
 
         // Draw a mouse cursor
-        m_buffer->drawCircle(m_mouseX, m_mouseY, 5, Color::green());
+        //m_buffer->drawCircle(m_mouseX, m_mouseY, 5, Color::green());
 
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);
@@ -274,8 +282,17 @@ int Application::run()
             SRCCOPY
         );
 
-        Matrix4 cm = m_buffer->camera()->getViewMatrix();
-        std::string matrixText = cm.toString();
+        // Debug print to screen
+        auto c = m_buffer->camera()->getTransform();
+
+        Matrix4 view = m_buffer->getViewMatrix();
+        Matrix4 proj = m_buffer->getProjectionMatrix();
+        std::string matrixText = "LookAt Matrix:\n" + view.toString();
+        matrixText += "\n\nProj Matrix:\n" + proj.toString();
+        matrixText += "\n\nCamera Target: " + m_buffer->getTargetTranslation().toString();
+        matrixText += "\n\nTranslate: " + translate.toString() + "\nRotate: " + rotate.toString() + "\nScale: " + scale.toString();
+        matrixText += "\n\nFoward: " + forward.toString() + "\nRight: " + right.toString() + "\nUp: " + up.toString();
+        matrixText += "\n\nFOV: " + std::format("{:.2f}", m_buffer->camera()->getFieldOfView());
         std::wstring stemp = std::wstring(matrixText.begin(), matrixText.end());
         LPCWSTR text = stemp.c_str();
 

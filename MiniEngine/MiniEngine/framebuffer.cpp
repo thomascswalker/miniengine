@@ -16,7 +16,7 @@ Framebuffer::Framebuffer(HWND hwnd)
     // Create a new default camera
     m_camera = Camera();
     auto t = m_camera.getTransform();
-    t.setTranslation(Vector3(0, 0, -25.0));
+    t.setTranslation(Vector3(0, 0, -1));
     m_camera.setTransform(t);
 }
 
@@ -112,37 +112,7 @@ Framebuffer::getNumTriangles()
     return m_triangles.size();
 }
 
-Vector3
-Framebuffer::worldToScreen(Vector3& v)
-{
-    // Model matrix
-    Matrix4 model;
-    model.setTranslate(v);
 
-    // View matrix
-    auto c = m_camera.getTransform();
-    Vector3 cameraPosition = m_camera.getTranslation();
-    Vector3 cameraForward = c.getForward();
-    Matrix4 view = lookAt(cameraPosition, cameraForward + cameraPosition, Vector3(0.0, 1.0, 0.0));
-
-    // Projection matrix
-    Matrix4 proj  = m_camera.getProjectionMatrix(m_width, m_height);
-
-    // MVP matrix, converted to Vector4
-    Vector4 mvp = proj * view * model * Vector4(v, 1.0);
-    mvp.setW(1.0);
-
-    // Convert to normalized device coords
-    Vector3 ndc = Vector3((mvp.x() / mvp.w()), (mvp.y() / mvp.w()), (mvp.z() / mvp.w()));
-    double x = ((ndc.x() + 1) * m_width) / 2;
-    double y = ((ndc.y() + 1) * m_height) / 2;
-
-    v.setX(x);
-    v.setY(y);
-    v.setZ(ndc.z());
-
-    return v;
-}
 
 bool
 Framebuffer::isPointInFrame(Vector2& p) const
@@ -293,6 +263,23 @@ Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
     }
 }
 
+Vector3
+Framebuffer::worldToScreen(Vector3& v)
+{
+    // Model matrix
+    Matrix4 model;
+
+    // MVP vertex
+    Vector4 mvp = m_proj * m_view * model * Vector4(v, 1.0);
+
+    // Convert to normalized device coords
+    Vector3 ndc = Vector3((mvp.x() / mvp.w()), (mvp.y() / mvp.w()), (mvp.z() / mvp.w()));
+    double x = ((mvp.x() + 1) * m_width) / 2;
+    double y = ((mvp.y() + 1) * m_height) / 2;
+
+    return Vector3(x, y, mvp.z());
+}
+
 void
 Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 {
@@ -313,11 +300,13 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     Vector2 min(minX, minY);
     Vector2 max(maxX, maxY);
 
-    for (double i = min.x(); i < max.x(); i++)
+    // Draw each pixel within the bounding box
+    for (double x = min.x(); x < max.x(); x++)
     {
-        for (double j = min.y(); j < max.y(); j++)
+        for (double y = min.y(); y < max.y(); y++)
         {
-            Vector2 point(i, j);
+            // If the pixel is outside the frame entirely, we'll skip it
+            Vector2 point(x, y);
             if (!isPointInFrame(point))
             {
                 continue;
@@ -354,6 +343,17 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 void
 Framebuffer::render()
 {
+    // Pre-compute the view/projection only once per frame, rather than for every vertex
+    // View matrix
+    //Vector3 cameraPosition = m_camera.getTranslation();
+    //m_targetPosition = cameraPosition + (Vector3::forward() * 100.0);   // Get 2 units forward from the camera
+    //m_view = lookAt(cameraPosition, m_targetPosition, Vector3::up());   // Get lookAt matrix
+
+    m_view = m_camera.getViewMatrix();
+
+    // Projection matrix
+    m_proj = m_camera.getProjectionMatrix(m_width, m_height);
+
     for (auto t : m_triangles)
     {
         auto v1 = t.v1().getTranslation();
