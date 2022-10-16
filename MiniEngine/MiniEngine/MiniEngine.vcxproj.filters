@@ -87,7 +87,7 @@
     <ClInclude Include="framebuffer.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
-    <ClInclude Include="math.h">
+    <ClInclude Include="maths.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="matrix.h">

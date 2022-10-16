@@ -5,7 +5,7 @@
 #include <string>
 #include <format>
 #include "api.h"
-#include "math.h"
+#include "maths.h"
 #include "rotation.h"
 
 // Class for handling matrix data, particularly to support multiple
@@ -135,7 +135,6 @@ private:
 };
 
 Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up);
-Matrix4 makeViewport(double w, double h);
 Matrix4 makeTranslate(const Vector3& translation);
 Matrix4 makeRotationX(double x);
 Matrix4 makeRotationY(double x);

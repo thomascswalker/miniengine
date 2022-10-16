@@ -2,7 +2,7 @@
 #define CAMERA_H
 
 #include "object.h"
-#include "math.h"
+#include "maths.h"
 
 class Camera : public Object
 {
@@ -26,7 +26,7 @@ public:
 	const Matrix4			getProjectionMatrix(const double width, const double height);
 
 private:
-	double m_fieldOfView	= 90.0;	// Degrees
+	double m_fieldOfView	= 130.0;	// Degrees
 	double m_nearClip		= 0.1;
 	double m_farClip		= 100.0;
 };

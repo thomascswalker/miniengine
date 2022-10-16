@@ -69,9 +69,12 @@ public:
     void render();
 
     // Matrices
-    Vector3 getTargetTranslation() { return m_targetPosition; };
-    Matrix4 getViewMatrix() { return m_view; };
-    Matrix4 getProjectionMatrix() { return m_proj; };
+    Vector3 getTargetTranslation() { return m_targetPosition; }
+    Matrix4 getViewMatrix() { return m_view; }
+    Matrix4 getProjectionMatrix() { return m_proj; }
+    Matrix4 getModelViewProjMatrix() { return m_mvp; }
+
+    double modelRotation = 0.0;
 
 protected:
     friend bool operator == (const Framebuffer&,
@@ -114,6 +117,7 @@ private:
     Vector3 m_targetPosition;
     Matrix4 m_view;
     Matrix4 m_proj;
+    Matrix4 m_mvp;
 };
 
 #endif

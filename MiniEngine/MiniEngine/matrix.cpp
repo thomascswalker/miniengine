@@ -102,11 +102,6 @@ Matrix4& Matrix4::setScale(const Vector3& s)
 }
 
 /// Derived from https://github.com/PixarAnimationStudios/USD/blob/release/pxr/base/gf/matrix4d.cpp
-/// Returns the inverse of the matrix, or FLT_MAX * SetIdentity() if the
-/// matrix is singular. (FLT_MAX is the largest value a \c float can have,
-/// as defined by the system.) The matrix is considered singular if the
-/// determinant is less than or equal to the optional parameter \e eps. If
-/// \e det is non-null, <c>*det</c> is set to the determinant.
 Matrix4 Matrix4::getInverse(double* detPtr)
 {
     double x00, x01, x02, x03;
@@ -472,63 +467,31 @@ void Matrix4::_setRotateFromQuat(double r, const Vector3& i)
 */
 Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up)
 {
-    // Forward
-    Vector3 forward = eye - at;
+    Vector3 forward = at - eye;
     forward.normalize();
 
-    // Right
-    Vector3 right = cross(up, forward);
+    Vector3 right = cross(forward, up);
     right.normalize();
 
-    // Up
-    Vector3 newUp = cross(forward, right);
+    Vector3 newUp = cross(right, forward);
 
-    Matrix4 m;
-    m[0][0] = right.x();
-    m[0][1] = right.y();
-    m[0][2] = right.z();
-    m[1][0] = newUp.x();
-    m[1][1] = newUp.y();
-    m[1][2] = newUp.z();
-    m[2][0] = forward.x();
-    m[2][1] = forward.y();
-    m[2][2] = forward.z();
-    m[0][3] = -Math::dot(right, eye);
-    m[1][3] = -Math::dot(newUp, eye);
-    m[2][3] = -Math::dot(forward, eye);
+    forward *= -1.0;
 
-    return m;
-
-    //// Lookat matrix
-    //Matrix4 view;
-    //view.set(
-    //    right.x(), newUp.x(), forward.x(), eye.x(),
-    //    right.y(), newUp.y(), forward.y(), eye.y(),
-    //    right.z(), newUp.z(), forward.z(), eye.z(),
-    //    0.0,       0.0,       0.0,          1.0
-    //);
-
-    //return view;
-}
-
-
-
-Matrix4 makeViewport(double w, double h)
-{
     Matrix4 view;
-    view.set(w / 2.0,   0.0,        0.0,            w / 2.0,
-             0.0,       h / 2.0,    0.0,            h / 2.0,
-             0.0,       0.0,        255.0 / 2.0,    255.0 / 2.0,
-             0.0,       0.0,        0.0,            1.0);
+    view.set( right.x(),    right.y(),      right.z(),      -Math::dot(right, eye),
+              newUp.x(),    newUp.y(),      newUp.z(),      -Math::dot(newUp, eye),
+              forward.x(),  forward.y(),    forward.z(),    -Math::dot(forward, eye),
+              0.0,          0.0,            0.0,            1.0);
+
     return view;
 }
 
 Matrix4 makeTranslate(const Vector3& translation)
 {
     Matrix4 t;
-    t[0][3] = translation.x();
-    t[1][3] = translation.y();
-    t[2][3] = translation.z();
+    t[3][0] = translation.x();
+    t[3][1] = translation.y();
+    t[3][2] = translation.z();
     return t;
 }
 

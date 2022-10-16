@@ -13,8 +13,8 @@ MINI_USING_DIRECTIVE
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
 static UINT     globalFrameRate     = 1;       // 60 FPS
-static int      initWidth           = 256;     // Standard HD
-static int      initHeight          = 256;
+static int      initWidth           = 640;     // Standard HD
+static int      initHeight          = 480;
 static int      tickRate            = 60;
 static double   currentTime         = 0.0;
 
@@ -22,6 +22,7 @@ static double   currentTime         = 0.0;
 static bool     bDrawFaces          = true;
 static bool     bDrawEdges          = false;
 static bool     bDrawVertices       = false;
+static bool     bDisplayDebugText   = true;
 
 // Keyboard input
 static WORD     keyCode;
@@ -37,6 +38,8 @@ static bool     SPACEBAR_DOWN       = false;
 static float    MOUSE_WHEEL_DELTA   = 0.0;
 
 static double   CAMERA_SPEED        = 0.001;
+
+static double   ROTATION            = 0.0;
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -82,6 +85,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case 'D': D_DOWN = false; break;
                 case 'E': E_DOWN = false; break;
                 case 'Q': Q_DOWN = false; break;
+                case 'T': bDisplayDebugText = !bDisplayDebugText; break;
                 case VK_ESCAPE: bIsRunning = false; break;
             }
             break;
@@ -187,7 +191,7 @@ int Application::run()
     currentTime = Core::getCurrentTime();
 
     // Load our mesh
-    std::string filename = "C:\\Users\\Tom\\Desktop\\pumpkin.obj";
+    std::string filename = "C:\\Users\\Tom\\Desktop\\teapot.obj";
     Mesh mesh;
     MeshLoader::load(filename, mesh);
 
@@ -215,6 +219,10 @@ int Application::run()
 
         // Clear the framebuffer
         m_buffer->clear();
+
+        // Rotate the model
+        ROTATION += CAMERA_SPEED * frameTime;
+        m_buffer->modelRotation = ROTATION;
 
         //// Move our camera
         double d = CAMERA_SPEED * frameTime;
@@ -285,24 +293,30 @@ int Application::run()
         // Debug print to screen
         auto c = m_buffer->camera()->getTransform();
 
-        Matrix4 view = m_buffer->getViewMatrix();
-        Matrix4 proj = m_buffer->getProjectionMatrix();
-        std::string matrixText = "LookAt Matrix:\n" + view.toString();
-        matrixText += "\n\nProj Matrix:\n" + proj.toString();
-        matrixText += "\n\nCamera Target: " + m_buffer->getTargetTranslation().toString();
-        matrixText += "\n\nTranslate: " + translate.toString() + "\nRotate: " + rotate.toString() + "\nScale: " + scale.toString();
-        matrixText += "\n\nFoward: " + forward.toString() + "\nRight: " + right.toString() + "\nUp: " + up.toString();
-        matrixText += "\n\nFOV: " + std::format("{:.2f}", m_buffer->camera()->getFieldOfView());
-        std::wstring stemp = std::wstring(matrixText.begin(), matrixText.end());
-        LPCWSTR text = stemp.c_str();
+        if (bDisplayDebugText)
+        {
+            Matrix4 view = m_buffer->getViewMatrix();
+            Matrix4 proj = m_buffer->getProjectionMatrix();
+            Matrix4 mvp = m_buffer->getModelViewProjMatrix();
+            std::string matrixText = "LookAt Matrix:\n" + view.toString();
+            matrixText += "\n\nProj Matrix:\n" + proj.toString();
+            matrixText += "\n\nMVP Matrix:\n" + mvp.toString();
+            matrixText += "\n\nCamera Target: " + m_buffer->getTargetTranslation().toString();
+            matrixText += "\n\nTranslate: " + translate.toString() + "\nRotate: " + rotate.toString() + "\nScale: " + scale.toString();
+            matrixText += "\n\nFoward: " + forward.toString() + "\nRight: " + right.toString() + "\nUp: " + up.toString();
+            matrixText += "\n\nFOV: " + std::format("{:.2f}", m_buffer->camera()->getFieldOfView());
+            std::wstring stemp = std::wstring(matrixText.begin(), matrixText.end());
+            LPCWSTR text = stemp.c_str();
 
-        RECT rect;
-        GetClientRect(m_hwnd, &rect);
-        SetTextColor(hdc, Color::white().hex());
-        SetBkMode(hdc, TRANSPARENT);
-        rect.left = 40;
-        rect.top = 40;
-        DrawText(hdc, text, -1, &rect, DT_NOCLIP);
+            RECT rect;
+            GetClientRect(m_hwnd, &rect);
+            SetTextColor(hdc, Color::white().hex());
+            SetBkMode(hdc, TRANSPARENT);
+            rect.left = 40;
+            rect.top = 40;
+            DrawText(hdc, text, -1, &rect, DT_NOCLIP);
+        }
+
 
         ReleaseDC(m_hwnd, hdc);
     };
