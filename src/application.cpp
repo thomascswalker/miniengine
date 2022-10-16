@@ -10,6 +10,8 @@ MINI_USING_DIRECTIVE
 #endif
 
 // Global variables
+static std::string MODEL_FILENAME = "../models/teapot.obj";
+
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
 static UINT     globalFrameRate     = 1;       // 60 FPS
@@ -191,7 +193,7 @@ int Application::run()
     currentTime = Core::getCurrentTime();
 
     // Load our mesh
-    std::string filename = "C:\\Users\\Tom\\Desktop\\teapot.obj";
+    std::string filename = MODEL_FILENAME;
     Mesh mesh;
     MeshLoader::load(filename, mesh);
 
@@ -273,9 +275,6 @@ int Application::run()
         // Draw our scene geometry as triangles
         m_buffer->render();
 
-        // Draw a mouse cursor
-        //m_buffer->drawCircle(m_mouseX, m_mouseY, 5, Color::green());
-
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);
         StretchDIBits(
@@ -310,12 +309,24 @@ int Application::run()
 
             RECT rect;
             GetClientRect(m_hwnd, &rect);
-            SetTextColor(hdc, Color::white().hex());
+            SetTextColor(hdc, (COLORREF) Color::white().hex());
             SetBkMode(hdc, TRANSPARENT);
             rect.left = 40;
             rect.top = 40;
             DrawText(hdc, text, -1, &rect, DT_NOCLIP);
         }
+
+        double fps = 1000.0 / frameTime;
+        std::string fpsText = std::format("FPS: {}", std::floor(fps));
+        std::wstring stemp = std::wstring(fpsText.begin(), fpsText.end());
+        LPCWSTR text = stemp.c_str();
+        RECT rect;
+        GetClientRect(m_hwnd, &rect);
+        SetTextColor(hdc, (COLORREF) Color::cyan().hex());
+        SetBkMode(hdc, TRANSPARENT);
+        rect.left = rect.right - 80;
+        rect.top = 40;
+        DrawText(hdc, text, -1, &rect, DT_NOCLIP);
 
 
         ReleaseDC(m_hwnd, hdc);

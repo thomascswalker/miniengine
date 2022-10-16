@@ -49,9 +49,6 @@
     <ClCompile Include="mesh.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
-    <ClCompile Include="math.cpp">
-      <Filter>Source Files\engine</Filter>
-    </ClCompile>
     <ClCompile Include="camera.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
@@ -68,6 +65,9 @@
       <Filter>Source Files\assets</Filter>
     </ClCompile>
     <ClCompile Include="triangle.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="maths.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
   </ItemGroup>
