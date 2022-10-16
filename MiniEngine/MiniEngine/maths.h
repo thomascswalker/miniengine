@@ -6,11 +6,13 @@
 #include "core.h"
 #include "vector.h"
 
+#define     PI          3.14159265359
+#define     EPSILON     0.000000001
+#define     RADIANS(x)  (x * PI / 180.0)
+#define     DEGREES(x)  (x * 180.0 / PI)
+
 namespace Math
 {
-    constexpr auto PI = 3.14159265359;
-    constexpr auto EPSILON = 0.000000001;
-
     template <typename T>
     T clamp(T& value, T min, T max)
     {
@@ -24,9 +26,6 @@ namespace Math
         }
         return value;
     };
-
-    double degreesToRadians(double d);
-    double radiansToDegrees(double r);
 
     double dot(Vector2 v1, Vector2 v2);
     double dot(Vector3 v1, Vector3 v2);

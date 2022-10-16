@@ -6,7 +6,6 @@
 #include <memory>
 #include <typeinfo>
 #include <windows.h>
-//#include <gdiplus.h>
 #include <cassert>
 #include <sstream>
 
@@ -41,9 +40,10 @@ public:
 
     // Pixel buffer
     HWND getHwnd() { return m_hwnd; }
+    void clear();
     void allocate();
     BITMAPINFO* getBitmapInfo() { return &m_bufferBmi; }
-    void* getMemoryPtr() { return (unsigned int*)m_colorBuffer; }
+    void* getMemoryPtr() { return (unsigned int*)m_memoryBuffer; }
     int getBufferSize() { return m_width * m_height * sizeof(unsigned int); }
 
     // Vertex, index, triangle buffer
@@ -55,22 +55,26 @@ public:
     size_t getNumTriangles();
 
     // Math
-    Vector3 vertexToScreen(Vertex vertex);
+    Vector3 worldToScreen(Vector3& v);
     bool isPointInFrame(Vector2& p) const;
 
     // Drawing
-    void clear();
     void setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB);
     void setPixel(Vector2& v, Color color, Buffer buffer = Buffer::RGB);
-
-
     void drawRect(int x0, int y0, int x1, int y1, Color color);
     void drawCircle(int cx, int cy, int r, Color color);
     void drawCircle(Vector2& v, int r, Color color);
-    void drawTri(Vector3& v1, Vector3& v2, Vector3& v3, Color color);
     void drawLine(Vector2& v1, Vector2& v2, Color color);
-    void render(bool bDrawFaces, bool bDrawEdges, bool bDrawVertices);
-    void drawGradient();
+    void drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3);
+    void render();
+
+    // Matrices
+    Vector3 getTargetTranslation() { return m_targetPosition; }
+    Matrix4 getViewMatrix() { return m_view; }
+    Matrix4 getProjectionMatrix() { return m_proj; }
+    Matrix4 getModelViewProjMatrix() { return m_mvp; }
+
+    double modelRotation = 0.0;
 
 protected:
     friend bool operator == (const Framebuffer&,
@@ -85,7 +89,7 @@ private:
 
     // Pixel memory
     SIZE_T m_bufferSize;
-    void* m_colorBuffer;
+    void* m_memoryBuffer;
     void* m_depthBuffer;
     BITMAPINFO m_bufferBmi; 
     const int m_bytesPerPixel = 4;
@@ -110,6 +114,10 @@ private:
 
     // Camera and matrices
     Camera m_camera;
+    Vector3 m_targetPosition;
+    Matrix4 m_view;
+    Matrix4 m_proj;
+    Matrix4 m_mvp;
 };
 
 #endif

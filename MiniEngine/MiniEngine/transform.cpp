@@ -2,38 +2,29 @@
 
 Transform& Transform::identity()
 {
-    m_translation.set(0, 0, 0);
-    m_rotation.identity();
-    m_scale.set(1, 1, 1);
-
-    m_pivotOrientation = Rotation::identity();
-    m_pivotPosition = Vector3::identity();
+    m_translation.set(0.0, 0.0, 0.0);
+    m_rotation = Rotation::identity();
+    m_scale.set(1.0, 1.0, 1.0);
 
     return *this;
 }
 
+// http://www.codinglabs.net/article_world_view_projection_matrix.aspx
 Matrix4 Transform::getMatrix() const
 {
-    Matrix4 temp;
-
-    // Pivot
-    temp.setTranslate(-m_pivotPosition);
+    Matrix4 m;
 
     // Scale
-    temp.setRotation(m_pivotOrientation.getInverse());
-    temp.setScale(m_scale);
-    temp.setRotation(m_pivotOrientation);
+    m.setScale(m_scale);
 
-    // Rotation
-    temp.setRotation(m_rotation);
+    // Rotate
+    m.setRotation(m_rotation);
 
-    // Pivot (again)
-    temp.setTranslate(m_pivotPosition);
+    // Translate
+    m.setTranslate(m_translation);
 
-    // Translation
-    temp.setTranslate(m_translation);
-
-    return temp;
+    // Composite
+    return m;
 }
 
 void Transform::setTranslation(const Vector3& t)
@@ -51,18 +42,17 @@ void Transform::setScale(const Vector3& s)
     m_scale = s;
 }
 
-const Vector3& Transform::getFront()
+const Vector3& Transform::getForward()
 {
-    Vector3 front;
-    Vector3 axis = m_rotation.getAxis();
-    double x = cos(Math::degreesToRadians(axis.x())) * cos(Math::degreesToRadians(axis.x()));
-    double y = sin(Math::degreesToRadians(axis.z()));
-    double z = sin(Math::degreesToRadians(axis.x())) * cos(Math::degreesToRadians(axis.x()));
-    
-    front.setX(x);
-    front.setY(y);
-    front.setZ(z);
-    front.normalize();
+    return Vector3(0.0, 0.0, 1.0);
+}
 
-    return front;
+const Vector3& Transform::getRight()
+{
+    return Vector3(1.0, 0.0, 0.0);
+}
+
+const Vector3& Transform::getUp()
+{
+    return Vector3(0.0, 1.0, 0.0);
 }

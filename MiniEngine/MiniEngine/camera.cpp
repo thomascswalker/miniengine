@@ -5,45 +5,11 @@ Camera::Camera()
     
 }
 
+// https://www.3dgep.com/understanding-the-view-matrix/
 const Matrix4 Camera::getViewMatrix()
 {
-    auto t = getTransform();
-    Vector3 eye = t.getTranslation();
-    double pitch = 0;
-    double yaw = 0;
-
-    double cp = cos(pitch);
-    double sp = sin(pitch);
-    double cy = cos(yaw);
-    double sy = sin(yaw);
-
-    Vector3 x(cy, 0, -sy);
-    Vector3 y(sy * sp, cp, cy * sp);
-    Vector3 z(sy * cp, -sp, cp * cy);
-
-    Matrix4 view;
-
-    view[0][0] = x.x();
-    view[0][1] = y.x();
-    view[0][2] = z.x();
-    view[0][3] = 0;
-
-    view[1][0] = x.y();
-    view[1][1] = y.y();
-    view[1][2] = z.y();
-    view[1][3] = 0;
-
-    view[2][0] = x.z();
-    view[2][1] = y.z();
-    view[2][2] = z.z();
-    view[2][3] = 0;
-
-    view[3][0] = Math::dot(x, eye) * -1.0;
-    view[3][1] = Math::dot(y, eye) * -1.0;
-    view[3][2] = Math::dot(z, eye) * -1.0;
-    view[3][3] = 1;
-    
-    return view;
+    Matrix4 m = getTransform().getMatrix();
+    return m.getInverse();
 }
 
 /*
@@ -59,30 +25,32 @@ const Matrix4 Camera::getViewMatrix()
 */
 const Matrix4 Camera::getProjectionMatrix(const double width, const double height)
 {
-    Matrix4 proj;
-    proj.setIdentity();
+    const double n = m_nearClip;
+    const double f = m_farClip;
 
+    double fov = RADIANS(getFieldOfView());
     double aspect = width / height;
-    double scale = tan(getFieldOfView() * 0.5 * Math::PI / 180.0) * m_nearClip;
+    double scale = tan(fov * 0.5) * n;
 
     const double r = aspect * scale;
     const double l = -r;
     const double t = scale;
     const double b = -t;
-    const double n = m_nearClip;
-    const double f = m_farClip;
 
     const double rl = r - l;
     const double tb = t - b;
     const double nf = f - n;
 
+    Matrix4 proj;
     proj[0][0] = 2.0 * n / rl;
     proj[1][1] = 2.0 * n / tb;
-    proj[2][2] = -(f + n) / nf;
+
     proj[2][0] =  (r + l) / rl;
     proj[2][1] =  (t + b) / tb;
+    proj[2][2] = -(f + n) / nf;
+    proj[2][3] = -1.0;               // Left or right handed
+
     proj[3][2] = -2.0 * n * f / nf;
-    proj[2][3] = -1.0;
     proj[3][3] =  0.0;
 
     return proj;

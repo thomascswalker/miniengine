@@ -19,16 +19,15 @@ public:
 	void			setScale(const Vector3& s);
 	const Vector3&	getScale() { return m_scale; }
 
-	const Vector3&  getFront();
+	const Vector3&  getForward();
+	const Vector3&  getRight();
+	const Vector3&  getUp();
 
 
 private:
 	Vector3 m_translation;
 	Rotation m_rotation;
 	Vector3 m_scale;
-
-	Rotation m_pivotOrientation;
-	Vector3 m_pivotPosition;
 };
 
 #endif
