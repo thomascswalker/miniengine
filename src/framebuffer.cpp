@@ -16,7 +16,7 @@ Framebuffer::Framebuffer(HWND hwnd)
     // Create a new default camera
     m_camera = Camera();
     auto t = m_camera.getTransform();
-    t.setTranslation(Vector3(0, 0, -1));
+    t.setTranslation(Vector3(0, 0, -5));
     m_camera.setTransform(t);
 }
 
@@ -262,43 +262,11 @@ Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
 Vector3
 Framebuffer::worldToScreen(Vector3& v)
 {
-    // Model matrix
-    Matrix4 t = makeTranslate(Vector3(0.0));
-
-    Matrix4 rx = makeRotationX(0);
-    Matrix4 ry = makeRotationY(modelRotation);
-    Matrix4 rz = makeRotationZ(0);
-
-    Matrix4 s = makeScale(Vector3(1.0));
-
-    Matrix4 r = rx * ry * rz;
-    Matrix4 model = t * r * s;
-
-    // MVP matrix
-    m_mvp = m_proj * m_view * model;
-
     // Convert to normalized device coords
     Vector4 ndc = m_mvp * Vector4(v, 1.0);
 
-    // Account for W component? Not sure how this works
-    //if (ndc.w() != 1.0)
-    //{
-    //    double _x = ndc.x();
-    //    double _y = ndc.y();
-    //    double _z = ndc.z();
-    //    double _w = ndc.w();
-
-    //    _x /= _w;
-    //    _y /= _w;
-    //    _z /= _w;
-
-    //    ndc.setX(_x);
-    //    ndc.setY(_y);
-    //    ndc.setZ(_z);
-    //}
-
-    double x = ((ndc.x() + 1) * m_width) / 2;
-    double y = ((ndc.y() + 1) * m_height) / 2;
+    double x = ((ndc.x() + 1.0) * m_width) / 2.0;
+    double y = ((ndc.y() + 1.0) * m_height) / 2.0;
 
     v.setX(x);
     v.setY(y);
@@ -365,22 +333,15 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     }
 }
 
-
-
-void
-Framebuffer::render()
+void Framebuffer::render()
 {
     //Pre-compute the view/projection only once per frame, rather than for every vertex
-    
-    Vector3 cameraPosition = m_camera.getTranslation();                 // Get current camera position
-    m_targetPosition = cameraPosition + (Vector3::forward());           // Get 2 units forward from the camera
-    
-    //View matrix
-    //m_targetPosition = Vector3(0);                                      // Always face origin
-    m_view = lookAt(cameraPosition, m_targetPosition, Vector3::up());   // Get lookAt matrix
+    m_view = m_camera.getViewMatrix();                          //View matrix
+    m_proj = m_camera.getProjectionMatrix(m_width, m_height);   // Projection matrix
 
-    // Projection matrix
-    m_proj = m_camera.getProjectionMatrix(m_width, m_height);
+    // Update MVP matrix
+    Matrix4 model;
+    m_mvp = m_proj * m_view * model;
 
     for (auto t : m_triangles)
     {

@@ -64,7 +64,10 @@ public:
     Matrix4&        set(const double m[4][4]);
     Matrix4&        setDiagonal(double v);
     Matrix4&        setIdentity();
+
+    Matrix4&        setTransform(const Vector3 &t, const Rotation &r);
     Matrix4&        setTranslate(const Vector3 &t);
+    Matrix4&        setTranslateOnly(const Vector3 &t);
     Matrix4&        setRotation(const Rotation& r);
     Matrix4&        setScale(double s);
     Matrix4&        setScale(const Vector3& s);
@@ -94,16 +97,16 @@ public:
         return tmp;
     }
 
-    friend inline Vector3 operator *(const Matrix4& m, const Vector3& vec)
+    friend inline Vector3 operator *(const Matrix4& m, const Vector3& v)
     {
         double x, y, z, w;
 
-        x = vec[0] * m.m_mtx[0][0] + vec[1] * m.m_mtx[0][1] + vec[2] * m.m_mtx[0][2];
-        y = vec[0] * m.m_mtx[0][1] + vec[1] * m.m_mtx[1][1] + vec[2] * m.m_mtx[1][2];
-        z = vec[0] * m.m_mtx[0][2] + vec[1] * m.m_mtx[2][1] + vec[2] * m.m_mtx[2][2];
-        w = vec[0] * m.m_mtx[0][3] + vec[1] * m.m_mtx[3][1] + vec[2] * m.m_mtx[3][2];
+        x = v.x() * m.m_mtx[0][0] + v.y() * m.m_mtx[0][1] + v.z() * m.m_mtx[0][2];
+        y = v.x() * m.m_mtx[0][1] + v.y() * m.m_mtx[1][1] + v.z() * m.m_mtx[1][2];
+        z = v.x() * m.m_mtx[0][2] + v.y() * m.m_mtx[2][1] + v.z() * m.m_mtx[2][2];
+        w = v.x() * m.m_mtx[0][3] + v.y() * m.m_mtx[3][1] + v.z() * m.m_mtx[3][2];
 
-        if (w != 1.0)
+        if (w != 0.0)
         {
             x /= w;
             y /= w;
@@ -114,14 +117,21 @@ public:
     }
 
     // https://mathinsight.org/matrix_vector_multiplication
-    friend inline Vector4 operator *(const Matrix4& m, const Vector4& vec)
+    friend inline Vector4 operator *(const Matrix4& m, const Vector4& v)
     {
         double x, y, z, w;
 
-        x = vec[0] * m.m_mtx[0][0] + vec[1] * m.m_mtx[0][1] + vec[2] * m.m_mtx[0][2] + vec[3] * m.m_mtx[0][3];
-        y = vec[0] * m.m_mtx[1][0] + vec[1] * m.m_mtx[1][1] + vec[2] * m.m_mtx[1][2] + vec[3] * m.m_mtx[1][3];
-        z = vec[0] * m.m_mtx[2][0] + vec[1] * m.m_mtx[2][1] + vec[2] * m.m_mtx[2][2] + vec[3] * m.m_mtx[2][3];
-        w = vec[0] * m.m_mtx[3][0] + vec[1] * m.m_mtx[3][1] + vec[2] * m.m_mtx[3][2] + vec[3] * m.m_mtx[3][3];
+        x = v.x() * m.m_mtx[0][0] + v.y() * m.m_mtx[0][1] + v.z() * m.m_mtx[0][2] + v.w() * m.m_mtx[0][3];
+        y = v.x() * m.m_mtx[1][0] + v.y() * m.m_mtx[1][1] + v.z() * m.m_mtx[1][2] + v.w() * m.m_mtx[1][3];
+        z = v.x() * m.m_mtx[2][0] + v.y() * m.m_mtx[2][1] + v.z() * m.m_mtx[2][2] + v.w() * m.m_mtx[2][3];
+        w = v.x() * m.m_mtx[3][0] + v.y() * m.m_mtx[3][1] + v.z() * m.m_mtx[3][2] + v.w() * m.m_mtx[3][3];
+
+        if (w != 0.0)
+        {
+            x /= w;
+            y /= w;
+            z /= w;
+        }
 
         return Vector4(x, y, z, w);
     }

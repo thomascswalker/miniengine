@@ -15,8 +15,8 @@ static std::string MODEL_FILENAME = "../models/teapot.obj";
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
 static UINT     globalFrameRate     = 1;       // 60 FPS
-static int      initWidth           = 640;     // Standard HD
-static int      initHeight          = 480;
+static int      initWidth           = 512;     // Standard HD
+static int      initHeight          = 512;
 static int      tickRate            = 60;
 static double   currentTime         = 0.0;
 
@@ -24,7 +24,7 @@ static double   currentTime         = 0.0;
 static bool     bDrawFaces          = true;
 static bool     bDrawEdges          = false;
 static bool     bDrawVertices       = false;
-static bool     bDisplayDebugText   = true;
+static bool     bDisplayDebugText   = false;
 
 // Keyboard input
 static WORD     keyCode;
@@ -40,7 +40,6 @@ static bool     SPACEBAR_DOWN       = false;
 static float    MOUSE_WHEEL_DELTA   = 0.0;
 
 static double   CAMERA_SPEED        = 0.001;
-
 static double   ROTATION            = 0.0;
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
