@@ -5,4 +5,4 @@
 - C++ 20
 - Windows 10.0 SDK (latest)
 
-![](<img src="./images/teapot.gif"/>)
+![](https://github.com/thomascswalker/miniengine/blob/main/images/teapot.gif)
