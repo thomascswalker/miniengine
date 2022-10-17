@@ -14,14 +14,7 @@ Matrix4 Transform::getMatrix() const
 {
     Matrix4 m;
 
-    // Scale
-    m.setScale(m_scale);
-
-    // Rotate
-    m.setRotation(m_rotation);
-
-    // Translate
-    m.setTranslate(m_translation);
+    m.setTransform(m_translation, m_rotation);
 
     // Composite
     return m;

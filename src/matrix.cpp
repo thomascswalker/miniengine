@@ -39,27 +39,31 @@ Matrix4& Matrix4::setIdentity()
     return (*this);
 }
 
-///
-///  1, 0, 0, t.x,
-///  0, 1, 0, t.y,
-///  0, 0, 1, t.z,
-///  0, 0, 0, 1
-///
+Matrix4& Matrix4::setTransform(const Vector3& t, const Rotation& r)
+{
+    setIdentity();
+    setRotation(r);
+    setTranslateOnly(t);
+    return *this;
+}
+
 Vector3& Matrix4::getTranslation() const
 {
     auto t = Vector3(m_mtx[0][3], m_mtx[1][3], m_mtx[2][3]);
     return t;
 }
 
-///
-///  1, 0, 0, t.x,
-///  0, 1, 0, t.y,
-///  0, 0, 1, t.z,
-///  0, 0, 0, 1
-///
 Matrix4& Matrix4::setTranslate(const Vector3& t)
 {
     setIdentity();
+    m_mtx[0][3] = t.x();
+    m_mtx[1][3] = t.y();
+    m_mtx[2][3] = t.z();
+    return *this;
+}
+
+Matrix4& Matrix4::setTranslateOnly(const Vector3& t)
+{
     m_mtx[0][3] = t.x();
     m_mtx[1][3] = t.y();
     m_mtx[2][3] = t.z();
@@ -478,10 +482,10 @@ Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up)
     forward *= -1.0;
 
     Matrix4 view;
-    view.set( right.x(),    right.y(),      right.z(),      -Math::dot(right, eye),
-              newUp.x(),    newUp.y(),      newUp.z(),      -Math::dot(newUp, eye),
-              forward.x(),  forward.y(),    forward.z(),    -Math::dot(forward, eye),
-              0.0,          0.0,            0.0,            1.0);
+    view.set( right.x(),              forward.x(),            newUp.x(),                0,
+              right.y(),              forward.y(),            newUp.y(),                0,
+              right.z(),              forward.z(),            newUp.z(),                0,
+              -Math::dot(right, eye), -Math::dot(newUp, eye), -Math::dot(forward, eye), 1.0);
 
     return view;
 }

@@ -261,6 +261,11 @@ public:
 		return _x - v.x() < 0.0001f && _y - v.y() < 0.0001f && _z - v.z() < 0.0001f && _w - v.w() < 0.0001f;
 	}
 
+	Vector4 operator *= (Vector4& v)
+	{	
+		return (*this * v);
+	}
+
 	// Methods
 	double w() const { return _w; }
 	void setW(double w) { _w = w; }
