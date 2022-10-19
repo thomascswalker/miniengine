@@ -96,13 +96,8 @@ private:
     int m_rowLength = 0;
 
     // Vertex memory
-    //void* m_vertexBuffer;
     std::vector<Vertex> m_vertices;
-
-    //void* m_indexBuffer;
     std::vector<int> m_indices;
-
-    //void* m_triangleBuffer;
     std::vector<Triangle> m_triangles;
 
     int m_stride    = 12; // Should be 32 with X, Y, Z, R, G, B, U, V
@@ -115,9 +110,9 @@ private:
     // Camera and matrices
     Camera m_camera;
     Vector3 m_targetPosition;
-    Matrix4 m_view;
-    Matrix4 m_proj;
-    Matrix4 m_mvp;
+    Matrix4 m_view = Matrix4();
+    Matrix4 m_proj = Matrix4();
+    Matrix4 m_mvp = Matrix4();
 };
 
 #endif

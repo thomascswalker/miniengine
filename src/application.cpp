@@ -14,17 +14,15 @@ static std::string MODEL_FILENAME = "../models/teapot.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
-static UINT     globalFrameRate     = 1;       // 60 FPS
 static int      initWidth           = 512;     // Standard HD
 static int      initHeight          = 512;
-static int      tickRate            = 60;
-static double   currentTime         = 0.0;
 
 // Display options
 static bool     bDrawFaces          = true;
 static bool     bDrawEdges          = false;
 static bool     bDrawVertices       = false;
-static bool     bDisplayDebugText   = false;
+static bool     bDisplayDebugText   = true;
+static bool     bDisplayFps         = true;
 
 // Keyboard input
 static WORD     keyCode;
@@ -54,7 +52,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
     {
         case WM_CREATE:
         {
-            SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, globalFrameRate, NULL);
+            SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, 1, NULL);
             ShowCursor(TRUE);
             return 0;
         }
@@ -87,6 +85,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case 'E': E_DOWN = false; break;
                 case 'Q': Q_DOWN = false; break;
                 case 'T': bDisplayDebugText = !bDisplayDebugText; break;
+                case 'F': bDisplayFps = !bDisplayFps; break;
                 case VK_ESCAPE: bIsRunning = false; break;
             }
             break;
@@ -127,7 +126,6 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         {
             InvalidateRect(hwnd, NULL, FALSE);
             UpdateWindow(hwnd);
-
             break;
         }
     }
@@ -147,6 +145,35 @@ Application* Application::getAppInstance()
 int deltaTime(int prev, int offset)
 {
     return (std::clock() - prev) + offset;
+}
+
+void Application::displayPrintText()
+{
+    HDC hdc = GetDC(m_hwnd);
+    auto text = PrintBuffer::getInstance()->getEntries();
+    RECT rect;
+    GetClientRect(m_hwnd, &rect);
+    SetTextColor(hdc, (COLORREF) Color::white().hex());
+    SetBkMode(hdc, TRANSPARENT);
+    rect.left = 40;
+    rect.top = 40;
+    DrawText(hdc, text, -1, &rect, DT_NOCLIP);
+}
+
+void Application::displayFps()
+{
+    HDC hdc = GetDC(m_hwnd);
+    double fps = 1000.0 / m_deltaTime;
+    std::string fpsText = std::format("FPS: {}", std::floor(fps));
+    std::wstring stemp = std::wstring(fpsText.begin(), fpsText.end());
+    LPCWSTR text = stemp.c_str();
+    RECT rect;
+    GetClientRect(m_hwnd, &rect);
+    SetTextColor(hdc, (COLORREF) Color::cyan().hex());
+    SetBkMode(hdc, TRANSPARENT);
+    rect.left = rect.right - 80;
+    rect.top = 40;
+    DrawText(hdc, text, -1, &rect, DT_NOCLIP);
 }
 
 void Application::init()
@@ -189,7 +216,7 @@ int Application::run()
 {
     ShowWindow(m_hwnd, 1);
     
-    currentTime = Core::getCurrentTime();
+    m_currentTime = Core::getCurrentTime();
 
     // Load our mesh
     std::string filename = MODEL_FILENAME;
@@ -202,8 +229,8 @@ int Application::run()
         MOUSE_WHEEL_DELTA = 0.0; // Reset mouse delta
 
         double newTime = Core::getCurrentTime();
-        double frameTime = newTime - currentTime;
-        currentTime = newTime;
+        m_deltaTime = newTime - m_currentTime;
+        m_currentTime = newTime;
 
         RECT clientRect;
         GetClientRect(m_hwnd, &clientRect);
@@ -222,19 +249,13 @@ int Application::run()
         m_buffer->clear();
 
         // Rotate the model
-        ROTATION += CAMERA_SPEED * frameTime;
+        ROTATION += CAMERA_SPEED * m_deltaTime;
         m_buffer->modelRotation = ROTATION;
 
         //// Move our camera
-        double d = CAMERA_SPEED * frameTime;
+        double d = CAMERA_SPEED * m_deltaTime;
         Vector3 offset;
         Transform xform = m_buffer->camera()->getTransform();
-        Vector3 translate = xform.getTranslation();
-        Rotation rotate = xform.getRotation();
-        Vector3 scale = xform.getScale();
-        Vector3 right = xform.getRight();
-        Vector3 forward = xform.getForward();
-        Vector3 up = xform.getUp();
         if (W_DOWN)
         {
             offset = Vector3(0, 0, d);
@@ -289,44 +310,20 @@ int Application::run()
         );
 
         // Debug print to screen
-        auto c = m_buffer->camera()->getTransform();
+        PrintBuffer::clear();
+        PrintBuffer::debugPrintToScreen("View Matrix:\n%s\n", m_buffer->getViewMatrix().toString().c_str());
+        PrintBuffer::debugPrintToScreen("Proj Matrix:\n%s\n", m_buffer->getProjectionMatrix().toString().c_str());
+        PrintBuffer::debugPrintToScreen("Some other string!");
 
         if (bDisplayDebugText)
         {
-            Matrix4 view = m_buffer->getViewMatrix();
-            Matrix4 proj = m_buffer->getProjectionMatrix();
-            Matrix4 mvp = m_buffer->getModelViewProjMatrix();
-            std::string matrixText = "LookAt Matrix:\n" + view.toString();
-            matrixText += "\n\nProj Matrix:\n" + proj.toString();
-            matrixText += "\n\nMVP Matrix:\n" + mvp.toString();
-            matrixText += "\n\nCamera Target: " + m_buffer->getTargetTranslation().toString();
-            matrixText += "\n\nTranslate: " + translate.toString() + "\nRotate: " + rotate.toString() + "\nScale: " + scale.toString();
-            matrixText += "\n\nFoward: " + forward.toString() + "\nRight: " + right.toString() + "\nUp: " + up.toString();
-            matrixText += "\n\nFOV: " + std::format("{:.2f}", m_buffer->camera()->getFieldOfView());
-            std::wstring stemp = std::wstring(matrixText.begin(), matrixText.end());
-            LPCWSTR text = stemp.c_str();
-
-            RECT rect;
-            GetClientRect(m_hwnd, &rect);
-            SetTextColor(hdc, (COLORREF) Color::white().hex());
-            SetBkMode(hdc, TRANSPARENT);
-            rect.left = 40;
-            rect.top = 40;
-            DrawText(hdc, text, -1, &rect, DT_NOCLIP);
+            displayPrintText();
         }
 
-        double fps = 1000.0 / frameTime;
-        std::string fpsText = std::format("FPS: {}", std::floor(fps));
-        std::wstring stemp = std::wstring(fpsText.begin(), fpsText.end());
-        LPCWSTR text = stemp.c_str();
-        RECT rect;
-        GetClientRect(m_hwnd, &rect);
-        SetTextColor(hdc, (COLORREF) Color::cyan().hex());
-        SetBkMode(hdc, TRANSPARENT);
-        rect.left = rect.right - 80;
-        rect.top = 40;
-        DrawText(hdc, text, -1, &rect, DT_NOCLIP);
-
+        if (bDisplayFps)
+        {
+            displayFps();
+        }
 
         ReleaseDC(m_hwnd, hdc);
     };

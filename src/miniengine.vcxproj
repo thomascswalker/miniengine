@@ -166,6 +166,7 @@
     <ClCompile Include="meshloader.cpp" />
     <ClCompile Include="object.cpp" />
     <ClCompile Include="pixel.cpp" />
+    <ClCompile Include="printbuffer.cpp" />
     <ClCompile Include="quaternion.cpp" />
     <ClCompile Include="transform.cpp" />
     <ClCompile Include="triangle.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="meshloader.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="pixel.h" />
+    <ClInclude Include="printbuffer.h" />
     <ClInclude Include="quaternion.h" />
     <ClInclude Include="rotation.h" />
     <ClInclude Include="transform.h" />

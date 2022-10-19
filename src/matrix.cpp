@@ -479,8 +479,6 @@ Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up)
 
     Vector3 newUp = cross(right, forward);
 
-    forward *= -1.0;
-
     Matrix4 view;
     view.set( right.x(),              forward.x(),            newUp.x(),                0,
               right.y(),              forward.y(),            newUp.y(),                0,
@@ -555,7 +553,7 @@ Matrix4 makeRotation(const Rotation& rotation)
     double c = cos(angle);
     double s = sin(angle);
 
-    Matrix4 m;
+    Matrix4 m = Matrix4();
 
     m[0][0] = axis.x() * axis.x() * (1 - c) + c;
     m[0][1] = axis.y() * axis.x() * (1 - c) - s * axis.z();

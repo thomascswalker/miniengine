@@ -70,6 +70,9 @@
     <ClCompile Include="maths.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
+    <ClCompile Include="printbuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
@@ -127,6 +130,9 @@
       <Filter>Header Files\assets</Filter>
     </ClInclude>
     <ClInclude Include="triangle.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="printbuffer.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
   </ItemGroup>
