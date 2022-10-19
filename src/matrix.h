@@ -14,35 +14,29 @@ template <class T, int Rows, int Columns>
 class MatrixData
 {
 public:
-
-    /// Return a pointer to a \a row of data.
     T *operator[](int row)
     {
         int offset = row * Columns;
         return _data + offset;
     }
 
-    /// Return a const pointer to a \a row of data.
     T const *operator[](int row) const
     {
         int offset = row * Columns;
         return _data + offset;
     }
 
-    /// Return a pointer to the start of all the data.
     T *getData()
     {
         return _data;
     }
 
-    /// Return a const pointer to the start of all the data.
     T const *getData() const
     {
         return _data;
     }
 
 private:
-
     T _data[Rows * Columns];
 };
 

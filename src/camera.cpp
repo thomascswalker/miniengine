@@ -45,12 +45,12 @@ const Matrix4 Camera::getProjectionMatrix(const double width, const double heigh
     proj[0][0] = 2.0 * n / rl;
     proj[1][1] = 2.0 * n / tb;
 
-    proj[2][0] =  (r + l) / rl;
-    proj[2][1] =  (t + b) / tb;
+    proj[0][2] =  (r + l) / rl;
+    proj[1][2] =  (t + b) / tb;
     proj[2][2] = -(f + n) / nf;
-    proj[2][3] = 1.0;               // Left or right handed
+    proj[3][2] = -1.0;               // Left or right handed
 
-    proj[3][2] = -2.0 * n * f / nf;
+    proj[2][3] = -2.0 * n * f / nf;
     proj[3][3] =  0.0;
 
     return proj;

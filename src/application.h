@@ -8,6 +8,7 @@
 #include "api.h"
 #include "framebuffer.h"
 #include "meshloader.h"
+#include "printbuffer.h"
 
 MINI_NAMESPACE_OPEN
 
@@ -16,6 +17,9 @@ class Application
 protected:
     static Application *instance;
     Application() {};
+
+    void displayPrintText();
+    void displayFps();
 
 public:
     static Application* getAppInstance();
@@ -44,6 +48,9 @@ private:
 
     int m_mouseX = 0;
     int m_mouseY = 0;
+
+    double m_currentTime = 0.0;
+    double m_deltaTime = 0.0;
 };
 
 MINI_NAMESPACE_CLOSE
