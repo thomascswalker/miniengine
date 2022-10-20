@@ -40,7 +40,7 @@ Framebuffer::allocate()
 
     // Allocate the memory buffer
     m_memoryBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-    m_depthBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    //m_depthBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
     // Update the buffer BitmapInfo struct with the updated buffer size,
     // and width and height
@@ -270,11 +270,20 @@ Framebuffer::worldToScreen(Vector3& v)
 
     v.setX(x);
     v.setY(y);
-    v.setZ(ndc.z());
+    v.setZ(1.0 / ndc.z());
 
     return v;
 }
 
+double
+Framebuffer::getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& current, double area)
+{
+    double w1 = Math::edge(v2, v3, current);
+    double w2 = Math::edge(v3, v1, current);
+    double w3 = Math::edge(v1, v2, current);
+}
+
+// https://www.scratchapixel.com/code.php?id=26&origin=/lessons/3d-basic-rendering/rasterization-practical-implementation
 void
 Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 {
@@ -295,6 +304,8 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     Vector2 min(minX, minY);
     Vector2 max(maxX, maxY);
 
+    double area = Math::edge(v1, v2, v3);
+
     // Draw each pixel within the bounding box
     for (double x = min.x(); x < max.x(); x++)
     {
@@ -306,6 +317,9 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             {
                 continue;
             }
+
+            Vector3 current(point, 0);
+            double z = getDepth(v1, v2, v3, current, area);
 
             // Get barycentric coordinates of triangle (uvw)
             Vector3 coords = Triangle::getBarycentricCoords(v1, v2, v3, point);
@@ -335,6 +349,9 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 
 void Framebuffer::render()
 {
+    m_depthBuffer.clear();
+    m_depthBuffer.reserve((size_t) m_width * m_height);
+
     //Pre-compute the view/projection only once per frame, rather than for every vertex
     m_view = m_camera.getViewMatrix();                          //View matrix
     m_proj = m_camera.getProjectionMatrix(m_width, m_height);   // Projection matrix
@@ -342,6 +359,8 @@ void Framebuffer::render()
     // Update MVP matrix
     Matrix4 model;
     m_mvp = m_proj * m_view * model;
+
+    PrintBuffer::debugPrintToScreen("MVP:\n%s\n", m_mvp.toString().c_str());
 
     for (auto t : m_triangles)
     {

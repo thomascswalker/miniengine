@@ -26,6 +26,13 @@ Vector3::Vector3(Vector2& v)
 	_z = 0.0;
 };
 
+Vector3::Vector3(Vector2& v, double z)
+{
+	_x = v.x();
+	_y = v.y();
+	_z = z;
+};
+
 std::string Vector3::toString()
 {
 	return std::format("[{:.2f}, {:.2f}, {:.2f}]", _x, _y, _z);

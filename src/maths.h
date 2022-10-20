@@ -32,6 +32,7 @@ namespace Math
     double area(Vector2 v1, Vector2 v2, Vector3 v3);
     double distance(Vector2 v1, Vector2 v2);
     double distance(Vector3 v1, Vector3 v2);
+    double edge(Vector3& v1, Vector3& v2, Vector3& v3);
     bool isPointInTriangle(Vector2 p, Vector2 v1, Vector2 v2, Vector2 v3);
 }
 

@@ -13,6 +13,7 @@
 #include "color.h"
 #include "matrix.h"
 #include "mesh.h"
+#include "printbuffer.h"
 
 enum Buffer
 {
@@ -57,6 +58,7 @@ public:
     // Math
     Vector3 worldToScreen(Vector3& v);
     bool isPointInFrame(Vector2& p) const;
+    double getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& current, double area);
 
     // Drawing
     void setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB);
@@ -90,7 +92,7 @@ private:
     // Pixel memory
     SIZE_T m_bufferSize;
     void* m_memoryBuffer;
-    void* m_depthBuffer;
+    //void* m_depthBuffer;
     BITMAPINFO m_bufferBmi; 
     const int m_bytesPerPixel = 4;
     int m_rowLength = 0;
@@ -106,6 +108,7 @@ private:
     int m_texOffset = 24;
 
     std::vector<Vector2> m_screenVertices;
+    std::vector<double> m_depthBuffer;
 
     // Camera and matrices
     Camera m_camera;
