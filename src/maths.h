@@ -27,6 +27,11 @@ namespace Math
         return value;
     };
 
+    template <typename T>
+    T normalize(T value, T amin, T amax, T bmin, T bmax)
+    {
+        return (bmax - bmin) * (value - amin) / (amax - amin) + bmax;
+    }
     double dot(Vector2 v1, Vector2 v2);
     double dot(Vector3 v1, Vector3 v2);
     double area(Vector2 v1, Vector2 v2, Vector3 v3);

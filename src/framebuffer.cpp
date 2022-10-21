@@ -281,6 +281,20 @@ Framebuffer::getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& current, d
     double w1 = Math::edge(v2, v3, current);
     double w2 = Math::edge(v3, v1, current);
     double w3 = Math::edge(v1, v2, current);
+
+    if (w1 >= 0 && w2 >= 0 && w3 >= 0)
+    {
+        w1 /= area;
+        w2 /= area;
+        w3 /= area;
+
+        double z = v1.z() * w1 + v2.z() * w2 + v3.z() * w3;
+        return 1.0 / z;
+    }
+    else
+    {
+        return 0.0;
+    }
 }
 
 // https://www.scratchapixel.com/code.php?id=26&origin=/lessons/3d-basic-rendering/rasterization-practical-implementation
@@ -304,7 +318,7 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     Vector2 min(minX, minY);
     Vector2 max(maxX, maxY);
 
-    double area = Math::edge(v1, v2, v3);
+    double area = abs(Math::edge(v1, v2, v3));
 
     // Draw each pixel within the bounding box
     for (double x = min.x(); x < max.x(); x++)
@@ -318,8 +332,15 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
                 continue;
             }
 
-            Vector3 current(point, 0);
+            // Depth test
+            Vector3 current(point, 0.0);
             double z = getDepth(v1, v2, v3, current, area);
+            int i = (y * m_width) + x;
+            if (z < m_depthBuffer[i] || z < 0.0)
+            {
+                continue;
+            }
+            m_depthBuffer[i] = z;
 
             // Get barycentric coordinates of triangle (uvw)
             Vector3 coords = Triangle::getBarycentricCoords(v1, v2, v3, point);
@@ -341,7 +362,10 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             double b = coords.x() * ab + coords.y() * bb + coords.z() * cb;
 
             // Set color buffer
-            Color color = Color((int)r, (int)g, (int)b);
+            double nearClip = m_camera.getNearClip();
+            double farClip = m_camera.getFarClip();
+            double col = Math::normalize(z, nearClip, farClip, 0.0, 255.0);
+            Color color = Color((int)col, (int)col, (int)col);
             setPixel(point, color, RGB);
         }   
     }
@@ -351,6 +375,7 @@ void Framebuffer::render()
 {
     m_depthBuffer.clear();
     m_depthBuffer.reserve((size_t) m_width * m_height);
+    std::fill(m_depthBuffer.begin(), m_depthBuffer.end(), 0.0);
 
     //Pre-compute the view/projection only once per frame, rather than for every vertex
     m_view = m_camera.getViewMatrix();                          //View matrix
