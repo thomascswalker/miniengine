@@ -8,4 +8,4 @@ This is primarily a learning project for myself. My goal was to build a real-tim
 - C++ 20
 - Windows 10.0 SDK (latest)
 
-![](https://github.com/thomascswalker/miniengine/blob/main/images/teapot.gif)
+![](https://github.com/thomascswalker/miniengine/blob/e99b5a63a63e2cab16f54befa923bdc81b38a659/teapot.gif)
