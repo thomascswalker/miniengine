@@ -14,8 +14,8 @@ static std::string MODEL_FILENAME = "../models/teapot.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
-static int      initWidth           = 512;     // Standard HD
-static int      initHeight          = 512;
+static int      initWidth           = 1280;     // Standard HD
+static int      initHeight          = 720;
 
 // Display options
 static bool     bDrawFaces          = true;
