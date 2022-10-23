@@ -12,7 +12,7 @@ This is primarily a learning project for myself. My goal was to build a real-tim
 
 ## TODO
 - Optimization of framerate
-  - Conversion of std::vector -> void* where possible
+  - Conversion of `std::vector -> void*` where possible
   - Proper clipping
   - Cleanup pipeline
 - Normals
