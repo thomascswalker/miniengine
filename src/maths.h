@@ -27,10 +27,11 @@ namespace Math
         return value;
     };
 
+    // Convert from Range A (old) to Range B (new)
     template <typename T>
     T normalize(T value, T amin, T amax, T bmin, T bmax)
     {
-        return (bmax - bmin) * (value - amin) / (amax - amin) + bmax;
+        return (((value - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
     }
     double dot(Vector2 v1, Vector2 v2);
     double dot(Vector3 v1, Vector3 v2);
