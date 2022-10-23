@@ -32,6 +32,11 @@ double Math::distance(Vector3 v1, Vector3 v2)
     return sqrt(a + b + c);
 }
 
+double Math::edge(Vector3& v1, Vector3& v2, Vector3& v3)
+{
+    return (v3.x() - v1.x()) * (v2.y() - v1.y()) - (v3.y() - v1.y()) * (v2.x() - v1.x());
+}
+
 bool Math::isPointInTriangle(Vector2 p, Vector2 v1, Vector2 v2, Vector2 v3)
 {
     // Get each vector

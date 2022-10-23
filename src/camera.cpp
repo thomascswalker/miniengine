@@ -25,12 +25,12 @@ const Matrix4 Camera::getViewMatrix()
 */
 const Matrix4 Camera::getProjectionMatrix(const double width, const double height)
 {
-    const double n = m_nearClip;
+    const double n = m_nearClip + 0.00001;
     const double f = m_farClip;
 
-    double fov = RADIANS(getFieldOfView());
-    double aspect = width / height;
-    double scale = tan(fov * 0.5) * n;
+    const double fov = RADIANS(getFieldOfView());
+    const double aspect = width / height;
+    const double scale = tan(fov * 0.5) * n;
 
     const double r = aspect * scale;
     const double l = -r;

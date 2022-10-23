@@ -226,6 +226,8 @@ int Application::run()
     // Run the message loop.
     while (!bIsRunning)
     {
+        PrintBuffer::clear();
+
         MOUSE_WHEEL_DELTA = 0.0; // Reset mouse delta
 
         double newTime = Core::getCurrentTime();
@@ -310,10 +312,8 @@ int Application::run()
         );
 
         // Debug print to screen
-        PrintBuffer::clear();
-        PrintBuffer::debugPrintToScreen("View Matrix:\n%s\n", m_buffer->getViewMatrix().toString().c_str());
-        PrintBuffer::debugPrintToScreen("Proj Matrix:\n%s\n", m_buffer->getProjectionMatrix().toString().c_str());
-        PrintBuffer::debugPrintToScreen("Some other string!");
+        PrintBuffer::debugPrintToScreen("Vertex count: %i", mesh.getVertices().size());
+        PrintBuffer::debugPrintToScreen("Triangle count: %i", mesh.getTris().size());
 
         if (bDisplayDebugText)
         {

@@ -18,9 +18,9 @@ public:
 	const Matrix4			getProjectionMatrix(const double width, const double height);
 
 private:
-	double m_fieldOfView	= 90.0;	// Degrees
-	double m_nearClip		= 0.1;
-	double m_farClip		= 100.0;
+	double m_fieldOfView	= 43.0;	// Degrees
+	double m_nearClip		= 0.0;
+	double m_farClip		= 1000.0;
 };
 
 #endif

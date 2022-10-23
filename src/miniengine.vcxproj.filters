@@ -71,7 +71,7 @@
       <Filter>Source Files\engine</Filter>
     </ClCompile>
     <ClCompile Include="printbuffer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

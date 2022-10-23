@@ -77,6 +77,7 @@ public:
 	Vector3(double x, double y, double z);
 	Vector3(double v) { *this = Vector3(v, v, v); }
 	Vector3(Vector2& v);
+	Vector3(Vector2& v, double z);
 
 	Vector3 copy() { return Vector3(_x, _y, _z); }
 

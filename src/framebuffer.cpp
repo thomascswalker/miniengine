@@ -40,7 +40,7 @@ Framebuffer::allocate()
 
     // Allocate the memory buffer
     m_memoryBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-    m_depthBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    //m_depthBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
     // Update the buffer BitmapInfo struct with the updated buffer size,
     // and width and height
@@ -50,6 +50,10 @@ Framebuffer::allocate()
 
     // Set the row length to the current window width * bytes per pixel (4)
     m_rowLength = m_width * m_bytesPerPixel;
+
+    // Allocate the depth buffer
+    //m_depthBuffer.clear();
+
 }
 
 void
@@ -275,6 +279,29 @@ Framebuffer::worldToScreen(Vector3& v)
     return v;
 }
 
+double
+Framebuffer::getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& current, double area)
+{
+    double w1 = Math::edge(v2, v3, current);
+    double w2 = Math::edge(v3, v1, current);
+    double w3 = Math::edge(v1, v2, current);
+
+    if (w1 >= 0.0 && w2 >= 0.0 && w3 >= 0.0)
+    {
+        w1 /= area;
+        w2 /= area;
+        w3 /= area;
+
+        double z = v1.z() * w1 + v2.z() * w2 + v3.z() * w3;
+        return 1.0 / z;
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
+// https://www.scratchapixel.com/code.php?id=26&origin=/lessons/3d-basic-rendering/rasterization-practical-implementation
 void
 Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 {
@@ -282,6 +309,15 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     worldToScreen(v1);
     worldToScreen(v2);
     worldToScreen(v3);
+
+    // Corrected verts
+    Vector3 c1(1.0 / v1.z(), 0,            0);
+    Vector3 c2(0,            1.0 / v2.z(), 0);
+    Vector3 c3(0,            0,            1.0 / v3.z());
+
+    v1.setZ(1.0 / v1.z());
+    v2.setZ(1.0 / v2.z());
+    v3.setZ(1.0 / v3.z());
 
     // Determine the screen bounding box
     std::vector<double> xList = {v1.x(), v2.x(), v3.x()};
@@ -295,52 +331,92 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     Vector2 min(minX, minY);
     Vector2 max(maxX, maxY);
 
+    // If the entire triangle is out of frame, skip
+    if (min.x() > m_width - 1.0 || max.x() < 0.0 || min.y() > m_height - 1.0 || max.y() < 0.0)
+    {
+        return;
+    }
+
+    double area = Math::edge(v1, v2, v3);
+
     // Draw each pixel within the bounding box
     for (double x = min.x(); x < max.x(); x++)
     {
         for (double y = min.y(); y < max.y(); y++)
         {
+            // Current pixel index
+            int i = ((int) y * (int) m_width) + (int) x;
+
             // If the pixel is outside the frame entirely, we'll skip it
-            Vector2 point(x, y);
-            if (!isPointInFrame(point))
+            Vector3 p(x + 0.5, y + 0.5, 0);
+            if (!isPointInFrame(p))
             {
                 continue;
             }
 
             // Get barycentric coordinates of triangle (uvw)
-            Vector3 coords = Triangle::getBarycentricCoords(v1, v2, v3, point);
+            Vector3 uvw = Triangle::getBarycentricCoords(v1, v2, v3, p);
 
             // If the total != 1.0, or all of the coord axes are less than 0,
             // we'll skip this (it's not in the triangle!)
-            double total = coords.x() + coords.y() + coords.z();
-            if (coords.x() < 0 || coords.y() < 0 || coords.z() < 0)
+            double total = uvw.x() + uvw.y() + uvw.z();
+            if (uvw.x() < 0 || uvw.y() < 0 || uvw.z() < 0)
             {
                 continue;
             }
+
+            // Calculate depth
+            double w1 = Math::edge(v2, v3, p);
+            double w2 = Math::edge(v3, v1, p);
+            double w3 = Math::edge(v1, v2, p);
+            if (w1 < 0.0 && w2 < 0.0 && w3 < 0.0)
+            {
+                continue;
+            }
+            w1 /= area;
+            w2 /= area;
+            w3 /= area;
+
+            double z = w1 * v1.z() + w2 * v2.z() + w3 * v3.z();
+
+            // If the z-depth is greater (further back) than what's currently at this pixel, we'll
+            // skip it.
+            if (z > m_depthBuffer[i])
+            {
+                continue;
+            }
+            // Otherwise we'll set the current pixel Z to this depth
+            m_depthBuffer[i] = z;
 
             // Calculate vertex colours
             double ar = 255, bg = 255, cb = 255;
             double ag = 0, ab = 0, br = 0, bb = 0, cr = 0, cg = 0;
 
-            double r = coords.x() * ar + coords.y() * br + coords.z() * cr;
-            double g = coords.x() * ag + coords.y() * bg + coords.z() * cg;
-            double b = coords.x() * ab + coords.y() * bb + coords.z() * cb;
+            double r = uvw.x() * ar + uvw.y() * br + uvw.z() * cr;
+            double g = uvw.x() * ag + uvw.y() * bg + uvw.z() * cg;
+            double b = uvw.x() * ab + uvw.y() * bb + uvw.z() * cb;
 
-            // Set color buffer
             Color color = Color((int)r, (int)g, (int)b);
-            setPixel(point, color, RGB);
+            setPixel(p, color, RGB);
         }   
     }
 }
 
 void Framebuffer::render()
 {
+    m_depthBuffer.clear();
+    int depthBufferSize = (int)(m_width * m_height);
+    for (int i = 0; i < depthBufferSize; i++)
+    {
+        m_depthBuffer.push_back(m_camera.getFarClip());
+    }
+
     //Pre-compute the view/projection only once per frame, rather than for every vertex
     m_view = m_camera.getViewMatrix();                          //View matrix
     m_proj = m_camera.getProjectionMatrix(m_width, m_height);   // Projection matrix
 
     // Update MVP matrix
-    Matrix4 model;
+    Matrix4 model = makeRotationX(modelRotation) * makeRotationY(modelRotation);
     m_mvp = m_proj * m_view * model;
 
     for (auto t : m_triangles)
@@ -351,6 +427,8 @@ void Framebuffer::render()
 
         drawTriangle(v1, v2, v3);
     }
+
+    PrintBuffer::debugPrintToScreen("Pixel count: %i", m_depthBuffer.size());
 }
 
 bool operator == (const Framebuffer& f1, const Framebuffer& f2)
