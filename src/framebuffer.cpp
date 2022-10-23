@@ -419,8 +419,6 @@ void Framebuffer::render()
     Matrix4 model = makeRotationX(modelRotation) * makeRotationY(modelRotation);
     m_mvp = m_proj * m_view * model;
 
-    PrintBuffer::debugPrintToScreen("MVP:\n%s\n", m_mvp.toString().c_str());
-
     for (auto t : m_triangles)
     {
         auto v1 = t.v1().getTranslation();
@@ -429,6 +427,8 @@ void Framebuffer::render()
 
         drawTriangle(v1, v2, v3);
     }
+
+    PrintBuffer::debugPrintToScreen("Pixel count: %i", m_depthBuffer.size());
 }
 
 bool operator == (const Framebuffer& f1, const Framebuffer& f2)
