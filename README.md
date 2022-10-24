@@ -10,13 +10,17 @@ This is primarily a learning project for myself. My goal was to build a real-tim
 
 ![](https://github.com/thomascswalker/miniengine/blob/ca63d62682592c27f7ef82e97fca5b7c4f1eb4a4/images/cow.gif)
 
-## TODO
-- Optimization of framerate
-  - Conversion of `std::vector -> void*` where possible
-  - Proper clipping
-  - Cleanup pipeline
-- Normals
-- Lambertian Shading (default light position)
-- Procedural texturing
-- Textures from file
-- Point light
+## Progress
+- [x] Launch window
+- [x] Draw pixel buffer
+- [x] Draw triangle
+- [x] Project geometry
+- [x] Control camera movement
+- [x] Normals
+- [ ] Conversion of `std::vector -> void*` where possible
+- [ ] Proper clipping
+- [ ] Cleanup pipeline
+- [ ] Lambertian Shading (default light position)
+- [ ] Procedural texturing
+- [ ] Textures from file
+- [ ] Point light
