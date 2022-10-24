@@ -24,3 +24,8 @@ This is primarily a learning project for myself. My goal was to build a real-tim
 - [ ] Procedural texturing
 - [ ] Textures from file
 - [ ] Point light
+- [ ] .obj loader loads Faces
+
+## Known bugs
+- [ ] Performance tanks when 'inside' a model (or a model is behind the camera)
+- [ ] Memory leak; performance degrades over time (after a minute or more)
