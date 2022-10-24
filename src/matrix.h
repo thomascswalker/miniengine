@@ -96,9 +96,9 @@ public:
         double x, y, z, w;
 
         x = v.x() * m.m_mtx[0][0] + v.y() * m.m_mtx[0][1] + v.z() * m.m_mtx[0][2];
-        y = v.x() * m.m_mtx[0][1] + v.y() * m.m_mtx[1][1] + v.z() * m.m_mtx[1][2];
-        z = v.x() * m.m_mtx[0][2] + v.y() * m.m_mtx[2][1] + v.z() * m.m_mtx[2][2];
-        w = v.x() * m.m_mtx[0][3] + v.y() * m.m_mtx[3][1] + v.z() * m.m_mtx[3][2];
+        y = v.x() * m.m_mtx[1][0] + v.y() * m.m_mtx[1][1] + v.z() * m.m_mtx[1][2];
+        z = v.x() * m.m_mtx[2][0] + v.y() * m.m_mtx[2][1] + v.z() * m.m_mtx[2][2];
+        w = v.x() * m.m_mtx[3][0] + v.y() * m.m_mtx[3][1] + v.z() * m.m_mtx[3][2];
 
         if (w != 0.0)
         {

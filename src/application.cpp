@@ -10,7 +10,7 @@ MINI_USING_DIRECTIVE
 #endif
 
 // Global variables
-static std::string MODEL_FILENAME = "../models/teapot.obj";
+static std::string MODEL_FILENAME = "../models/cow.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
@@ -299,6 +299,7 @@ int Application::run()
 
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);
+
         StretchDIBits(
             hdc,
             0, 0,

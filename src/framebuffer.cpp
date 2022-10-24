@@ -308,13 +308,7 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     auto wv2 = m_model * v2;
     auto wv3 = m_model * v3;
     Vector3 normal = Triangle::getNormal(wv1, wv2, wv3);
-    Vector3 v1cam, v2cam, v3cam;
-
-    Vector3 forward = m_camera.getForward();
-    v1cam = forward * v1;
-    v2cam = forward * v2;
-    v3cam = forward * v3;
-
+    normal.normalize();
 
     // Convert world-space to screenspace
     worldToScreen(v1);
@@ -372,10 +366,11 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 
             double facingRatio = Math::dot(normal, viewDirection);
             double factor = facingRatio * 255.0;
-            double finalColor = Math::clamp(factor, 0.0, 255.0);
+            factor = pow(factor / 255.0, INVERSE_GAMMA) * 255.0;
+            int finalColor = Math::clamp(factor, 0.0, 255.0);
 
             // Set final color in RGB buffer
-            Color color = Color(finalColor + 100.0, finalColor + 50.0, finalColor);
+            Color color = Color(finalColor, finalColor, finalColor);
             setPixel(p, color, RGB);
         }   
     }
@@ -395,8 +390,7 @@ void Framebuffer::render()
     m_proj = m_camera.getProjectionMatrix(m_width, m_height);   // Projection matrix
 
     // Update MVP matrix
-    //Matrix4 model;
-    m_model = makeRotationY(modelRotation) * makeRotationX(modelRotation);
+    m_model = makeRotationY(modelRotation);
     m_mvp = m_proj * m_view * m_model;
 
     for (auto t : m_triangles)
