@@ -304,6 +304,18 @@ Rect Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
 // https://www.scratchapixel.com/code.php?id=26&origin=/lessons/3d-basic-rendering/rasterization-practical-implementation
 void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 {
+    auto wv1 = m_model * v1;
+    auto wv2 = m_model * v2;
+    auto wv3 = m_model * v3;
+    Vector3 normal = Triangle::getNormal(wv1, wv2, wv3);
+    Vector3 v1cam, v2cam, v3cam;
+
+    Vector3 forward = m_camera.getForward();
+    v1cam = forward * v1;
+    v2cam = forward * v2;
+    v3cam = forward * v3;
+
+
     // Convert world-space to screenspace
     worldToScreen(v1);
     worldToScreen(v2);
@@ -347,22 +359,23 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             double z = getDepth(v1, v2, v3, p);
 
             // If the z-depth is greater (further back) than what's currently at this pixel, we'll
-            // skip it.
-            if (z > m_depthBuffer[i] || z < 0.0)
+            // skip it. Also skip if we're outside of the near/far clip.
+            if (z > m_depthBuffer[i] || z < m_camera.getNearClip() || z > m_camera.getFarClip())
             {
                 continue;
             }
             m_depthBuffer[i] = z; // Otherwise we'll set the current pixel Z to this depth
+            
+            // Calculate normal
+            Vector3 viewDirection = -m_camera.getForward();
+            viewDirection.normalize();
 
-            // Calculate vertex colours
-            double ar = 255, bg = 255, cb = 255;
-            double ag = 0, ab = 0, br = 0, bb = 0, cr = 0, cg = 0;
+            double facingRatio = Math::dot(normal, viewDirection);
+            double factor = facingRatio * 255.0;
+            double finalColor = Math::clamp(factor, 0.0, 255.0);
 
-            double r = uvw.x() * ar + uvw.y() * br + uvw.z() * cr;
-            double g = uvw.x() * ag + uvw.y() * bg + uvw.z() * cg;
-            double b = uvw.x() * ab + uvw.y() * bb + uvw.z() * cb;
-
-            Color color = Color((int)r, (int)g, (int)b);
+            // Set final color in RGB buffer
+            Color color = Color(finalColor + 100.0, finalColor + 50.0, finalColor);
             setPixel(p, color, RGB);
         }   
     }
@@ -382,8 +395,9 @@ void Framebuffer::render()
     m_proj = m_camera.getProjectionMatrix(m_width, m_height);   // Projection matrix
 
     // Update MVP matrix
-    Matrix4 model = makeRotationX(modelRotation) * makeRotationY(modelRotation);
-    m_mvp = m_proj * m_view * model;
+    //Matrix4 model;
+    m_model = makeRotationY(modelRotation) * makeRotationX(modelRotation);
+    m_mvp = m_proj * m_view * m_model;
 
     for (auto t : m_triangles)
     {

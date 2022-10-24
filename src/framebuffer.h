@@ -120,6 +120,7 @@ private:
     Matrix4 m_view = Matrix4();
     Matrix4 m_proj = Matrix4();
     Matrix4 m_mvp = Matrix4();
+    Matrix4 m_model = Matrix4();
 };
 
 #endif

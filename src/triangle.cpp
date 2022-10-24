@@ -1,7 +1,19 @@
 #include "triangle.h"
 
-Vector3
-Triangle::getBarycentricCoords(Vector2& v1, Vector2& v2, Vector2& v3, Vector2& p)
+// https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal#:~:text=A%20surface%20normal%20for%20a,of%20the%20face%20w.r.t.%20winding).
+Vector3 Triangle::getNormal(Vector3& v1, Vector3& v2, Vector3& v3)
+{
+    Vector3 u = v2 - v1;
+    Vector3 v = v3 - v1;
+
+    Vector3 n;
+    n.setX(u.y() * v.z() - u.z() * v.y());
+    n.setY(u.z() * v.x() - u.x() * v.z());
+    n.setZ(u.x() * v.y() - u.y() * v.x());
+    return n;
+}
+
+Vector3 Triangle::getBarycentricCoords(Vector2& v1, Vector2& v2, Vector2& v3, Vector2& p)
 {
     Vector2 v21 = v2 - v1;
     Vector2 v31 = v3 - v1;

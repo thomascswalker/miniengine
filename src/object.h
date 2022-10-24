@@ -15,6 +15,10 @@ public:
 	const Rotation getRotation() { return m_transform.getRotation(); }
 	const Vector3 getScale() { return m_transform.getScale(); }
 
+	const Vector3 getForward() { return m_transform.getForward(); }
+	const Vector3 getRight() { return m_transform.getRight(); }
+	const Vector3 getUp() { return m_transform.getUp(); }
+
 	void move(const Vector3& v);
 
 private:
