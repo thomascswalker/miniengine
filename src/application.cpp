@@ -216,7 +216,7 @@ int Application::run()
 {
     ShowWindow(m_hwnd, 1);
     
-    m_currentTime = Core::getCurrentTime();
+    m_currentTime = getCurrentTime();
 
     // Load our mesh
     std::string filename = MODEL_FILENAME;
@@ -230,7 +230,7 @@ int Application::run()
 
         MOUSE_WHEEL_DELTA = 0.0; // Reset mouse delta
 
-        double newTime = Core::getCurrentTime();
+        double newTime = getCurrentTime();
         m_deltaTime = newTime - m_currentTime;
         m_currentTime = newTime;
 

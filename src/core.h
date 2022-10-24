@@ -14,6 +14,7 @@
 #include <tuple>
 #include <chrono>
 
+#include "api.h"
 #include "printbuffer.h"
 #include "vector.h"
 
@@ -32,80 +33,80 @@ using std::chrono::milliseconds;
 using std::chrono::seconds;
 using std::chrono::system_clock;
 
-namespace Core
+MINI_NAMESPACE_OPEN
+
+class Size
 {
-    class Size
-    {
-    public:
-        Size() {};
-        Size(int width, int height) : m_width(width), m_height(height) {};
+public:
+    Size() {};
+    Size(double width, double height) : m_width(width), m_height(height) {};
 
-        int width() { return m_width; }
-        int height() { return m_height; }
-        int setWidth(int width) { m_width = width; }
-        int setHeight(int height) { m_height = height; }
+    double width() { return m_width; }
+    double height() { return m_height; }
+    double setWidth(int width) { m_width = width; }
+    double setHeight(int height) { m_height = height; }
 
-    private:
-        int m_width = 0;
-        int m_height = 0;
-    };
+private:
+    double m_width = 0;
+    double m_height = 0;
+};
 
-    class Point
-    {
-    public:
-        Point() {};
-        Point(int x, int y) : m_x(x), m_y(y) {};
+class Point
+{
+public:
+    Point() {};
+    Point(double x, double y) : m_x(x), m_y(y) {};
 
-        int x() { return m_x; }
-        int y() { return m_y; }
-        int setX(int x) { m_x = x; }
-        int setY(int y) { m_y = y; }
+    double x() { return m_x; }
+    double y() { return m_y; }
+    double setX(int x) { m_x = x; }
+    double setY(int y) { m_y = y; }
 
-    private:
-        int m_x = 0;
-        int m_y = 0;
-    };
+private:
+    double m_x = 0;
+    double m_y = 0;
+};
 
-    class Rect
-    {
-    public:
-        // Constructors
-        Rect() {};
-        Rect(int x, int y, int width, int height) : m_x(x), m_y(y), m_width(width), m_height(height) {};
-        Rect(Vector2 min, Vector2 max);
+class Rect
+{
+public:
+    // Constructors
+    Rect() {};
+    Rect(double x, double y, double width, double height) : m_x(x), m_y(y), m_width(width), m_height(height) {};
+    Rect(Vector2 min, Vector2 max);
 
 
-        // Methods
-        Point pos() { return Point(m_x, m_y); }
-        Size size() { return Size(m_width, m_height); }
-        Point getMin() { return Point(m_x, m_y); }
-        Point getMax() { return Point(m_x + m_width, m_y + m_height); }
+    // Methods
+    Point pos() { return Point(m_x, m_y); }
+    Size size() { return Size(m_width, m_height); }
+    Point getMin() { return Point(m_x, m_y); }
+    Point getMax() { return Point(m_x + m_width, m_y + m_height); }
     
-        // Accessors
-        int x() { return m_x; }
-        int y() { return m_y; }
-        int setX(int x) { m_x = x; }
-        int setY(int y) { m_y = y; }
-        int width() { return m_width; }
-        int height() { return m_height; }
-        int setWidth(int width) { m_width = width; }
-        int setHeight(int height) { m_height = height; }
+    // Accessors
+    double x() { return m_x; }
+    double y() { return m_y; }
+    double setX(int x) { m_x = x; }
+    double setY(int y) { m_y = y; }
+    double width() { return m_width; }
+    double height() { return m_height; }
+    double setWidth(double width) { m_width = width; }
+    double setHeight(double height) { m_height = height; }
 
-    private:
-        // Properties
-        int m_x = 0;
-        int m_y = 0;
-        int m_width = 0;
-        int m_height = 0;
-    };
+private:
+    // Properties
+    double m_x = 0;
+    double m_y = 0;
+    double m_width = 0;
+    double m_height = 0;
+};
 
-    int getRefreshRate();
-    Size getScreenSize();
+int getRefreshRate();
+Size getScreenSize();
 
-    double getCurrentTime();
+double getCurrentTime();
 
-    void print(const char* format, ...);
-}
+void print(const char* format, ...);
 
+MINI_NAMESPACE_CLOSE
 
 #endif

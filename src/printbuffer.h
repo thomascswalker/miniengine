@@ -27,7 +27,6 @@ public:
     }
 
     static void debugPrintToScreen(const char* format, ...);
-    //void addEntry(const char* format, ...);
     LPCWSTR getEntries();
 
     static void clear() { getInstance()->m_entries.clear(); }

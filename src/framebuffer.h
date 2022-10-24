@@ -15,6 +15,8 @@
 #include "mesh.h"
 #include "printbuffer.h"
 
+MINI_USING_DIRECTIVE
+
 enum Buffer
 {
     RGB,
@@ -33,7 +35,7 @@ public:
     void setWidth(int width) { m_width = width; }
     int getHeight() { return m_height; }
     void setHeight(int height) { m_height = height; }
-    void setSize(Core::Size size);
+    void setSize(Size size);
     void setSize(int width, int height);
 
     // Camera
@@ -58,7 +60,7 @@ public:
     // Math
     Vector3 worldToScreen(Vector3& v);
     bool isPointInFrame(Vector2& p) const;
-    bool isRectInFrame(Core::Rect& r) const;
+    bool isRectInFrame(Rect& r) const;
     double getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p);
 
     // Drawing
@@ -69,7 +71,7 @@ public:
     void drawCircle(Vector2& v, int r, Color color);
     void drawLine(Vector2& v1, Vector2& v2, Color color);
     void drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3);
-    Core::Rect getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3);
+    Rect getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3);
     void render();
 
     // Matrices
