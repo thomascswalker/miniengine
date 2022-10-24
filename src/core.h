@@ -15,6 +15,7 @@
 #include <chrono>
 
 #include "printbuffer.h"
+#include "vector.h"
 
 typedef int8_t int8;
 typedef int16_t int16;
@@ -71,6 +72,8 @@ namespace Core
         // Constructors
         Rect() {};
         Rect(int x, int y, int width, int height) : m_x(x), m_y(y), m_width(width), m_height(height) {};
+        Rect(Vector2 min, Vector2 max);
+
 
         // Methods
         Point pos() { return Point(m_x, m_y); }

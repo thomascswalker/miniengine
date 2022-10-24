@@ -58,7 +58,8 @@ public:
     // Math
     Vector3 worldToScreen(Vector3& v);
     bool isPointInFrame(Vector2& p) const;
-    double getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& current, double area);
+    bool isRectInFrame(Core::Rect& r) const;
+    double getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p);
 
     // Drawing
     void setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB);
@@ -68,6 +69,7 @@ public:
     void drawCircle(Vector2& v, int r, Color color);
     void drawLine(Vector2& v1, Vector2& v2, Color color);
     void drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3);
+    Core::Rect getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3);
     void render();
 
     // Matrices

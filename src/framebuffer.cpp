@@ -40,7 +40,6 @@ Framebuffer::allocate()
 
     // Allocate the memory buffer
     m_memoryBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-    //m_depthBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
     // Update the buffer BitmapInfo struct with the updated buffer size,
     // and width and height
@@ -50,10 +49,6 @@ Framebuffer::allocate()
 
     // Set the row length to the current window width * bytes per pixel (4)
     m_rowLength = m_width * m_bytesPerPixel;
-
-    // Allocate the depth buffer
-    //m_depthBuffer.clear();
-
 }
 
 void
@@ -123,6 +118,15 @@ Framebuffer::isPointInFrame(Vector2& p) const
     auto y = p.y();
     return (x > 0 && y > 0 && x < m_width && y < m_height);
 }
+
+bool
+Framebuffer::isRectInFrame(Core::Rect& r) const
+{
+    return r.getMin().x() < m_width - 1.0   ||
+           r.getMax().x() > 0.0             ||
+           r.getMin().y() < m_height - 1.0  ||
+           r.getMax().y() > 0.0;
+};
 
 void
 Framebuffer::setPixel(int x, int y, Color color, Buffer buffer)
@@ -267,38 +271,55 @@ Vector3
 Framebuffer::worldToScreen(Vector3& v)
 {
     // Convert to normalized device coords
-    Vector4 ndc = m_mvp * Vector4(v, 1.0);
+    Vector4 ndc = m_mvp * Vector4(v, 1.0);          // m_mvp is precalculated in Framebuffer::render()
 
     double x = ((ndc.x() + 1.0) * m_width) / 2.0;
     double y = ((ndc.y() + 1.0) * m_height) / 2.0;
 
     v.setX(x);
     v.setY(y);
-    v.setZ(ndc.z());
+    v.setZ(1.0 / ndc.z());                          // Invert Z
 
     return v;
 }
 
+// Returns the Z-depth of point P given a triangle (v1, v2, v3).
 double
-Framebuffer::getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& current, double area)
+Framebuffer::getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p)
 {
-    double w1 = Math::edge(v2, v3, current);
-    double w2 = Math::edge(v3, v1, current);
-    double w3 = Math::edge(v1, v2, current);
+    double area = Math::edge(v1, v2, v3);
 
-    if (w1 >= 0.0 && w2 >= 0.0 && w3 >= 0.0)
+    // Calculate depth
+    double w1 = Math::edge(v2, v3, p);
+    double w2 = Math::edge(v3, v1, p);
+    double w3 = Math::edge(v1, v2, p);
+    if (w1 < 0.0 && w2 < 0.0 && w3 < 0.0)
     {
-        w1 /= area;
-        w2 /= area;
-        w3 /= area;
+        return DBL_MAX;
+    }
+    w1 /= area;
+    w2 /= area;
+    w3 /= area;
 
-        double z = v1.z() * w1 + v2.z() * w2 + v3.z() * w3;
-        return 1.0 / z;
-    }
-    else
-    {
-        return 0.0;
-    }
+    return w1 * v1.z() + w2 * v2.z() + w3 * v3.z();
+}
+
+Core::Rect
+Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
+{
+    // Determine the screen bounding box
+    std::vector<double> xList = { v1.x(), v2.x(), v3.x() };
+    std::vector<double> yList = { v1.y(), v2.y(), v3.y() };
+
+    auto minX = *std::min_element(std::begin(xList), std::end(xList));
+    auto maxX = *std::max_element(std::begin(xList), std::end(xList));
+    auto minY = *std::min_element(std::begin(yList), std::end(yList));
+    auto maxY = *std::max_element(std::begin(yList), std::end(yList));
+
+    Vector2 min(minX, minY);
+    Vector2 max(maxX, maxY);
+
+    return Core::Rect(min, max);
 }
 
 // https://www.scratchapixel.com/code.php?id=26&origin=/lessons/3d-basic-rendering/rasterization-practical-implementation
@@ -310,39 +331,19 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     worldToScreen(v2);
     worldToScreen(v3);
 
-    // Corrected verts
-    Vector3 c1(1.0 / v1.z(), 0,            0);
-    Vector3 c2(0,            1.0 / v2.z(), 0);
-    Vector3 c3(0,            0,            1.0 / v3.z());
-
-    v1.setZ(1.0 / v1.z());
-    v2.setZ(1.0 / v2.z());
-    v3.setZ(1.0 / v3.z());
-
-    // Determine the screen bounding box
-    std::vector<double> xList = {v1.x(), v2.x(), v3.x()};
-    std::vector<double> yList = {v1.y(), v2.y(), v3.y()};
-
-    auto minX = *std::min_element(std::begin(xList), std::end(xList));
-    auto maxX = *std::max_element(std::begin(xList), std::end(xList));
-    auto minY = *std::min_element(std::begin(yList), std::end(yList));
-    auto maxY = *std::max_element(std::begin(yList), std::end(yList));
-
-    Vector2 min(minX, minY);
-    Vector2 max(maxX, maxY);
+    // Get the bounding box of the screen triangle
+    Core::Rect bounds = getBoundingBox(v1, v2, v3);
 
     // If the entire triangle is out of frame, skip
-    if (min.x() > m_width - 1.0 || max.x() < 0.0 || min.y() > m_height - 1.0 || max.y() < 0.0)
+    if (!isRectInFrame(bounds))
     {
         return;
     }
 
-    double area = Math::edge(v1, v2, v3);
-
     // Draw each pixel within the bounding box
-    for (double x = min.x(); x < max.x(); x++)
+    for (double x = bounds.getMin().x(); x < bounds.getMax().x(); x++)
     {
-        for (double y = min.y(); y < max.y(); y++)
+        for (double y = bounds.getMin().y(); y < bounds.getMax().y(); y++)
         {
             // Current pixel index
             int i = ((int) y * (int) m_width) + (int) x;
@@ -366,27 +367,15 @@ Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             }
 
             // Calculate depth
-            double w1 = Math::edge(v2, v3, p);
-            double w2 = Math::edge(v3, v1, p);
-            double w3 = Math::edge(v1, v2, p);
-            if (w1 < 0.0 && w2 < 0.0 && w3 < 0.0)
-            {
-                continue;
-            }
-            w1 /= area;
-            w2 /= area;
-            w3 /= area;
-
-            double z = w1 * v1.z() + w2 * v2.z() + w3 * v3.z();
+            double z = getDepth(v1, v2, v3, p);
 
             // If the z-depth is greater (further back) than what's currently at this pixel, we'll
             // skip it.
-            if (z > m_depthBuffer[i])
+            if (z > m_depthBuffer[i] || z < 0.0)
             {
                 continue;
             }
-            // Otherwise we'll set the current pixel Z to this depth
-            m_depthBuffer[i] = z;
+            m_depthBuffer[i] = z; // Otherwise we'll set the current pixel Z to this depth
 
             // Calculate vertex colours
             double ar = 255, bg = 255, cb = 255;

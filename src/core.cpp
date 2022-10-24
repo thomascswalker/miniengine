@@ -20,6 +20,14 @@ namespace Core
         return Core::Size(desktop.right, desktop.bottom);
     }
 
+    Rect::Rect(Vector2 min, Vector2 max)
+    {
+        m_x = min.x();
+        m_y = min.y();
+        m_width = max.x() - min.x();
+        m_height = max.y() - min.y();
+    }
+
     double Core::getCurrentTime()
     {            
         auto duration = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
@@ -41,4 +49,5 @@ namespace Core
         mbstowcs_s(&outSize, wtext, size, text, size-1);
         OutputDebugString(wtext);
     }
+
 }
