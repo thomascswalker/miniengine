@@ -6,11 +6,17 @@
 #include "core.h"
 #include "vector.h"
 
-#define     PI              3.14159265359
-#define     EPSILON         0.000000001
-#define     RADIANS(x)      (x * PI / 180.0)
-#define     DEGREES(x)      (x * 180.0 / PI)
-#define     INVERSE_GAMMA   (1.0 / 2.2)
+// Constants
+#define     PI                  3.14159265359
+#define     EPSILON             0.000000001
+
+// Trigonometry
+#define     RADIANS(x)          (x * PI / 180.0)
+#define     DEGREES(x)          (x * 180.0 / PI)
+
+// Gamma
+#define     INVERSE_GAMMA       (1.0 / 2.2)
+#define     GAMMA_CORRECT(x)    (pow(x / 255.0, INVERSE_GAMMA) * 255.0)
 
 namespace Math
 {

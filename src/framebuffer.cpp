@@ -365,12 +365,11 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             viewDirection.normalize();
 
             double facingRatio = Math::dot(normal, viewDirection);
-            double factor = facingRatio * 255.0;
-            factor = pow(factor / 255.0, INVERSE_GAMMA) * 255.0;
-            int finalColor = Math::clamp(factor, 0.0, 255.0);
+            double factor = GAMMA_CORRECT(facingRatio * 255.0);
+            double finalColor = Math::clamp(factor, 0.0, 255.0);
 
             // Set final color in RGB buffer
-            Color color = Color(finalColor, finalColor, finalColor);
+            Color color = Color((int) finalColor, 100, 100.0);
             setPixel(p, color, RGB);
         }   
     }
