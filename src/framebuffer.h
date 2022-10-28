@@ -39,14 +39,14 @@ public:
     void setSize(int width, int height);
 
     // Camera
-    Camera* camera() { return &m_camera; }
+    Camera* camera() { return m_camera; }
 
     // Pixel buffer
     HWND getHwnd() { return m_hwnd; }
     void clear();
     void allocate();
     BITMAPINFO* getBitmapInfo() { return &m_bufferBmi; }
-    void* getMemoryPtr() { return (unsigned int*)m_memoryBuffer; }
+    void* getColorBufferPtr() { return (unsigned int*)m_colorBuffer; }
     int getBufferSize() { return m_width * m_height * sizeof(unsigned int); }
 
     // Vertex, index, triangle buffer
@@ -64,8 +64,11 @@ public:
     double getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p);
 
     // Drawing
-    void setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB);
-    void setPixel(Vector2& v, Color color, Buffer buffer = Buffer::RGB);
+    template <typename T>
+    void setPixel(int x, int y, T value, Buffer buffer = Buffer::RGB);
+    template <typename T>
+    T* getPixel(int x, int y, Buffer buffer = Buffer::RGB);
+
     void drawRect(int x0, int y0, int x1, int y1, Color color);
     void drawCircle(int cx, int cy, int r, Color color);
     void drawCircle(Vector2& v, int r, Color color);
@@ -95,8 +98,8 @@ private:
 
     // Pixel memory
     SIZE_T m_bufferSize;
-    void* m_memoryBuffer;
-    //void* m_depthBuffer;
+    void* m_colorBuffer;
+    void* m_zBuffer;
     BITMAPINFO m_bufferBmi; 
     const int m_bytesPerPixel = 4;
     int m_rowLength = 0;
@@ -106,16 +109,11 @@ private:
     std::vector<int> m_indices;
     std::vector<Triangle> m_triangles;
 
-    int m_stride    = 12; // Should be 32 with X, Y, Z, R, G, B, U, V
-    int m_posOffset = 0;
-    int m_colOffset = 12;
-    int m_texOffset = 24;
-
     std::vector<Vector2> m_screenVertices;
     std::vector<double> m_depthBuffer;
 
     // Camera and matrices
-    Camera m_camera;
+    Camera* m_camera;
     Vector3 m_targetPosition;
     Matrix4 m_view = Matrix4();
     Matrix4 m_proj = Matrix4();

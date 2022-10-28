@@ -10,6 +10,7 @@ Vector3 Triangle::getNormal(Vector3& v1, Vector3& v2, Vector3& v3)
     n.setX(u.y() * v.z() - u.z() * v.y());
     n.setY(u.z() * v.x() - u.x() * v.z());
     n.setZ(u.x() * v.y() - u.y() * v.x());
+
     return n;
 }
 

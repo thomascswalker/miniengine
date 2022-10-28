@@ -306,7 +306,7 @@ int Application::run()
             width, height,
             0, 0,
             width, height,
-            m_buffer->getMemoryPtr(),
+            m_buffer->getColorBufferPtr(),
             m_buffer->getBitmapInfo(),
             DIB_RGB_COLORS,
             SRCCOPY

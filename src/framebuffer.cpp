@@ -14,10 +14,10 @@ Framebuffer::Framebuffer(HWND hwnd)
     allocate();
 
     // Create a new default camera
-    m_camera = Camera();
-    auto t = m_camera.getTransform();
+    m_camera = new Camera();
+    auto t = m_camera->getTransform();
     t.setTranslation(Vector3(0, 0, -5));
-    m_camera.setTransform(t);
+    m_camera->setTransform(t);
 }
 
 Framebuffer::~Framebuffer()
@@ -28,17 +28,17 @@ Framebuffer::~Framebuffer()
 void Framebuffer::allocate()
 {
     // Clear the color buffer
-    if (m_memoryBuffer)
+    if (m_colorBuffer)
     {
-        VirtualFree(m_memoryBuffer, 0, MEM_RELEASE);
-        m_memoryBuffer = nullptr;
+        VirtualFree(m_colorBuffer, 0, MEM_RELEASE);
+        m_colorBuffer = nullptr;
     }
 
     // Calculate the new buffer size and allocate memory of that size
-    int bufferSize = m_width * m_height * m_bytesPerPixel;
+    int bufferSize = m_width * m_height;
 
     // Allocate the memory buffer
-    m_memoryBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    m_colorBuffer = VirtualAlloc(0, bufferSize * sizeof(int), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
     // Update the buffer BitmapInfo struct with the updated buffer size,
     // and width and height
@@ -48,6 +48,17 @@ void Framebuffer::allocate()
 
     // Set the row length to the current window width * bytes per pixel (4)
     m_rowLength = m_width * m_bytesPerPixel;
+
+    // Clear the color buffer
+    if (m_zBuffer)
+    {
+        VirtualFree(m_zBuffer, 0, MEM_RELEASE);
+        m_zBuffer = nullptr;
+    }
+
+    // Allocate the Z-buffer
+    m_zBuffer = VirtualAlloc(0, bufferSize * sizeof(double), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
 }
 
 void Framebuffer::clear()
@@ -116,36 +127,52 @@ bool Framebuffer::isRectInFrame(Rect& r) const
            r.getMax().y() > 0.0;
 };
 
-void Framebuffer::setPixel(int x, int y, Color color, Buffer buffer)
+template <typename T>
+void Framebuffer::setPixel(int x, int y, T value, Buffer buffer)
 {
     if (x < 0 || y < 0 || x > m_width || y > m_height)
     {
         return;
     }
-    uint32* pixelPtr = 0;
+    T* pixelPtr = 0;
 
     switch (buffer)
     {
         default:
         case RGB:
         {
-            pixelPtr = (uint32*)m_memoryBuffer;
+            pixelPtr = (T*) m_colorBuffer;
+            break;
+        }
+        case DEPTH:
+        {
+            pixelPtr = (T*) m_zBuffer;
             break;
         }
     }
 
     Math::clamp(x, 0, m_width);
     Math::clamp(y, 0, m_height);
-    uint32 offset = x + (y * m_width);
+    T offset = x + (y * m_width);
     pixelPtr += offset;
-    *pixelPtr = color.hex();
+    *pixelPtr = value;
 }
 
-void Framebuffer::setPixel(Vector2& v, Color color, Buffer buffer)
+template <typename T>
+T* Framebuffer::getPixel(int x, int y, Buffer buffer)
 {
-    int x = (int)v.x();
-    int y = (int)v.y();
-    setPixel(x, y, color, buffer);
+    switch (buffer)
+    {
+    default:
+    case RGB:
+    {
+        return (T*) m_colorBuffer;
+    }
+    case DEPTH:
+    {
+        return (T*) m_zBuffer;
+    }
+    }
 }
 
 void Framebuffer::drawRect(int x0, int y0, int x1, int y1, Color color)
@@ -163,7 +190,7 @@ void Framebuffer::drawRect(int x0, int y0, int x1, int y1, Color color)
         {
             // Set the color at this position in memory
             Vector2 point(x, y);
-            setPixel(point, color);
+            setPixel(x, y, color.hex(), RGB);
         }
     }
 }
@@ -196,7 +223,7 @@ void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
             if (pow(dx, 2) + pow(dy, 2) <= rsqr)
             {
                 Vector2 point(x, y);
-                setPixel(point, color);
+                setPixel(x, y, color.hex(), RGB);
             }
         }
     }
@@ -241,7 +268,7 @@ void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
     while (i <= step)
     {
         Vector2 point(x, y);
-        setPixel(point, color);
+        setPixel(x, y, color.hex(), RGB);
 
         x += dx;
         y += dy;
@@ -290,10 +317,10 @@ Rect Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
     std::vector<double> xList = { v1.x(), v2.x(), v3.x() };
     std::vector<double> yList = { v1.y(), v2.y(), v3.y() };
 
-    auto minX = *std::min_element(std::begin(xList), std::end(xList));
-    auto maxX = *std::max_element(std::begin(xList), std::end(xList));
-    auto minY = *std::min_element(std::begin(yList), std::end(yList));
-    auto maxY = *std::max_element(std::begin(yList), std::end(yList));
+    double minX = *std::min_element(std::begin(xList), std::end(xList));
+    double maxX = *std::max_element(std::begin(xList), std::end(xList));
+    double minY = *std::min_element(std::begin(yList), std::end(yList));
+    double maxY = *std::max_element(std::begin(yList), std::end(yList));
 
     Vector2 min(minX, minY);
     Vector2 max(maxX, maxY);
@@ -354,39 +381,36 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 
             // If the z-depth is greater (further back) than what's currently at this pixel, we'll
             // skip it. Also skip if we're outside of the near/far clip.
-            if (z > m_depthBuffer[i] || z < m_camera.getNearClip() || z > m_camera.getFarClip())
+            double currentZ = *getPixel<double>(x, y, RGB);
+            if (z > currentZ || z < m_camera->getNearClip() || z > m_camera->getFarClip())
             {
                 continue;
             }
-            m_depthBuffer[i] = z; // Otherwise we'll set the current pixel Z to this depth
-            
-            // Calculate normal
-            Vector3 viewDirection = -m_camera.getForward();
-            viewDirection.normalize();
+            setPixel(x, y, z, DEPTH); // Otherwise we'll set the current pixel Z to this depth
+            //
+            //// Calculate normal
+            //Vector3 viewDirection = -m_camera->getForward();
+            //viewDirection.normalize();
 
-            double facingRatio = Math::dot(normal, viewDirection);
-            double factor = GAMMA_CORRECT(facingRatio * 255.0);
-            double finalColor = Math::clamp(factor, 0.0, 255.0);
+            //double facingRatio = Math::dot(normal, viewDirection);
+            //double factor = GAMMA_CORRECT(facingRatio * 255.0);
+            //double finalColor = Math::clamp(factor, 0.0, 255.0);
 
-            // Set final color in RGB buffer
-            Color color = Color((int) finalColor, 100, 100.0);
-            setPixel(p, color, RGB);
+            //// Set final color in RGB buffer
+            //Color color = Color((int) finalColor, 100, 100.0);
+            //setPixel<uint32>(x, y, color.hex(), RGB);
         }   
     }
 }
 
 void Framebuffer::render()
 {
-    m_depthBuffer.clear();
-    int depthBufferSize = (int)(m_width * m_height);
-    for (int i = 0; i < depthBufferSize; i++)
-    {
-        m_depthBuffer.push_back(m_camera.getFarClip());
-    }
+    allocate();
+
 
     //Pre-compute the view/projection only once per frame, rather than for every vertex
-    m_view = m_camera.getViewMatrix();                          //View matrix
-    m_proj = m_camera.getProjectionMatrix(m_width, m_height);   // Projection matrix
+    m_view = m_camera->getViewMatrix();                          //View matrix
+    m_proj = m_camera->getProjectionMatrix(m_width, m_height);   // Projection matrix
 
     // Update MVP matrix
     m_model = makeRotationY(modelRotation);
