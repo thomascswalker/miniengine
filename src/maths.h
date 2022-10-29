@@ -40,6 +40,12 @@ namespace Math
     {
         return (((value - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
     }
+
+    template <typename T>
+    T normalizeNew(T* value, const T amin, const T amax, const T bmin, const T bmax)
+    {
+        return (((*value - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
+    }
     double dot(Vector2 v1, Vector2 v2);
     double dot(Vector3 v1, Vector3 v2);
     double area(Vector2 v1, Vector2 v2, Vector3 v3);

@@ -14,8 +14,8 @@ static std::string MODEL_FILENAME = "../models/pumpkin.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
-static int      initWidth           = 1280;     // Standard HD
-static int      initHeight          = 720;
+static int      initWidth           = 512;     // Standard HD
+static int      initHeight          = 512;
 
 // Display options
 static bool     bDrawFaces          = true;
@@ -247,9 +247,6 @@ int Application::run()
         int width = m_buffer->getWidth();
         int height = m_buffer->getHeight();
 
-        // Clear the framebuffer
-        m_buffer->clear();
-
         // Rotate the model
         ROTATION += CAMERA_SPEED * m_deltaTime;
         m_buffer->modelRotation = ROTATION;
@@ -297,16 +294,18 @@ int Application::run()
         // Draw our scene geometry as triangles
         m_buffer->render();
 
+        // Push our current RGB buffer to the display buffer
+        m_buffer->allocateDisplayPtr();
+
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);
-
         StretchDIBits(
             hdc,
             0, 0,
             width, height,
             0, 0,
             width, height,
-            m_buffer->getMemoryPtr(),
+            m_buffer->getDisplayPtr(),
             m_buffer->getBitmapInfo(),
             DIB_RGB_COLORS,
             SRCCOPY

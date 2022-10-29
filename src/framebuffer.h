@@ -17,11 +17,124 @@
 
 MINI_USING_DIRECTIVE
 
-enum Buffer
+#define CHANNEL_PIXEL_SIZE sizeof(double)
+#define CHANNEL_R 0
+#define CHANNEL_G 1
+#define CHANNEL_B 2
+#define CHANNEL_Z 3
+
+enum BufferType
 {
     RGB,
     DEPTH,
     NORMAL
+};
+
+/*
+Channels are comprised of an array of doubles.
+*/
+class Channel
+{
+ public:
+    Channel(const char* name, int width, int height)
+        : m_name(name),
+          m_width(width),
+          m_height(height)
+    {
+        allocate();
+        clear();
+    };
+    ~Channel() {};
+
+    void allocate()
+    {
+        // Clear the color buffer
+        if (m_memoryBuffer)
+        {
+            VirtualFree(m_memoryBuffer, 0, MEM_RELEASE);
+            m_memoryBuffer = nullptr;
+        }
+
+        // Calculate the new buffer size and allocate memory of that size
+        m_bufferSize = m_width * m_height * sizeof(double);
+
+        // Allocate the memory buffer
+        m_memoryBuffer = VirtualAlloc(0, m_bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    };
+
+    /*
+    Set all pixel values to 0.
+    */
+    void clear()
+    {
+        fill(0.0);
+    };
+
+    void fill(double value)
+    {
+        for (int x = 0; x < m_width; x++)
+        {
+            for (int y = 0; y < m_height; y++)
+            {
+                setPixel(x, y, value);
+            }
+        }
+    };
+
+    int size()
+    {
+        return m_width * m_height * sizeof(double);
+    }
+
+    void setSize(int width, int height)
+    {
+        m_width = width;
+        m_height = height;
+        allocate();
+        clear();
+    }
+
+    int getMemoryOffset(int x, int y)
+    {
+        return ((y * m_width) + x) * 8;
+    }
+
+    double getPixel(int x, int y)
+    {
+        int offset = getMemoryOffset(x, y);
+        double* buffer = (double*) m_memoryBuffer;
+        buffer += offset;
+        return *buffer;
+    }
+
+    std::vector<double> getPixels()
+    {
+        auto buffer = (double*) m_memoryBuffer;
+        std::vector<double> pixels;
+        for (int i = 0; i < size(); i++)
+        {
+            auto value = *buffer;
+            pixels.push_back(value);
+            buffer++;
+        }
+        return pixels;
+    }
+
+    void setPixel(int x, int y, double value)
+    {
+        int offset = getMemoryOffset(x, y);
+        double* memoryPtr = (double*) m_memoryBuffer;
+        *memoryPtr = value;
+    }
+
+private:
+    const char* m_name = "";
+    void* m_memoryBuffer = nullptr;
+    int m_bufferSize = 0;
+    int m_width = 0;
+    int m_height = 0;
+
+    std::vector<double> m_pixels;
 };
 
 class Framebuffer
@@ -41,11 +154,16 @@ public:
     // Camera
     Camera* camera() { return &m_camera; }
 
+
+
     // Pixel buffer
     HWND getHwnd() { return m_hwnd; }
-    void clear();
-    void allocate();
     BITMAPINFO* getBitmapInfo() { return &m_bufferBmi; }
+
+    void allocateDisplayPtr();
+    void* getDisplayPtr() { return m_displayBuffer; }
+
+
     void* getMemoryPtr() { return (unsigned int*)m_memoryBuffer; }
     int getBufferSize() { return m_width * m_height * sizeof(unsigned int); }
 
@@ -64,8 +182,8 @@ public:
     double getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p);
 
     // Drawing
-    void setPixel(int x, int y, Color color, Buffer buffer = Buffer::RGB);
-    void setPixel(Vector2& v, Color color, Buffer buffer = Buffer::RGB);
+    void setPixel(int x, int y, Color color, BufferType buffer = BufferType::RGB);
+    void setPixel(Vector2& v, Color color, BufferType buffer = BufferType::RGB);
     void drawRect(int x0, int y0, int x1, int y1, Color color);
     void drawCircle(int cx, int cy, int r, Color color);
     void drawCircle(Vector2& v, int r, Color color);
@@ -93,23 +211,20 @@ private:
     int m_width = 640;
     int m_height = 480;
 
+    // Channels
+    std::vector<Channel> m_channels;
+
     // Pixel memory
     SIZE_T m_bufferSize;
+    void* m_displayBuffer;
     void* m_memoryBuffer;
-    //void* m_depthBuffer;
     BITMAPINFO m_bufferBmi; 
     const int m_bytesPerPixel = 4;
-    int m_rowLength = 0;
 
     // Vertex memory
     std::vector<Vertex> m_vertices;
     std::vector<int> m_indices;
     std::vector<Triangle> m_triangles;
-
-    int m_stride    = 12; // Should be 32 with X, Y, Z, R, G, B, U, V
-    int m_posOffset = 0;
-    int m_colOffset = 12;
-    int m_texOffset = 24;
 
     std::vector<Vector2> m_screenVertices;
     std::vector<double> m_depthBuffer;
