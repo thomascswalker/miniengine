@@ -223,6 +223,7 @@ void Framebuffer::render()
     for (int i = 0; i < m_channels.size(); i++)
     {
         Channel* c = &m_channels[i];
+        c->allocate();
         c->clear();
     }
 
@@ -270,27 +271,27 @@ void Framebuffer::allocateDisplayPtr()
     m_bufferBmi.bmiHeader.biHeight = -m_height; // When height is negative, it will invert the bitmap vertically.
 
     // Get the R, G, and B channels' pixel contents
-    //std::vector<double> rPixels = m_channels[CHANNEL_R].getPixels();
-    //std::vector<double> gPixels = m_channels[CHANNEL_G].getPixels();
-    //std::vector<double> bPixels = m_channels[CHANNEL_B].getPixels();
-
     Channel* rChannel = &m_channels[CHANNEL_R];
+    Channel* gChannel = &m_channels[CHANNEL_G];
+    Channel* bChannel = &m_channels[CHANNEL_B];
 
     unsigned int* pixelPtr = (unsigned int*) m_displayBuffer;
-    for (int x = 0; x < m_width; x++)
+    for (int y = 0; y < m_height; y++)
     {
-        for (int y = 0; y < m_height; y++)
+        for (int x = 0; x < m_width; x++)
         {
             double r = rChannel->getPixel(x, y);
+            double g = gChannel->getPixel(x, y);
+            double b = bChannel->getPixel(x, y);
             //double r = rPixels[i];
             //double g = rPixels[i];
             //double b = rPixels[i];
 
-            //auto rn = Math::normalizeNew(&r, 0.0, 1.0, 0.0, 255.0);
-            //auto gn = Math::normalizeNew(&g, 0.0, 1.0, 0.0, 255.0);
-            //auto bn = Math::normalizeNew(&b, 0.0, 1.0, 0.0, 255.0);
+            auto rn = Math::normalizeNew(&r, 0.0, 1.0, 0.0, 255.0);
+            auto gn = Math::normalizeNew(&g, 0.0, 1.0, 0.0, 255.0);
+            auto bn = Math::normalizeNew(&b, 0.0, 1.0, 0.0, 255.0);
         
-            Color color(68, 68, 68);
+            Color color(rn, gn, bn);
             (*pixelPtr++) = color.hex();
         }
     }

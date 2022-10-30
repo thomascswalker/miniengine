@@ -56,7 +56,7 @@ class Channel
         }
 
         // Calculate the new buffer size and allocate memory of that size
-        m_bufferSize = m_width * m_height * sizeof(double);
+        m_bufferSize = m_width * m_height * 8;
 
         // Allocate the memory buffer
         m_memoryBuffer = VirtualAlloc(0, m_bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
@@ -96,7 +96,7 @@ class Channel
 
     int getMemoryOffset(int x, int y)
     {
-        return ((y * m_width) + x) * 8;
+        return x + (y * m_width);
     }
 
     double getPixel(int x, int y)
@@ -122,14 +122,15 @@ class Channel
 
     void setPixel(int x, int y, double value)
     {
-        int offset = getMemoryOffset(x, y);
-        double* memoryPtr = (double*) m_memoryBuffer;
-        *memoryPtr = value;
+        uint32 offset = getMemoryOffset(x, y);
+        double* buffer = (double*) m_memoryBuffer;
+        buffer += offset;
+        *buffer = value;
     }
 
 private:
     const char* m_name = "";
-    void* m_memoryBuffer = nullptr;
+    void* m_memoryBuffer;
     int m_bufferSize = 0;
     int m_width = 0;
     int m_height = 0;
@@ -182,12 +183,6 @@ public:
     double getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p);
 
     // Drawing
-    void setPixel(int x, int y, Color color, BufferType buffer = BufferType::RGB);
-    void setPixel(Vector2& v, Color color, BufferType buffer = BufferType::RGB);
-    void drawRect(int x0, int y0, int x1, int y1, Color color);
-    void drawCircle(int cx, int cy, int r, Color color);
-    void drawCircle(Vector2& v, int r, Color color);
-    void drawLine(Vector2& v1, Vector2& v2, Color color);
     void drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3);
     Rect getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3);
     void render();
@@ -208,8 +203,8 @@ private:
     // Window handle
     const HWND m_hwnd = HWND();
 
-    int m_width = 640;
-    int m_height = 480;
+    int m_width = 512;
+    int m_height = 512;
 
     // Channels
     std::vector<Channel> m_channels;
