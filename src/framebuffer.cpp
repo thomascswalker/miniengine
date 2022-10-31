@@ -10,65 +10,40 @@ Framebuffer::Framebuffer(HWND hwnd)
     m_bufferBmi.bmiHeader.biBitCount = 32;
     m_bufferBmi.bmiHeader.biCompression = BI_RGB;
 
-    // Do an initial allocation of the framebuffer
-    allocate();
+    Channel rChannel = Channel("R", m_width, m_height);
+    Channel gChannel = Channel("G", m_width, m_height);
+    Channel bChannel = Channel("B", m_width, m_height);
+    Channel zChannel = Channel("Z", m_width, m_height);
+    m_channels.push_back(rChannel);
+    m_channels.push_back(gChannel);
+    m_channels.push_back(bChannel);
+    m_channels.push_back(zChannel);
 
     // Create a new default camera
     m_camera = Camera();
-    auto t = m_camera.getTransform();
-    t.setTranslation(Vector3(0, 0, -5));
-    m_camera.setTransform(t);
 }
 
 Framebuffer::~Framebuffer()
 {
-    clear();
-}
-
-void Framebuffer::allocate()
-{
-    // Clear the color buffer
-    if (m_memoryBuffer)
-    {
-        VirtualFree(m_memoryBuffer, 0, MEM_RELEASE);
-        m_memoryBuffer = nullptr;
-    }
-
-    // Calculate the new buffer size and allocate memory of that size
-    int bufferSize = m_width * m_height * m_bytesPerPixel;
-
-    // Allocate the memory buffer
-    m_memoryBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-
-    // Update the buffer BitmapInfo struct with the updated buffer size,
-    // and width and height
-    m_bufferBmi.bmiHeader.biSize = sizeof(m_bufferBmi.bmiHeader);
-    m_bufferBmi.bmiHeader.biWidth = m_width;
-    m_bufferBmi.bmiHeader.biHeight = -m_height; // When height is negative, it will invert the bitmap vertically.
-
-    // Set the row length to the current window width * bytes per pixel (4)
-    m_rowLength = m_width * m_bytesPerPixel;
-}
-
-void Framebuffer::clear()
-{
-    drawRect(0, 0,              // Origin
-             m_width, m_height, // Width, height
-             Color::black());   // Color
-}
-
-void Framebuffer::setSize(Size size)
-{
-    m_width = (int) size.width();
-    m_height = (int) size.height();
-    allocate();
+    //clear()/*;*/
 }
 
 void Framebuffer::setSize(int width, int height)
 {
     m_width = width;
     m_height = height;
-    allocate();
+
+    for (Channel channel : m_channels)
+    {
+        channel.setSize(width, height);
+        channel.allocate();
+        channel.clear();
+    }
+}
+
+void Framebuffer::setSize(Size size)
+{
+    setSize(size.width(), size.height());
 }
 
 void Framebuffer::bindVertexBuffer(std::vector<Vertex> data)
@@ -115,139 +90,6 @@ bool Framebuffer::isRectInFrame(Rect& r) const
            r.getMin().y() < m_height - 1.0  ||
            r.getMax().y() > 0.0;
 };
-
-void Framebuffer::setPixel(int x, int y, Color color, Buffer buffer)
-{
-    if (x < 0 || y < 0 || x > m_width || y > m_height)
-    {
-        return;
-    }
-    uint32* pixelPtr = 0;
-
-    switch (buffer)
-    {
-        default:
-        case RGB:
-        {
-            pixelPtr = (uint32*)m_memoryBuffer;
-            break;
-        }
-    }
-
-    Math::clamp(x, 0, m_width);
-    Math::clamp(y, 0, m_height);
-    uint32 offset = x + (y * m_width);
-    pixelPtr += offset;
-    *pixelPtr = color.hex();
-}
-
-void Framebuffer::setPixel(Vector2& v, Color color, Buffer buffer)
-{
-    int x = (int)v.x();
-    int y = (int)v.y();
-    setPixel(x, y, color, buffer);
-}
-
-void Framebuffer::drawRect(int x0, int y0, int x1, int y1, Color color)
-{
-    x0 = Math::clamp(x0, 0, m_width);
-    x1 = Math::clamp(x1, 0, m_width);
-    
-    y0 = Math::clamp(y0, 0, m_height);
-    y1 = Math::clamp(y1, 0, m_height);
-
-    // For each pixel...
-    for (int y = y0; y < y1; y++)
-    {
-        for (int x = x0; x < x1; x++)
-        {
-            // Set the color at this position in memory
-            Vector2 point(x, y);
-            setPixel(point, color);
-        }
-    }
-}
-
-void Framebuffer::drawCircle(int cx, int cy, int r, Color color)
-{
-    // Top left
-    int x0 = cx - r;
-    int y0 = cy - r;
-
-    // Bottom right
-    int x1 = cx + r;
-    int y1 = cy + r;
-
-    // Clamp based on buffer width/height
-    x0 = Math::clamp(x0, 0, m_width);
-    y0 = Math::clamp(y0, 0, m_height);
-
-    x1 = Math::clamp(x1, 0, m_width);
-    y1 = Math::clamp(y1, 0, m_height);
-
-    auto rsqr = pow(r, 2);
-
-    for (int y = y0; y < y1; y++)
-    {
-        for (int x = x0; x < x1; x++)
-        {
-            auto dx = x - cx;
-            auto dy = y - cy;
-            if (pow(dx, 2) + pow(dy, 2) <= rsqr)
-            {
-                Vector2 point(x, y);
-                setPixel(point, color);
-            }
-        }
-    }
-}
-
-void Framebuffer::drawCircle(Vector2& v, int r, Color color)
-{
-    int x = (int)v.x();
-    int y = (int)v.y();
-    drawCircle(x, y, r, color);
-}
-
-/*
-https://en.wikipedia.org/wiki/Line_drawing_algorithm
-*/
-void Framebuffer::drawLine(Vector2& v1, Vector2& v2, Color color)
-{
-    std::vector<double> xList = { v1.x(), v2.x() };
-    std::vector<double> yList = { v1.y(), v2.y() };
-
-    auto minX = *std::min_element(std::begin(xList), std::end(xList));
-    auto maxX = *std::max_element(std::begin(xList), std::end(xList));
-    auto minY = *std::min_element(std::begin(yList), std::end(yList));
-    auto maxY = *std::max_element(std::begin(yList), std::end(yList));
-
-    double step;
-
-    double dx = maxX - minX;
-    double dy = maxY - minY;
-
-    auto adx = abs(dx);
-    auto ady = abs(dy);
-    step = (adx >= ady) ? adx : ady;
-
-    dx = dx / step;
-    dy = dy / step;
-
-    double x = minX;
-    double y = minY;
-    int i = 1;
-
-    while (i <= step)
-    {
-        Vector2 point(x, y);
-        setPixel(point, color);
-
-        x += dx;
-        y += dy;
-        i++;
-    }
-}
 
 Vector3 Framebuffer::worldToScreen(Vector3& v)
 {
@@ -310,6 +152,9 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     Vector3 normal = Triangle::getNormal(wv1, wv2, wv3);
     normal.normalize();
 
+    Vector3 viewDirection = -m_camera.getForward();
+    viewDirection.normalize();
+
     // Convert world-space to screenspace
     worldToScreen(v1);
     worldToScreen(v2);
@@ -324,10 +169,15 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
         return;
     }
 
+    Channel* rChannel = &m_channels[CHANNEL_R];
+    Channel* gChannel = &m_channels[CHANNEL_G];
+    Channel* bChannel = &m_channels[CHANNEL_B];
+    Channel* zChannel = &m_channels[CHANNEL_Z];
+
     // Draw each pixel within the bounding box
-    for (double x = bounds.getMin().x(); x < bounds.getMax().x(); x++)
+    for (double y = bounds.getMin().y(); y < bounds.getMax().y(); y++)
     {
-        for (double y = bounds.getMin().y(); y < bounds.getMax().y(); y++)
+        for (double x = bounds.getMin().x(); x < bounds.getMax().x(); x++)
         {
             // Current pixel index
             int i = ((int) y * (int) m_width) + (int) x;
@@ -354,35 +204,34 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 
             // If the z-depth is greater (further back) than what's currently at this pixel, we'll
             // skip it. Also skip if we're outside of the near/far clip.
-            if (z > m_depthBuffer[i] || z < m_camera.getNearClip() || z > m_camera.getFarClip())
+            double currentZ = m_channels[CHANNEL_Z].getPixel(x, y);
+            if (z > currentZ || z < m_camera.getNearClip() || z > m_camera.getFarClip())
             {
                 continue;
             }
-            m_depthBuffer[i] = z; // Otherwise we'll set the current pixel Z to this depth
+            zChannel->setPixel(x, y, z); // Otherwise we'll set the current pixel Z to this depth
             
-            // Calculate normal
-            Vector3 viewDirection = -m_camera.getForward();
-            viewDirection.normalize();
-
+            // Calculate facing ratio
             double facingRatio = Math::dot(normal, viewDirection);
-            double factor = GAMMA_CORRECT(facingRatio * 255.0);
-            double finalColor = Math::clamp(factor, 0.0, 255.0);
 
             // Set final color in RGB buffer
-            Color color = Color((int) finalColor, 100, 100.0);
-            setPixel(p, color, RGB);
+            rChannel->setPixel(x, y, facingRatio);
+            gChannel->setPixel(x, y, facingRatio);
+            bChannel->setPixel(x, y, facingRatio);
         }   
     }
 }
 
 void Framebuffer::render()
 {
-    m_depthBuffer.clear();
-    int depthBufferSize = (int)(m_width * m_height);
-    for (int i = 0; i < depthBufferSize; i++)
+    for (int i = 0; i < m_channels.size(); i++)
     {
-        m_depthBuffer.push_back(m_camera.getFarClip());
+        Channel* c = &m_channels[i];
+        c->allocate();
+        c->clear();
     }
+
+    m_channels[CHANNEL_Z].fill(m_camera.getFarClip());
 
     //Pre-compute the view/projection only once per frame, rather than for every vertex
     m_view = m_camera.getViewMatrix();                          //View matrix
@@ -401,7 +250,61 @@ void Framebuffer::render()
         drawTriangle(v1, v2, v3);
     }
 
-    PrintBuffer::debugPrintToScreen("Pixel count: %i", m_depthBuffer.size());
+    PrintBuffer::debugPrintToScreen("Pixel count: %i", m_width * m_height);
+}
+
+void Framebuffer::allocateDisplayPtr()
+{
+    // Clear the color buffer
+    if (m_displayBuffer)
+    {
+        VirtualFree(m_displayBuffer, 0, MEM_RELEASE);
+        m_displayBuffer = nullptr;
+    }
+
+    // Calculate the new buffer size and allocate memory of that size
+    int bufferSize = m_width * m_height * sizeof(unsigned int); // 4 bytes per pixel, display buffer is stored as unsigned int
+
+    // Allocate the memory buffer
+    m_displayBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+    // Update the buffer BitmapInfo struct with the updated buffer size,
+    // and width and height
+    m_bufferBmi.bmiHeader.biSize = sizeof(m_bufferBmi.bmiHeader);
+    m_bufferBmi.bmiHeader.biWidth = m_width;
+    m_bufferBmi.bmiHeader.biHeight = -m_height; // When height is negative, it will invert the bitmap vertically.
+
+    // Get the R, G, and B channels' pixel contents
+    Channel* rChannel = &m_channels[CHANNEL_R];
+    Channel* gChannel = &m_channels[CHANNEL_G];
+    Channel* bChannel = &m_channels[CHANNEL_B];
+
+    uint8* row = (uint8*) m_displayBuffer;
+    int pitch = m_width * sizeof(uint32);
+    for (int y = 0; y < m_height; y++)
+    {
+        uint8* pixel = (uint8*) row;
+        for (int x = 0; x < m_width; x++)
+        {
+            // Get r, g, b
+            double r = rChannel->getPixel(x, y);
+            double g = gChannel->getPixel(x, y);
+            double b = bChannel->getPixel(x, y);
+
+            // Normalize (0 => 255)
+            // Order is inverted; RGB => BBGGRRXX
+            if (pixel != NULL)
+            {
+                *pixel++ = (uint8) Math::normalize(b, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) Math::normalize(g, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) Math::normalize(r, 0.0, 1.0, 0.0, 255.0);
+
+                // A (alpha) is always 0
+                *pixel++ = (uint8) 0;
+            }
+        }
+        row += pitch;
+    }
 }
 
 bool operator == (const Framebuffer& f1, const Framebuffer& f2)

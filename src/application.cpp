@@ -10,12 +10,12 @@ MINI_USING_DIRECTIVE
 #endif
 
 // Global variables
-static std::string MODEL_FILENAME = "../models/pumpkin.obj";
+static std::string MODEL_FILENAME = "../models/cow.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
-static int      initWidth           = 1280;     // Standard HD
-static int      initHeight          = 720;
+static int      initWidth           = 512;     // Standard HD
+static int      initHeight          = 512;
 
 // Display options
 static bool     bDrawFaces          = true;
@@ -223,6 +223,9 @@ int Application::run()
     Mesh mesh;
     MeshLoader::load(filename, mesh);
 
+    // Move the camera to the default position
+    m_buffer->camera()->move(Vector3(0, 0, -5));
+
     // Run the message loop.
     while (!bIsRunning)
     {
@@ -246,9 +249,6 @@ int Application::run()
 
         int width = m_buffer->getWidth();
         int height = m_buffer->getHeight();
-
-        // Clear the framebuffer
-        m_buffer->clear();
 
         // Rotate the model
         ROTATION += CAMERA_SPEED * m_deltaTime;
@@ -297,16 +297,18 @@ int Application::run()
         // Draw our scene geometry as triangles
         m_buffer->render();
 
+        // Push our current RGB buffer to the display buffer
+        m_buffer->allocateDisplayPtr();
+
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);
-
         StretchDIBits(
             hdc,
             0, 0,
             width, height,
             0, 0,
             width, height,
-            m_buffer->getMemoryPtr(),
+            m_buffer->getDisplayPtr(),
             m_buffer->getBitmapInfo(),
             DIB_RGB_COLORS,
             SRCCOPY
