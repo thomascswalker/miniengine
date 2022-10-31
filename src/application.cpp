@@ -10,7 +10,7 @@ MINI_USING_DIRECTIVE
 #endif
 
 // Global variables
-static std::string MODEL_FILENAME = "../models/cow.obj";
+static std::string MODEL_FILENAME = "../models/teapot.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;

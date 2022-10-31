@@ -5,12 +5,7 @@ Vector3 Triangle::getNormal(Vector3& v1, Vector3& v2, Vector3& v3)
 {
     Vector3 u = v2 - v1;
     Vector3 v = v3 - v1;
-
-    Vector3 n;
-    n.setX(u.y() * v.z() - u.z() * v.y());
-    n.setY(u.z() * v.x() - u.x() * v.z());
-    n.setZ(u.x() * v.y() - u.y() * v.x());
-    return n;
+    return cross(u, v);
 }
 
 Vector3 Triangle::getBarycentricCoords(Vector2& v1, Vector2& v2, Vector2& v3, Vector2& p)

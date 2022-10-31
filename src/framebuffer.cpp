@@ -146,14 +146,40 @@ Rect Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
 // https://www.scratchapixel.com/code.php?id=26&origin=/lessons/3d-basic-rendering/rasterization-practical-implementation
 void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 {
-    auto wv1 = m_model * v1;
-    auto wv2 = m_model * v2;
-    auto wv3 = m_model * v3;
+    // Calculate normal
+    Vector3 wv1 = m_model * v1;
+    Vector3 wv2 = m_model * v2;
+    Vector3 wv3 = m_model * v3;
     Vector3 normal = Triangle::getNormal(wv1, wv2, wv3);
     normal.normalize();
 
-    Vector3 viewDirection = -m_camera.getForward();
-    viewDirection.normalize();
+    // Calculate view direction
+    Vector3 forward = -m_camera.getForward();
+    forward.normalize();
+
+    Vector3 up = Vector3::up();
+    up.normalize();
+
+    Vector3 right = -Vector3::right();
+    right.normalize();
+
+    // Calculate facing ratio
+    double facingRatio = Math::dot(normal, forward);
+    double upRatio = Math::dot(normal, up);
+    double rightRatio = Math::dot(normal, right);
+
+    if (facingRatio < 0.0)
+    {
+        facingRatio = 0.0;
+    }
+    if (upRatio < 0.0)
+    {
+        upRatio = 0.0;
+    }
+    if (rightRatio < 0.0)
+    {
+        rightRatio = 0.0;
+    }
 
     // Convert world-space to screenspace
     worldToScreen(v1);
@@ -211,13 +237,10 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             }
             zChannel->setPixel(x, y, z); // Otherwise we'll set the current pixel Z to this depth
             
-            // Calculate facing ratio
-            double facingRatio = Math::dot(normal, viewDirection);
-
             // Set final color in RGB buffer
-            rChannel->setPixel(x, y, facingRatio);
-            gChannel->setPixel(x, y, facingRatio);
-            bChannel->setPixel(x, y, facingRatio);
+            rChannel->setPixel(x, y, abs(rightRatio));
+            gChannel->setPixel(x, y, abs(upRatio));
+            bChannel->setPixel(x, y, 0.5); // abs(facingRatio)
         }   
     }
 }
