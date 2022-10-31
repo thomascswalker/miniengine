@@ -10,7 +10,7 @@ MINI_USING_DIRECTIVE
 #endif
 
 // Global variables
-static std::string MODEL_FILENAME = "../models/pumpkin.obj";
+static std::string MODEL_FILENAME = "../models/cow.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
@@ -222,6 +222,9 @@ int Application::run()
     std::string filename = MODEL_FILENAME;
     Mesh mesh;
     MeshLoader::load(filename, mesh);
+
+    // Move the camera to the default position
+    m_buffer->camera()->move(Vector3(0, 0, -5));
 
     // Run the message loop.
     while (!bIsRunning)

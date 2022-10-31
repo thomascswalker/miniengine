@@ -10,16 +10,17 @@ Framebuffer::Framebuffer(HWND hwnd)
     m_bufferBmi.bmiHeader.biBitCount = 32;
     m_bufferBmi.bmiHeader.biCompression = BI_RGB;
 
-    m_channels.push_back(Channel("R", m_width, m_height));
-    m_channels.push_back(Channel("G", m_width, m_height));
-    m_channels.push_back(Channel("B", m_width, m_height));
-    m_channels.push_back(Channel("Z", m_width, m_height));
+    Channel rChannel = Channel("R", m_width, m_height);
+    Channel gChannel = Channel("G", m_width, m_height);
+    Channel bChannel = Channel("B", m_width, m_height);
+    Channel zChannel = Channel("Z", m_width, m_height);
+    m_channels.push_back(rChannel);
+    m_channels.push_back(gChannel);
+    m_channels.push_back(bChannel);
+    m_channels.push_back(zChannel);
 
     // Create a new default camera
     m_camera = Camera();
-    auto t = m_camera.getTransform();
-    t.setTranslation(Vector3(0, 0, -5));
-    m_camera.setTransform(t);
 }
 
 Framebuffer::~Framebuffer()
@@ -151,6 +152,9 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     Vector3 normal = Triangle::getNormal(wv1, wv2, wv3);
     normal.normalize();
 
+    Vector3 viewDirection = -m_camera.getForward();
+    viewDirection.normalize();
+
     // Convert world-space to screenspace
     worldToScreen(v1);
     worldToScreen(v2);
@@ -165,10 +169,15 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
         return;
     }
 
+    Channel* rChannel = &m_channels[CHANNEL_R];
+    Channel* gChannel = &m_channels[CHANNEL_G];
+    Channel* bChannel = &m_channels[CHANNEL_B];
+    Channel* zChannel = &m_channels[CHANNEL_Z];
+
     // Draw each pixel within the bounding box
-    for (double x = bounds.getMin().x(); x < bounds.getMax().x(); x++)
+    for (double y = bounds.getMin().y(); y < bounds.getMax().y(); y++)
     {
-        for (double y = bounds.getMin().y(); y < bounds.getMax().y(); y++)
+        for (double x = bounds.getMin().x(); x < bounds.getMax().x(); x++)
         {
             // Current pixel index
             int i = ((int) y * (int) m_width) + (int) x;
@@ -200,20 +209,15 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             {
                 continue;
             }
-             m_channels[CHANNEL_Z].setPixel(x, y, z); // Otherwise we'll set the current pixel Z to this depth
+            zChannel->setPixel(x, y, z); // Otherwise we'll set the current pixel Z to this depth
             
-            // Calculate normal
-            Vector3 viewDirection = -m_camera.getForward();
-            viewDirection.normalize();
-
+            // Calculate facing ratio
             double facingRatio = Math::dot(normal, viewDirection);
-            double factor = GAMMA_CORRECT(facingRatio * 255.0);
-            double finalColor = Math::clamp(factor, 0.0, 255.0);
 
             // Set final color in RGB buffer
-            m_channels[CHANNEL_R].setPixel(x, y, 100.0);
-            m_channels[CHANNEL_G].setPixel(x, y, 100.0);
-            m_channels[CHANNEL_B].setPixel(x, y, 100.0);
+            rChannel->setPixel(x, y, facingRatio);
+            gChannel->setPixel(x, y, facingRatio);
+            bChannel->setPixel(x, y, facingRatio);
         }   
     }
 }
@@ -259,7 +263,7 @@ void Framebuffer::allocateDisplayPtr()
     }
 
     // Calculate the new buffer size and allocate memory of that size
-    int bufferSize = m_width * m_height * 4; // 4 bytes per pixel
+    int bufferSize = m_width * m_height * sizeof(unsigned int); // 4 bytes per pixel, display buffer is stored as unsigned int
 
     // Allocate the memory buffer
     m_displayBuffer = VirtualAlloc(0, bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
@@ -275,25 +279,31 @@ void Framebuffer::allocateDisplayPtr()
     Channel* gChannel = &m_channels[CHANNEL_G];
     Channel* bChannel = &m_channels[CHANNEL_B];
 
-    unsigned int* pixelPtr = (unsigned int*) m_displayBuffer;
+    uint8* row = (uint8*) m_displayBuffer;
+    int pitch = m_width * sizeof(uint32);
     for (int y = 0; y < m_height; y++)
     {
+        uint8* pixel = (uint8*) row;
         for (int x = 0; x < m_width; x++)
         {
+            // Get r, g, b
             double r = rChannel->getPixel(x, y);
             double g = gChannel->getPixel(x, y);
             double b = bChannel->getPixel(x, y);
-            //double r = rPixels[i];
-            //double g = rPixels[i];
-            //double b = rPixels[i];
 
-            auto rn = Math::normalizeNew(&r, 0.0, 1.0, 0.0, 255.0);
-            auto gn = Math::normalizeNew(&g, 0.0, 1.0, 0.0, 255.0);
-            auto bn = Math::normalizeNew(&b, 0.0, 1.0, 0.0, 255.0);
-        
-            Color color(rn, gn, bn);
-            (*pixelPtr++) = color.hex();
+            // Normalize (0 => 255)
+            // Order is inverted; RGB => BBGGRRXX
+            if (pixel != NULL)
+            {
+                *pixel++ = (uint8) Math::normalize(b, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) Math::normalize(g, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) Math::normalize(r, 0.0, 1.0, 0.0, 255.0);
+
+                // A (alpha) is always 0
+                *pixel++ = (uint8) 0;
+            }
         }
+        row += pitch;
     }
 }
 

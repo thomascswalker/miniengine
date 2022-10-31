@@ -56,7 +56,9 @@ class Channel
         }
 
         // Calculate the new buffer size and allocate memory of that size
-        m_bufferSize = m_width * m_height * 8;
+        // Each raw channel is stored as double to maximize floating point precision without
+        // getting too huge
+        m_bufferSize = m_width * m_height * sizeof(double);
 
         // Allocate the memory buffer
         m_memoryBuffer = VirtualAlloc(0, m_bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
@@ -107,19 +109,6 @@ class Channel
         return *buffer;
     }
 
-    std::vector<double> getPixels()
-    {
-        auto buffer = (double*) m_memoryBuffer;
-        std::vector<double> pixels;
-        for (int i = 0; i < size(); i++)
-        {
-            auto value = *buffer;
-            pixels.push_back(value);
-            buffer++;
-        }
-        return pixels;
-    }
-
     void setPixel(int x, int y, double value)
     {
         uint32 offset = getMemoryOffset(x, y);
@@ -130,7 +119,7 @@ class Channel
 
 private:
     const char* m_name = "";
-    void* m_memoryBuffer;
+    void* m_memoryBuffer = nullptr;
     int m_bufferSize = 0;
     int m_width = 0;
     int m_height = 0;
@@ -155,17 +144,12 @@ public:
     // Camera
     Camera* camera() { return &m_camera; }
 
-
-
     // Pixel buffer
     HWND getHwnd() { return m_hwnd; }
     BITMAPINFO* getBitmapInfo() { return &m_bufferBmi; }
 
     void allocateDisplayPtr();
     void* getDisplayPtr() { return m_displayBuffer; }
-
-
-    void* getMemoryPtr() { return (unsigned int*)m_memoryBuffer; }
     int getBufferSize() { return m_width * m_height * sizeof(unsigned int); }
 
     // Vertex, index, triangle buffer
@@ -210,9 +194,8 @@ private:
     std::vector<Channel> m_channels;
 
     // Pixel memory
-    SIZE_T m_bufferSize;
-    void* m_displayBuffer;
-    void* m_memoryBuffer;
+    SIZE_T m_bufferSize = 0;
+    void* m_displayBuffer = nullptr;
     BITMAPINFO m_bufferBmi; 
     const int m_bytesPerPixel = 4;
 
