@@ -1,6 +1,7 @@
 #include "core.h"
 
 MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
 
 int getRefreshRate()
 {

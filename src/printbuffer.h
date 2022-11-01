@@ -6,6 +6,10 @@
 #include <vector>
 #include <wtypes.h>
 #include <format>
+#include "api.h"
+
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
 
 class PrintBuffer
 {
@@ -31,5 +35,7 @@ public:
 
     static void clear() { getInstance()->m_entries.clear(); }
 };
+
+MINI_NAMESPACE_CLOSE
 
 #endif

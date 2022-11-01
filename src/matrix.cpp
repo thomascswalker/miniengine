@@ -1,5 +1,8 @@
 #include "matrix.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 Matrix4& Matrix4::set(double m00, double m01, double m02, double m03,
                       double m10, double m11, double m12, double m13,
                       double m20, double m21, double m22, double m23,
@@ -271,7 +274,7 @@ Rotation& Matrix4::getRotation() const
 	    real         = (m_mtx[j][k] - m_mtx[k][j]) / (4 * q);
     }
 
-    Quaternion quat(Math::clamp(real, -1.0, 1.0), imaginary);
+    Quaternion quat(clamp(real, -1.0, 1.0), imaginary);
     auto q = Rotation(quat);
     return q;
 }
@@ -480,10 +483,10 @@ Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up)
     Vector3 newUp = cross(right, forward);
 
     Matrix4 view;
-    view.set( right.x(),              forward.x(),            newUp.x(),                0,
-              right.y(),              forward.y(),            newUp.y(),                0,
-              right.z(),              forward.z(),            newUp.z(),                0,
-              -Math::dot(right, eye), -Math::dot(newUp, eye), -Math::dot(forward, eye), 1.0);
+    view.set( right.x(),        forward.x(),      newUp.x(),          0,
+              right.y(),        forward.y(),      newUp.y(),          0,
+              right.z(),        forward.z(),      newUp.z(),          0,
+              -dot(right, eye), -dot(newUp, eye), -dot(forward, eye), 1.0);
 
     return view;
 }
@@ -579,3 +582,5 @@ Matrix4 makeScale(const Vector3& scale)
           0.0,       0.0,       0.0,       1.0);
     return s;
 }
+
+MINI_NAMESPACE_CLOSE

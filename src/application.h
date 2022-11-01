@@ -5,12 +5,11 @@
 #include <windowsx.h>
 #include <string>
 
-#include "api.h"
 #include "framebuffer.h"
 #include "meshloader.h"
-#include "printbuffer.h"
 
 MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
 
 class Application
 {

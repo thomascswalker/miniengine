@@ -1,6 +1,11 @@
 #ifndef PIXEL_H
 #define PIXEL_H
 
+#include "api.h"
+
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 class Pixel
 {
 public:
@@ -17,5 +22,7 @@ private:
     int _g;
     int _b;
 };
+
+MINI_NAMESPACE_CLOSE
 
 #endif

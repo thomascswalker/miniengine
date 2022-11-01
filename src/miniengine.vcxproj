@@ -160,7 +160,6 @@
     <ClCompile Include="core.cpp" />
     <ClCompile Include="framebuffer.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="maths.cpp" />
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="meshloader.cpp" />

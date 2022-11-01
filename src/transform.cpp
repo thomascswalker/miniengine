@@ -1,5 +1,8 @@
 #include "transform.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 Transform& Transform::identity()
 {
     m_translation.set(0.0, 0.0, 0.0);
@@ -49,3 +52,5 @@ const Vector3& Transform::getUp()
 {
     return Vector3(0.0, 1.0, 0.0);
 }
+
+MINI_NAMESPACE_CLOSE

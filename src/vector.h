@@ -6,6 +6,11 @@
 #include <format>
 #include <cmath>
 
+#include "api.h"
+
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 class Vector2
 {
 protected:
@@ -282,5 +287,7 @@ public:
 
 double cross(const Vector2& v1, const Vector2& v2);
 Vector3 cross(const Vector3& v1, const Vector3& v2);
+
+MINI_NAMESPACE_CLOSE
 
 #endif

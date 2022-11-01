@@ -1,5 +1,8 @@
 #include "meshloader.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 std::istream&
 readLine(std::istream& stream, std::string& line)
 {
@@ -215,3 +218,5 @@ MeshLoader::load(std::string filename, Mesh& mesh)
 	mesh.setIndices(indices);
 	mesh.bindTris();
 }
+
+MINI_NAMESPACE_CLOSE

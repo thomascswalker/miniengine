@@ -1,5 +1,8 @@
 #include "triangle.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 // https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal#:~:text=A%20surface%20normal%20for%20a,of%20the%20face%20w.r.t.%20winding).
 Vector3 Triangle::getNormal(Vector3& v1, Vector3& v2, Vector3& v3)
 {
@@ -14,11 +17,11 @@ Vector3 Triangle::getBarycentricCoords(Vector2& v1, Vector2& v2, Vector2& v3, Ve
     Vector2 v31 = v3 - v1;
     Vector2 vp1 = p - v1;
 
-    double d00 = Math::dot(v21, v21);
-    double d01 = Math::dot(v21, v31);
-    double d11 = Math::dot(v31, v31);
-    double d20 = Math::dot(vp1, v21);
-    double d21 = Math::dot(vp1, v31);
+    double d00 = dot(v21, v21);
+    double d01 = dot(v21, v31);
+    double d11 = dot(v31, v31);
+    double d20 = dot(vp1, v21);
+    double d21 = dot(vp1, v31);
 
     double det = (d00 * d11) - (d01 * d01);
 
@@ -28,3 +31,5 @@ Vector3 Triangle::getBarycentricCoords(Vector2& v1, Vector2& v2, Vector2& v3, Ve
 
     return Vector3(u, v, w);
 }
+
+MINI_NAMESPACE_CLOSE

@@ -4,6 +4,9 @@
 #include "quaternion.h"
 #include "vector.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 class Rotation
 {
 public:
@@ -31,7 +34,7 @@ public:
 		if (len < 1e-10) // Minimum vector length
 		{
 			auto r = q.getReal();
-			double x = acos(Math::clamp(r, -1.0, 1.0));
+			double x = acos(clamp(r, -1.0, 1.0));
 			setAxisAngle(q.getImaginary() / len,
 						 2.0 * RADIANS(x));
 		}
@@ -92,5 +95,7 @@ private:
 	Vector3 m_axis;
 	double m_angle;
 };
+
+MINI_NAMESPACE_CLOSE
 
 #endif

@@ -8,6 +8,9 @@
 #include "maths.h"
 #include "rotation.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 // Class for handling matrix data, particularly to support multiple
 // indexing like `Matrix[0][0]`.
 template <class T, int Rows, int Columns>
@@ -81,10 +84,10 @@ public:
     bool            operator == (const Matrix4& m) const;
     bool            operator != (const Matrix4& m) const;
     Matrix4&        operator *= (double v);
+    Matrix4&        operator *= (const Matrix4& m);
     Matrix4&        operator += (const Matrix4& m);
-
-    Matrix4&        operator *=(const Matrix4& m);
-    friend Matrix4& operator * (const Matrix4& m1, const Matrix4& m2)
+    
+    friend inline Matrix4  operator * (const Matrix4& m1, const Matrix4& m2)
     {
         Matrix4 tmp(m1);
         tmp *= m2;
@@ -145,5 +148,7 @@ Matrix4 makeRotationY(double x);
 Matrix4 makeRotationZ(double x);
 Matrix4 makeRotation(const Rotation& rotation);
 Matrix4 makeScale(const Vector3& scale);
+
+MINI_NAMESPACE_CLOSE
 
 #endif

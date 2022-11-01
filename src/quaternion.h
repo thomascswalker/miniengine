@@ -3,6 +3,9 @@
 
 #include "maths.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 class Quaternion
 {
 public:
@@ -39,7 +42,7 @@ public:
 		const Vector3& i1 = m_imaginary;
 		const Vector3& i2 = q.m_imaginary;
 
-		double r = r1 * r2 - Math::dot(i1, i2);
+		double r = r1 * r2 - dot(i1, i2);
 
 		Vector3 i(r1 * i2[0] + r2 * i1[0] + (i1[1] * i2[2] - i1[2] * i2[1]),
 				  r1 * i2[1] + r2 * i1[1] + (i1[2] * i2[0] - i1[0] * i2[2]),
@@ -79,18 +82,10 @@ private:
 	// Private methods
 	double p_getLengthSquared() const
 	{
-		return (m_real * m_real * Math::dot(m_imaginary, m_imaginary));
+		return (m_real * m_real * dot(m_imaginary, m_imaginary));
 	}
 };
 
+MINI_NAMESPACE_CLOSE
+
 #endif
-
-/*
-	p = vec3(1.00, 0.25, 1.20)	// point we want to rotate
-	a = vec3(45, 90, 30);		// rotation angle
-	a.normalize()				// so a.x + a.y + a.z = 1
-
-	q = (cos(40 / 2) + sin (40 / 2)) * (a.x - a.y - a.z)
-
-	rp = q * p * q^-1
-*/

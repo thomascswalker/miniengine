@@ -6,6 +6,9 @@
 #include "coordinates.h"
 #include "triangle.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 class Mesh
 {
 public:
@@ -17,7 +20,7 @@ public:
 	size_t numVertices();
 
 	std::vector<Vertex> getVertices() { return m_vertices;}
-	std::vector<Vertex> getVertices(Coordinates::CoordSpace space);
+	std::vector<Vertex> getVertices(CoordSpace space);
 	std::vector<int> getIndices() { return m_indices; }
 	std::vector<Triangle> getTris() { return m_triangles; }
 
@@ -31,5 +34,7 @@ private:
 
 	std::vector<Triangle> m_triangles;
 };
+
+MINI_NAMESPACE_CLOSE
 
 #endif
