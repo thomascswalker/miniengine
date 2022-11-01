@@ -14,10 +14,16 @@ Framebuffer::Framebuffer(HWND hwnd)
     Channel gChannel = Channel("G", m_width, m_height);
     Channel bChannel = Channel("B", m_width, m_height);
     Channel zChannel = Channel("Z", m_width, m_height);
+    Channel normalRChannel = Channel("Normal_R", m_width, m_height);
+    Channel normalGChannel = Channel("Normal_G", m_width, m_height);
+    Channel normalBChannel = Channel("Normal_B", m_width, m_height);
     m_channels.push_back(rChannel);
     m_channels.push_back(gChannel);
     m_channels.push_back(bChannel);
     m_channels.push_back(zChannel);
+    m_channels.push_back(normalRChannel);
+    m_channels.push_back(normalGChannel);
+    m_channels.push_back(normalBChannel);
 
     // Create a new default camera
     m_camera = Camera();
@@ -168,18 +174,12 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     double upRatio = Math::dot(normal, up);
     double rightRatio = Math::dot(normal, right);
 
-    if (facingRatio < 0.0)
-    {
-        facingRatio = 0.0;
-    }
-    if (upRatio < 0.0)
-    {
-        upRatio = 0.0;
-    }
-    if (rightRatio < 0.0)
-    {
-        rightRatio = 0.0;
-    }
+    // Normalize facing ratio from -1 => 1 to 0 => 1
+    facingRatio = Math::normalizeNew(&facingRatio, -1.0, 1.0, 0.0, 1.0);
+    upRatio = Math::normalizeNew(&upRatio, -1.0, 1.0, 0.0, 1.0);
+    rightRatio = Math::normalizeNew(&rightRatio, -1.0, 1.0, 0.0, 1.0);
+
+    Vector3 cameraNormal(rightRatio, upRatio, facingRatio);
 
     // Convert world-space to screenspace
     worldToScreen(v1);
@@ -237,10 +237,15 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             }
             zChannel->setPixel(x, y, z); // Otherwise we'll set the current pixel Z to this depth
             
+            // Store normals in channel
+            m_channels[CHANNEL_NORMAL_R].setPixel(x, y, cameraNormal.x());
+            m_channels[CHANNEL_NORMAL_G].setPixel(x, y, cameraNormal.y());
+            m_channels[CHANNEL_NORMAL_B].setPixel(x, y, cameraNormal.z());
+
             // Set final color in RGB buffer
-            rChannel->setPixel(x, y, abs(rightRatio));
-            gChannel->setPixel(x, y, abs(upRatio));
-            bChannel->setPixel(x, y, 0.5); // abs(facingRatio)
+            rChannel->setPixel(x, y, cameraNormal.x());
+            gChannel->setPixel(x, y, cameraNormal.y());
+            bChannel->setPixel(x, y, cameraNormal.z());
         }   
     }
 }
@@ -301,6 +306,10 @@ void Framebuffer::allocateDisplayPtr()
     Channel* rChannel = &m_channels[CHANNEL_R];
     Channel* gChannel = &m_channels[CHANNEL_G];
     Channel* bChannel = &m_channels[CHANNEL_B];
+
+    Channel* nrChannel = &m_channels[CHANNEL_NORMAL_R];
+    Channel* ngChannel = &m_channels[CHANNEL_NORMAL_G];
+    Channel* nbChannel = &m_channels[CHANNEL_NORMAL_B];
 
     uint8* row = (uint8*) m_displayBuffer;
     int pitch = m_width * sizeof(uint32);

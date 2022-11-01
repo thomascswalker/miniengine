@@ -10,7 +10,7 @@ MINI_USING_DIRECTIVE
 #endif
 
 // Global variables
-static std::string MODEL_FILENAME = "../models/teapot.obj";
+static std::string MODEL_FILENAME = "../models/pumpkin.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
@@ -37,7 +37,7 @@ static bool     Q_DOWN              = false;
 static bool     SPACEBAR_DOWN       = false;
 static float    MOUSE_WHEEL_DELTA   = 0.0;
 
-static double   CAMERA_SPEED        = 0.001;
+static double   CAMERA_SPEED        = 0.00025;
 static double   ROTATION            = 0.0;
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

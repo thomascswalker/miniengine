@@ -18,10 +18,14 @@
 MINI_USING_DIRECTIVE
 
 #define CHANNEL_PIXEL_SIZE sizeof(double)
-#define CHANNEL_R 0
-#define CHANNEL_G 1
-#define CHANNEL_B 2
-#define CHANNEL_Z 3
+#define CHANNEL_R           0
+#define CHANNEL_G           1
+#define CHANNEL_B           2
+#define CHANNEL_Z           3
+#define CHANNEL_NORMAL_R    4
+#define CHANNEL_NORMAL_G    4
+#define CHANNEL_NORMAL_B    4
+
 
 enum BufferType
 {
