@@ -67,9 +67,6 @@
     <ClCompile Include="triangle.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
-    <ClCompile Include="maths.cpp">
-      <Filter>Source Files\engine</Filter>
-    </ClCompile>
     <ClCompile Include="printbuffer.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>

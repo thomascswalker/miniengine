@@ -15,8 +15,6 @@
 #include "mesh.h"
 #include "printbuffer.h"
 
-MINI_USING_DIRECTIVE
-
 #define CHANNEL_PIXEL_SIZE sizeof(double)
 #define CHANNEL_R           0
 #define CHANNEL_G           1
@@ -26,6 +24,8 @@ MINI_USING_DIRECTIVE
 #define CHANNEL_NORMAL_G    4
 #define CHANNEL_NORMAL_B    4
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
 
 enum BufferType
 {
@@ -105,17 +105,19 @@ class Channel
         return x + (y * m_width);
     }
 
-    double getPixel(int x, int y)
+    template <typename T>
+    double getPixel(T x, T y)
     {
-        int offset = getMemoryOffset(x, y);
+        int offset = getMemoryOffset((int)x, (int)y);
         double* buffer = (double*) m_memoryBuffer;
         buffer += offset;
         return *buffer;
     }
 
-    void setPixel(int x, int y, double value)
+    template <typename T>
+    void setPixel(T x, T y, double value)
     {
-        uint32 offset = getMemoryOffset(x, y);
+        uint32 offset = getMemoryOffset((int)x, (int)y);
         double* buffer = (double*) m_memoryBuffer;
         buffer += offset;
         *buffer = value;
@@ -142,8 +144,22 @@ public:
     void setWidth(int width) { m_width = width; }
     int getHeight() { return m_height; }
     void setHeight(int height) { m_height = height; }
+
     void setSize(Size size);
-    void setSize(int width, int height);
+
+    template <typename T>
+    inline void setSize(T width, T height)
+    {
+        m_width = (int) width;
+        m_height = (int) height;
+
+        for (Channel channel : m_channels)
+        {
+            channel.setSize((int) width, (int) height);
+            channel.allocate();
+            channel.clear();
+        }
+    }
 
     // Camera
     Camera* camera() { return &m_camera; }
@@ -219,5 +235,7 @@ private:
     Matrix4 m_mvp = Matrix4();
     Matrix4 m_model = Matrix4();
 };
+
+MINI_NAMESPACE_CLOSE
 
 #endif

@@ -11,6 +11,9 @@
 #include "core.h"
 #include "mesh.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 enum FileType
 {
 	OBJ
@@ -22,5 +25,6 @@ public:
 	static void load(std::string filename, Mesh& mesh);
 };
 
+MINI_NAMESPACE_CLOSE
 
 #endif

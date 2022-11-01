@@ -1,5 +1,8 @@
 #include "vector.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 std::string Vector2::toString()
 {
 	return std::format("[{:.2f}, {:.2f}]", _x, _y);;
@@ -116,3 +119,5 @@ Vector3 cross(const Vector3& v1, const Vector3& v2)
 	double z = (v1.x() * v2.y()) - (v1.y() * v2.x());
 	return Vector3(x, y, z);
 }
+
+MINI_NAMESPACE_CLOSE

@@ -2,6 +2,10 @@
 #define COLOR_H
 
 #include <random>
+#include "api.h"
+
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
 
 class Color
 {
@@ -32,5 +36,7 @@ public:
 private:
 	unsigned int m_rgb = 0x000000;
 };
+
+MINI_NAMESPACE_CLOSE
 
 #endif

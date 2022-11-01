@@ -3,8 +3,6 @@
 
 #include "application.h"
 
-MINI_USING_DIRECTIVE
-
 #ifndef MAIN_WINDOW_TIMER_ID
 #define MAIN_WINDOW_TIMER_ID 1001
 #endif
@@ -39,6 +37,9 @@ static float    MOUSE_WHEEL_DELTA   = 0.0;
 
 static double   CAMERA_SPEED        = 0.00025;
 static double   ROTATION            = 0.0;
+
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -356,3 +357,5 @@ void Application::setMousePos(int x, int y)
 }
 
 Application *Application::instance = 0;
+
+MINI_NAMESPACE_CLOSE

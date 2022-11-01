@@ -1,5 +1,8 @@
 #include "mesh.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<int> indices)
     : m_vertices(vertices), m_indices(indices)
 {
@@ -22,7 +25,7 @@ size_t Mesh::numVertices()
     return m_vertices.size();
 }
 
-std::vector<Vertex> Mesh::getVertices(Coordinates::CoordSpace space)
+std::vector<Vertex> Mesh::getVertices(CoordSpace space)
 {
     return m_vertices;
 }
@@ -52,3 +55,5 @@ void Mesh::bindTris()
         addTri(*v1, *v2, *v3);
     }
 }
+
+MINI_NAMESPACE_CLOSE

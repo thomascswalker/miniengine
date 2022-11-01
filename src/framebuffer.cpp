@@ -1,5 +1,6 @@
 #include "framebuffer.h"
 
+MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
 
 Framebuffer::Framebuffer(HWND hwnd)
@@ -32,19 +33,6 @@ Framebuffer::Framebuffer(HWND hwnd)
 Framebuffer::~Framebuffer()
 {
     //clear()/*;*/
-}
-
-void Framebuffer::setSize(int width, int height)
-{
-    m_width = width;
-    m_height = height;
-
-    for (Channel channel : m_channels)
-    {
-        channel.setSize(width, height);
-        channel.allocate();
-        channel.clear();
-    }
 }
 
 void Framebuffer::setSize(Size size)
@@ -115,19 +103,20 @@ Vector3 Framebuffer::worldToScreen(Vector3& v)
 // Returns the Z-depth of point P given a triangle (v1, v2, v3).
 double Framebuffer::getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p)
 {
-    double area = Math::edge(v1, v2, v3);
+    // Calculate area of this triangle
+    double a = area(v1, v2, v3);
 
     // Calculate depth
-    double w1 = Math::edge(v2, v3, p);
-    double w2 = Math::edge(v3, v1, p);
-    double w3 = Math::edge(v1, v2, p);
+    double w1 = area(v2, v3, p);
+    double w2 = area(v3, v1, p);
+    double w3 = area(v1, v2, p);
     if (w1 < 0.0 && w2 < 0.0 && w3 < 0.0)
     {
         return DBL_MAX;
     }
-    w1 /= area;
-    w2 /= area;
-    w3 /= area;
+    w1 /= a;
+    w2 /= a;
+    w3 /= a;
 
     return w1 * v1.z() + w2 * v2.z() + w3 * v3.z();
 }
@@ -170,14 +159,14 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     right.normalize();
 
     // Calculate facing ratio
-    double facingRatio = Math::dot(normal, forward);
-    double upRatio = Math::dot(normal, up);
-    double rightRatio = Math::dot(normal, right);
+    double facingRatio = dot(normal, forward);
+    double upRatio = dot(normal, up);
+    double rightRatio = dot(normal, right);
 
     // Normalize facing ratio from -1 => 1 to 0 => 1
-    facingRatio = Math::normalizeNew(&facingRatio, -1.0, 1.0, 0.0, 1.0);
-    upRatio = Math::normalizeNew(&upRatio, -1.0, 1.0, 0.0, 1.0);
-    rightRatio = Math::normalizeNew(&rightRatio, -1.0, 1.0, 0.0, 1.0);
+    facingRatio = normalizeNew(&facingRatio, -1.0, 1.0, 0.0, 1.0);
+    upRatio = normalizeNew(&upRatio, -1.0, 1.0, 0.0, 1.0);
+    rightRatio = normalizeNew(&rightRatio, -1.0, 1.0, 0.0, 1.0);
 
     Vector3 cameraNormal(rightRatio, upRatio, facingRatio);
 
@@ -327,9 +316,9 @@ void Framebuffer::allocateDisplayPtr()
             // Order is inverted; RGB => BBGGRRXX
             if (pixel != NULL)
             {
-                *pixel++ = (uint8) Math::normalize(b, 0.0, 1.0, 0.0, 255.0);
-                *pixel++ = (uint8) Math::normalize(g, 0.0, 1.0, 0.0, 255.0);
-                *pixel++ = (uint8) Math::normalize(r, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) normalize(b, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) normalize(g, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) normalize(r, 0.0, 1.0, 0.0, 255.0);
 
                 // A (alpha) is always 0
                 *pixel++ = (uint8) 0;
@@ -344,3 +333,4 @@ bool operator == (const Framebuffer& f1, const Framebuffer& f2)
     return typeid(f1) == typeid(f2);
 }
 
+MINI_NAMESPACE_CLOSE

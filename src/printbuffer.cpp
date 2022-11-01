@@ -1,5 +1,8 @@
 #include "printbuffer.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 void PrintBuffer::debugPrintToScreen(const char* format, ...)
 {
     auto buffer = PrintBuffer::getInstance();
@@ -25,3 +28,5 @@ LPCWSTR PrintBuffer::getEntries()
 }
 
 PrintBuffer *PrintBuffer::instance = 0;
+
+MINI_NAMESPACE_CLOSE

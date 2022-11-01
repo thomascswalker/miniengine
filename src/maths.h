@@ -18,40 +18,67 @@
 #define     INVERSE_GAMMA               1.0 / 2.2
 #define     GAMMA_CORRECT(x)            255.0 * pow((x / 255.0), INVERSE_GAMMA)
 
-namespace Math
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
+template <typename T>
+inline T clamp(T& value, T min, T max)
 {
-    template <typename T>
-    T clamp(T& value, T min, T max)
+    if (value < min)
     {
-       if (value < min)
-        {
-            return min;
-        }
-        if (value > max)
-        {
-            return max;
-        }
-        return value;
-    };
-
-    // Convert from Range A (old) to Range B (new)
-    template <typename T>
-    T normalize(T value, T amin, T amax, T bmin, T bmax)
-    {
-        return (((value - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
+        return min;
     }
-
-    template <typename T>
-    T normalizeNew(T* value, const T amin, const T amax, const T bmin, const T bmax)
+    if (value > max)
     {
-        return (((*value - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
+        return max;
     }
-    double dot(Vector2 v1, Vector2 v2);
-    double dot(Vector3 v1, Vector3 v2);
-    double area(Vector2 v1, Vector2 v2, Vector3 v3);
-    double distance(Vector2 v1, Vector2 v2);
-    double distance(Vector3 v1, Vector3 v2);
-    double edge(Vector3& v1, Vector3& v2, Vector3& v3);
+    return value;
+};
+
+// Convert from Range A (old) to Range B (new)
+template <typename T>
+inline T normalize(T value, T amin, T amax, T bmin, T bmax)
+{
+    return (((value - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
 }
+
+template <typename T>
+inline T normalizeNew(T* value, const T amin, const T amax, const T bmin, const T bmax)
+{
+    return (((*value - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
+}
+
+inline double dot(Vector2 v1, Vector2 v2)
+{
+    return v1.x() * v2.x() + v1.y() * v2.y();
+}
+
+inline double dot(Vector3 v1, Vector3 v2)
+{
+	return v1.x() * v2.x() + v1.y() * v2.y() + v1.z() * v2.z();
+}
+
+inline double area(Vector2 v1, Vector2 v2, Vector3 v3)
+{
+    return abs((v1.x() * (v2.y() - v3.y()) + v2.x() * (v3.y() - v1.y()) + v3.x() * (v1.y() - v2.y())) / 2.0);
+}
+
+inline double distance(Vector2 v1, Vector2 v2)
+{
+    auto a = pow(v2.x() - v1.x(), 2);
+    auto b = pow(v2.y() - v1.y(), 2);
+    return sqrt(a + b);
+}
+
+inline double distance(Vector3 v1, Vector3 v2)
+{
+    auto a = pow(v2.x() - v1.x(), 2);
+    auto b = pow(v2.y() - v1.y(), 2);
+    auto c = pow(v2.z() - v1.z(), 2);
+    return sqrt(a + b + c);
+}
+
+
+MINI_NAMESPACE_CLOSE
 
 #endif

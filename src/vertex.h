@@ -3,6 +3,9 @@
 
 #include "vector.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 class Vertex
 {
 public:
@@ -21,5 +24,7 @@ public:
 private:
 	Vector3 m_translation;
 };
+
+MINI_NAMESPACE_CLOSE
 
 #endif

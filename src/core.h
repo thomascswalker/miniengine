@@ -14,7 +14,6 @@
 #include <tuple>
 #include <chrono>
 
-#include "api.h"
 #include "printbuffer.h"
 #include "vector.h"
 
@@ -34,6 +33,7 @@ using std::chrono::seconds;
 using std::chrono::system_clock;
 
 MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
 
 class Size
 {

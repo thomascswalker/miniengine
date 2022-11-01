@@ -1,5 +1,8 @@
 #include "camera.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 Camera::Camera()
 {
     
@@ -55,3 +58,5 @@ const Matrix4 Camera::getProjectionMatrix(const double width, const double heigh
 
     return proj;
 }
+
+MINI_NAMESPACE_CLOSE

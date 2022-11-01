@@ -3,6 +3,9 @@
 
 #include "matrix.h"
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 class Transform
 {
 public:
@@ -29,5 +32,7 @@ private:
 	Rotation m_rotation;
 	Vector3 m_scale;
 };
+
+MINI_NAMESPACE_CLOSE
 
 #endif
