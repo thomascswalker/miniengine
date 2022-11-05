@@ -8,130 +8,20 @@
 #include <windows.h>
 #include <cassert>
 #include <sstream>
+#include <map>
 
 #include "camera.h"
+#include "channel.h"
 #include "color.h"
 #include "matrix.h"
 #include "mesh.h"
 #include "printbuffer.h"
 
-#define CHANNEL_PIXEL_SIZE sizeof(double)
-#define CHANNEL_R           0
-#define CHANNEL_G           1
-#define CHANNEL_B           2
-#define CHANNEL_Z           3
-#define CHANNEL_NORMAL_R    4
-#define CHANNEL_NORMAL_G    4
-#define CHANNEL_NORMAL_B    4
+
 
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
 
-enum BufferType
-{
-    RGB,
-    DEPTH,
-    NORMAL
-};
-
-/*
-Channels are comprised of an array of doubles.
-*/
-class Channel
-{
- public:
-    Channel(const char* name, int width, int height)
-        : m_name(name),
-          m_width(width),
-          m_height(height)
-    {
-        allocate();
-        clear();
-    };
-    ~Channel() {};
-
-    void allocate()
-    {
-        // Clear the color buffer
-        if (m_memoryBuffer)
-        {
-            VirtualFree(m_memoryBuffer, 0, MEM_RELEASE);
-            m_memoryBuffer = nullptr;
-        }
-
-        // Calculate the new buffer size and allocate memory of that size
-        // Each raw channel is stored as double to maximize floating point precision without
-        // getting too huge
-        m_bufferSize = m_width * m_height * sizeof(double);
-
-        // Allocate the memory buffer
-        m_memoryBuffer = VirtualAlloc(0, m_bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-    };
-
-    /*
-    Set all pixel values to 0.
-    */
-    void clear()
-    {
-        fill(0.0);
-    };
-
-    void fill(double value)
-    {
-        for (int x = 0; x < m_width; x++)
-        {
-            for (int y = 0; y < m_height; y++)
-            {
-                setPixel(x, y, value);
-            }
-        }
-    };
-
-    int size()
-    {
-        return m_width * m_height * sizeof(double);
-    }
-
-    void setSize(int width, int height)
-    {
-        m_width = width;
-        m_height = height;
-        allocate();
-        clear();
-    }
-
-    int getMemoryOffset(int x, int y)
-    {
-        return x + (y * m_width);
-    }
-
-    template <typename T>
-    double getPixel(T x, T y)
-    {
-        int offset = getMemoryOffset((int)x, (int)y);
-        double* buffer = (double*) m_memoryBuffer;
-        buffer += offset;
-        return *buffer;
-    }
-
-    template <typename T>
-    void setPixel(T x, T y, double value)
-    {
-        uint32 offset = getMemoryOffset((int)x, (int)y);
-        double* buffer = (double*) m_memoryBuffer;
-        buffer += offset;
-        *buffer = value;
-    }
-
-private:
-    const char* m_name = "";
-    void* m_memoryBuffer = nullptr;
-    int m_bufferSize = 0;
-    int m_width = 0;
-    int m_height = 0;
-
-    std::vector<double> m_pixels;
-};
 
 class Framebuffer
 {
@@ -153,11 +43,11 @@ public:
         m_width = (int) width;
         m_height = (int) height;
 
-        for (Channel channel : m_channels)
+        for (auto const& [k, c] : m_channels)
         {
-            channel.setSize((int) width, (int) height);
-            channel.allocate();
-            channel.clear();
+            c->setSize((int) width, (int) height);
+            c->allocate();
+            c->clear();
         }
     }
 
@@ -211,7 +101,7 @@ private:
     int m_height = 512;
 
     // Channels
-    std::vector<Channel> m_channels;
+    std::map<const char*, Channel*> m_channels;
 
     // Pixel memory
     SIZE_T m_bufferSize = 0;

@@ -11,20 +11,10 @@ Framebuffer::Framebuffer(HWND hwnd)
     m_bufferBmi.bmiHeader.biBitCount = 32;
     m_bufferBmi.bmiHeader.biCompression = BI_RGB;
 
-    Channel rChannel = Channel("R", m_width, m_height);
-    Channel gChannel = Channel("G", m_width, m_height);
-    Channel bChannel = Channel("B", m_width, m_height);
-    Channel zChannel = Channel("Z", m_width, m_height);
-    Channel normalRChannel = Channel("Normal_R", m_width, m_height);
-    Channel normalGChannel = Channel("Normal_G", m_width, m_height);
-    Channel normalBChannel = Channel("Normal_B", m_width, m_height);
-    m_channels.push_back(rChannel);
-    m_channels.push_back(gChannel);
-    m_channels.push_back(bChannel);
-    m_channels.push_back(zChannel);
-    m_channels.push_back(normalRChannel);
-    m_channels.push_back(normalGChannel);
-    m_channels.push_back(normalBChannel);
+    for (const char* name : CHANNELS)
+    {
+        m_channels[name] = new Channel(name, m_width, m_height);
+    }
 
     // Create a new default camera
     m_camera = Camera();
@@ -184,10 +174,10 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
         return;
     }
 
-    Channel* rChannel = &m_channels[CHANNEL_R];
-    Channel* gChannel = &m_channels[CHANNEL_G];
-    Channel* bChannel = &m_channels[CHANNEL_B];
-    Channel* zChannel = &m_channels[CHANNEL_Z];
+    Channel* rChannel = m_channels[CHANNEL_R];
+    Channel* gChannel = m_channels[CHANNEL_G];
+    Channel* bChannel = m_channels[CHANNEL_B];
+    Channel* zChannel = m_channels[CHANNEL_Z];
 
     // Draw each pixel within the bounding box
     for (double y = bounds.getMin().y(); y < bounds.getMax().y(); y++)
@@ -219,7 +209,7 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 
             // If the z-depth is greater (further back) than what's currently at this pixel, we'll
             // skip it. Also skip if we're outside of the near/far clip.
-            double currentZ = m_channels[CHANNEL_Z].getPixel(x, y);
+            double currentZ = m_channels[CHANNEL_Z]->getPixel(x, y);
             if (z > currentZ || z < m_camera.getNearClip() || z > m_camera.getFarClip())
             {
                 continue;
@@ -227,9 +217,9 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             zChannel->setPixel(x, y, z); // Otherwise we'll set the current pixel Z to this depth
             
             // Store normals in channel
-            m_channels[CHANNEL_NORMAL_R].setPixel(x, y, cameraNormal.x());
-            m_channels[CHANNEL_NORMAL_G].setPixel(x, y, cameraNormal.y());
-            m_channels[CHANNEL_NORMAL_B].setPixel(x, y, cameraNormal.z());
+            m_channels[CHANNEL_NORMAL_R]->setPixel(x, y, cameraNormal.x());
+            m_channels[CHANNEL_NORMAL_G]->setPixel(x, y, cameraNormal.y());
+            m_channels[CHANNEL_NORMAL_B]->setPixel(x, y, cameraNormal.z());
 
             // Set final color in RGB buffer
             rChannel->setPixel(x, y, cameraNormal.x());
@@ -241,14 +231,13 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 
 void Framebuffer::render()
 {
-    for (int i = 0; i < m_channels.size(); i++)
+    for (auto const& [k, c] : m_channels)
     {
-        Channel* c = &m_channels[i];
         c->allocate();
         c->clear();
     }
 
-    m_channels[CHANNEL_Z].fill(m_camera.getFarClip());
+    m_channels[CHANNEL_Z]->fill(m_camera.getFarClip());
 
     //Pre-compute the view/projection only once per frame, rather than for every vertex
     m_view = m_camera.getViewMatrix();                          //View matrix
@@ -292,13 +281,13 @@ void Framebuffer::allocateDisplayPtr()
     m_bufferBmi.bmiHeader.biHeight = -m_height; // When height is negative, it will invert the bitmap vertically.
 
     // Get the R, G, and B channels' pixel contents
-    Channel* rChannel = &m_channels[CHANNEL_R];
-    Channel* gChannel = &m_channels[CHANNEL_G];
-    Channel* bChannel = &m_channels[CHANNEL_B];
+    Channel* rChannel = m_channels[CHANNEL_R];
+    Channel* gChannel = m_channels[CHANNEL_G];
+    Channel* bChannel = m_channels[CHANNEL_B];
 
-    Channel* nrChannel = &m_channels[CHANNEL_NORMAL_R];
-    Channel* ngChannel = &m_channels[CHANNEL_NORMAL_G];
-    Channel* nbChannel = &m_channels[CHANNEL_NORMAL_B];
+    Channel* nrChannel = m_channels[CHANNEL_NORMAL_R];
+    Channel* ngChannel = m_channels[CHANNEL_NORMAL_G];
+    Channel* nbChannel = m_channels[CHANNEL_NORMAL_B];
 
     uint8* row = (uint8*) m_displayBuffer;
     int pitch = m_width * sizeof(uint32);
