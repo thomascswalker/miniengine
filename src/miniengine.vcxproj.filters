@@ -132,5 +132,8 @@
     <ClInclude Include="printbuffer.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
+    <ClInclude Include="channel.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

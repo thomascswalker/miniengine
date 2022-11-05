@@ -8,7 +8,7 @@
 #endif
 
 // Global variables
-static std::string MODEL_FILENAME = "../models/pumpkin.obj";
+static std::string MODEL_FILENAME = "../models/cow.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
@@ -35,8 +35,9 @@ static bool     Q_DOWN              = false;
 static bool     SPACEBAR_DOWN       = false;
 static float    MOUSE_WHEEL_DELTA   = 0.0;
 
-static double   CAMERA_SPEED        = 0.00025;
+static double   CAMERA_SPEED        = 0.0025;
 static double   ROTATION            = 0.0;
+static double   ROTATION_SPEED      = 0.0010;
 
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
@@ -252,7 +253,7 @@ int Application::run()
         int height = m_buffer->getHeight();
 
         // Rotate the model
-        ROTATION += CAMERA_SPEED * m_deltaTime;
+        ROTATION += ROTATION_SPEED * m_deltaTime;
         m_buffer->modelRotation = ROTATION;
 
         //// Move our camera
