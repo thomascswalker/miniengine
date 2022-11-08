@@ -303,13 +303,13 @@ int Application::run()
 
                 // TODO: Fix this
                 // Y/X need to be swapped for some reason
-                Matrix4 rx = makeRotationX(xRot);
-                Matrix4 ry = makeRotationY(yRot);
+                Matrix4 rx = makeRotationX(yRot);
+                Matrix4 ry = makeRotationY(xRot);
                 Matrix4 rz = makeRotationZ(0.0);
 
                 Vector3 d = position - target;
                 d.normalize();
-                Vector3 t = ry * rx * rz * d * length;
+                Vector3 t = rx * ry * d * length;
 
                 m_buffer->camera()->setTranslation(t);
                 PrintBuffer::debugPrintToScreen("Camera position: %s", t.toString().c_str());
@@ -318,8 +318,17 @@ int Application::run()
 
         if (MOUSE_WHEEL_DELTA != 0)
         {
-            auto fov = m_buffer->camera()->getFieldOfView() - (MOUSE_WHEEL_DELTA / 240.0);
-            m_buffer->camera()->setFieldOfView(fov);
+            double delta = MOUSE_WHEEL_DELTA / 240.0;
+            Vector3 cameraTarget = m_buffer->camera()->getTarget();
+            Vector3 cameraPosition = m_buffer->camera()->getTranslation();
+            
+            Vector3 normal = cameraTarget - cameraPosition;
+            normal.normalize();
+
+            m_buffer->camera()->setTranslation(cameraPosition + (normal * delta));
+
+            //auto fov = m_buffer->camera()->getFieldOfView() - (MOUSE_WHEEL_DELTA / 240.0);
+            //m_buffer->camera()->setFieldOfView(fov);
         }
 
         // Bind vertex and index buffers to the Framebuffer

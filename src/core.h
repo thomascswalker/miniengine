@@ -103,6 +103,23 @@ public:
     double setWidth(double width) { m_width = width; }
     double setHeight(double height) { m_height = height; }
 
+    inline bool contains(int x, int y)
+    {
+        if (x < m_x || x > m_width)
+        {
+            return false;
+        }
+        if (y < m_y || y > m_height)
+        {
+            return false;
+        }
+        return true;
+    }
+    inline bool contains(Point<int> p)
+    {
+        return contains(p.x(), p.y());
+    }
+
 private:
     // Properties
     double m_x = 0;

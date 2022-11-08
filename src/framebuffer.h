@@ -71,7 +71,7 @@ public:
     size_t getNumTriangles();
 
     // Math
-    Vector3 worldToScreen(Vector3& v);
+    bool worldToScreen(Vector3& v);
     bool isPointInFrame(Vector2& p) const;
     bool isRectInFrame(Rect& r) const;
     double getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p);

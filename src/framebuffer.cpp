@@ -75,7 +75,7 @@ bool Framebuffer::isRectInFrame(Rect& r) const
            r.getMax().y() > 0.0;
 };
 
-Vector3 Framebuffer::worldToScreen(Vector3& v)
+bool Framebuffer::worldToScreen(Vector3& v)
 {
     // Convert to normalized device coords
     Vector4 ndc = m_mvp * Vector4(v, 1.0);          // m_mvp is precalculated in Framebuffer::render()
@@ -87,7 +87,7 @@ Vector3 Framebuffer::worldToScreen(Vector3& v)
     v.setY(y);
     v.setZ(1.0 / ndc.z());                          // Invert Z
 
-    return v;
+    return true;
 }
 
 // Returns the Z-depth of point P given a triangle (v1, v2, v3).
@@ -166,6 +166,12 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     worldToScreen(v2);
     worldToScreen(v3);
 
+    // If all vertices are behind the camera, skip
+    if (v1.z() < m_camera.getNearClip() && v2.z() < m_camera.getNearClip() && v3.z() < m_camera.getNearClip())
+    {
+        return;
+    }
+
     // Get the bounding box of the screen triangle
     Rect bounds = getBoundingBox(v1, v2, v3);
 
@@ -174,6 +180,21 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     {
         return;
     }
+
+    // Clip vertices which are off screen
+    double x1 = v1.x();
+    double x2 = v2.x();
+    double x3 = v3.x();
+    double y1 = v1.x();
+    double y2 = v2.x();
+    double y3 = v3.x();
+
+    x1 = clamp(x1, 0.0, (double) m_width);
+    x2 = clamp(x2, 0.0, (double) m_width);
+    x3 = clamp(x3, 0.0, (double) m_width);
+    y1 = clamp(y1, 0.0, (double) m_height);
+    y2 = clamp(y2, 0.0, (double) m_height);
+    y3 = clamp(y3, 0.0, (double) m_height);
 
     Channel* rChannel = m_channels[CHANNEL_R];
     Channel* gChannel = m_channels[CHANNEL_G];
@@ -243,7 +264,7 @@ void Framebuffer::render()
 
     //Pre-compute the view/projection only once per frame, rather than for every vertex
     m_view = lookAt(m_camera.getTranslation(), m_camera.getTarget(), Vector3::up());  // View matrix
-    m_proj = m_camera.getProjectionMatrix(m_width, m_height);               // Projection matrix
+    m_proj = m_camera.getProjectionMatrix(m_width, m_height);                         // Projection matrix
 
     // Update MVP matrix
     m_mvp = m_proj * m_view * m_model;
