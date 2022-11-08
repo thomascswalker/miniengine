@@ -14,6 +14,11 @@ public:
 	Transform&		identity();
 
 	Matrix4			getMatrix() const;
+	void			setMatrix(Matrix4& m)
+	{	
+		m_translation = m.getTranslation();
+		m_rotation = m.getRotation();
+	}
 
 	void			setTranslation(const Vector3& t);
 	const Vector3&	getTranslation() { return m_translation; }

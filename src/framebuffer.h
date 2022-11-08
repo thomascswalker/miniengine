@@ -83,6 +83,8 @@ public:
 
     // Matrices
     Vector3 getTargetTranslation() { return m_targetPosition; }
+
+    void setModelMatrix(Matrix4& m) { m_model = m; }
     Matrix4 getViewMatrix() { return m_view; }
     Matrix4 getProjectionMatrix() { return m_proj; }
     Matrix4 getModelViewProjMatrix() { return m_mvp; }

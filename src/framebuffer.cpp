@@ -137,15 +137,16 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     Vector3 wv3 = m_model * v3;
     Vector3 normal = Triangle::getNormal(wv1, wv2, wv3);
     normal.normalize();
+    normal = m_view * normal; // Convert to camera space
 
     // Calculate view direction
     Vector3 forward = -m_camera.getForward();
     forward.normalize();
 
-    Vector3 up = Vector3::up();
+    Vector3 up = -m_camera.getUp();
     up.normalize();
 
-    Vector3 right = -Vector3::right();
+    Vector3 right = m_camera.getRight();
     right.normalize();
 
     // Calculate facing ratio
@@ -237,14 +238,14 @@ void Framebuffer::render()
         c->clear();
     }
 
+    // Reset z-buffer
     m_channels[CHANNEL_Z]->fill(m_camera.getFarClip());
 
     //Pre-compute the view/projection only once per frame, rather than for every vertex
-    m_view = m_camera.getViewMatrix();                          //View matrix
-    m_proj = m_camera.getProjectionMatrix(m_width, m_height);   // Projection matrix
+    m_view = lookAt(m_camera.getTranslation(), m_camera.getTarget(), Vector3::up());  // View matrix
+    m_proj = m_camera.getProjectionMatrix(m_width, m_height);               // Projection matrix
 
     // Update MVP matrix
-    m_model = makeRotationY(modelRotation);
     m_mvp = m_proj * m_view * m_model;
 
     for (auto t : m_triangles)
