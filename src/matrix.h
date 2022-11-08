@@ -144,8 +144,9 @@ private:
 Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up);
 Matrix4 makeTranslate(const Vector3& translation);
 Matrix4 makeRotationX(double x);
-Matrix4 makeRotationY(double x);
-Matrix4 makeRotationZ(double x);
+Matrix4 makeRotationY(double y);
+Matrix4 makeRotationZ(double z);
+Matrix4 makeRotation(double x, double y, double z);
 Matrix4 makeRotation(const Rotation& rotation);
 Matrix4 makeScale(const Vector3& scale);
 

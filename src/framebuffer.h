@@ -71,7 +71,7 @@ public:
     size_t getNumTriangles();
 
     // Math
-    Vector3 worldToScreen(Vector3& v);
+    bool worldToScreen(Vector3& v);
     bool isPointInFrame(Vector2& p) const;
     bool isRectInFrame(Rect& r) const;
     double getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p);
@@ -83,6 +83,8 @@ public:
 
     // Matrices
     Vector3 getTargetTranslation() { return m_targetPosition; }
+
+    void setModelMatrix(Matrix4& m) { m_model = m; }
     Matrix4 getViewMatrix() { return m_view; }
     Matrix4 getProjectionMatrix() { return m_proj; }
     Matrix4 getModelViewProjMatrix() { return m_mvp; }

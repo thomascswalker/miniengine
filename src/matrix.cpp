@@ -269,9 +269,9 @@ Rotation& Matrix4::getRotation() const
 	    double q = 0.5 * sqrt(m_mtx[i][i] - m_mtx[j][j] - m_mtx[k][k] + m_mtx[3][3]); 
 
         imaginary.setX(q);
-        imaginary.setY((m_mtx[i][j] + m_mtx[j][i]) / (4 * q));
-        imaginary.setZ((m_mtx[k][i] + m_mtx[i][k]) / (4 * q));
-	    real         = (m_mtx[j][k] - m_mtx[k][j]) / (4 * q);
+        imaginary.setY((m_mtx[i][j] + m_mtx[j][i]) / (4.0 * q));
+        imaginary.setZ((m_mtx[k][i] + m_mtx[i][k]) / (4.0 * q));
+	    real         = (m_mtx[j][k] - m_mtx[k][j]) / (4.0 * q);
     }
 
     Quaternion quat(clamp(real, -1.0, 1.0), imaginary);
@@ -467,11 +467,6 @@ void Matrix4::_setRotateFromQuat(double r, const Vector3& i)
     m_mtx[2][2] = 1.0 - 2.0 * (i[1] * i[1] + i[0] * i[0]);
 }
 
-/*
-    https://www.geertarien.com/blog/2017/07/30/breakdown-of-the-lookAt-function-in-OpenGL/
-    https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/lookat-function
-    https://learnopengl.com/Getting-started/Camera
-*/
 Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up)
 {
     Vector3 forward = at - eye;
@@ -483,10 +478,10 @@ Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up)
     Vector3 newUp = cross(right, forward);
 
     Matrix4 view;
-    view.set( right.x(),        forward.x(),      newUp.x(),          0,
-              right.y(),        forward.y(),      newUp.y(),          0,
-              right.z(),        forward.z(),      newUp.z(),          0,
-              -dot(right, eye), -dot(newUp, eye), -dot(forward, eye), 1.0);
+    view.set( right.x(),   right.y(),   right.z(),   -dot(right, eye),
+              newUp.x(),   newUp.y(),   newUp.z(),   -dot(newUp, eye),
+              forward.x(), forward.y(), forward.z(), -dot(forward, eye),
+              0.0,         0.0,         0.0,         1.0);
 
     return view;
 }
@@ -494,6 +489,7 @@ Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up)
 Matrix4 makeTranslate(const Vector3& translation)
 {
     Matrix4 t;
+    t.setIdentity();
     t[3][0] = translation.x();
     t[3][1] = translation.y();
     t[3][2] = translation.z();
@@ -502,7 +498,8 @@ Matrix4 makeTranslate(const Vector3& translation)
 
 Matrix4 makeRotationX(double x)
 {
-    Matrix4 m;
+    Matrix4 m = Matrix4();
+    m.setIdentity();
 
     double c = cos(x);
     double s = sin(x);
@@ -517,7 +514,8 @@ Matrix4 makeRotationX(double x)
 
 Matrix4 makeRotationY(double y)
 {
-    Matrix4 m;
+    Matrix4 m = Matrix4();
+    m.setIdentity();
 
     double c = cos(y);
     double s = sin(y);
@@ -532,7 +530,8 @@ Matrix4 makeRotationY(double y)
 
 Matrix4 makeRotationZ(double z)
 {
-    Matrix4 m;
+    Matrix4 m = Matrix4();
+    m.setIdentity();
 
     double c = cos(z);
     double s = sin(z);
@@ -543,6 +542,15 @@ Matrix4 makeRotationZ(double z)
     m[0][1] = c;
 
     return m;
+}
+
+Matrix4 makeRotation(double x, double y, double z)
+{
+    Matrix4 rx = makeRotationX(x);
+    Matrix4 ry = makeRotationY(y);
+    Matrix4 rz = makeRotationZ(z);
+
+    return rx * ry * rz;
 }
 
 Matrix4 makeRotation(const Rotation& rotation)

@@ -51,20 +51,31 @@ private:
     double m_height = 0;
 };
 
+template <typename T>
 class Point
 {
 public:
     Point() {};
-    Point(double x, double y) : m_x(x), m_y(y) {};
+    Point(T x, T y) : m_x(x), m_y(y) {};
 
-    double x() { return m_x; }
-    double y() { return m_y; }
-    double setX(int x) { m_x = x; }
-    double setY(int y) { m_y = y; }
+    T x() { return m_x; }
+    T y() { return m_y; }
+    void setX(T x) { m_x = x; }
+    void setY(T y) { m_y = y; }
+
+    bool operator == (Point& p) const
+    {
+        return m_x == p.x() && m_y == p.y();
+    }
+
+    bool operator != (Point& p) const
+    {
+        return m_x != p.x() && m_y != p.y();
+    }
 
 private:
-    double m_x = 0;
-    double m_y = 0;
+    T m_x = 0;
+    T m_y = 0;
 };
 
 class Rect
@@ -77,10 +88,10 @@ public:
 
 
     // Methods
-    Point pos() { return Point(m_x, m_y); }
+    Point<double> pos() { return Point(m_x, m_y); }
     Size size() { return Size(m_width, m_height); }
-    Point getMin() { return Point(m_x, m_y); }
-    Point getMax() { return Point(m_x + m_width, m_y + m_height); }
+    Point<double> getMin() { return Point(m_x, m_y); }
+    Point<double> getMax() { return Point(m_x + m_width, m_y + m_height); }
     
     // Accessors
     double x() { return m_x; }
@@ -91,6 +102,23 @@ public:
     double height() { return m_height; }
     double setWidth(double width) { m_width = width; }
     double setHeight(double height) { m_height = height; }
+
+    inline bool contains(int x, int y)
+    {
+        if (x < m_x || x > m_width)
+        {
+            return false;
+        }
+        if (y < m_y || y > m_height)
+        {
+            return false;
+        }
+        return true;
+    }
+    inline bool contains(Point<int> p)
+    {
+        return contains(p.x(), p.y());
+    }
 
 private:
     // Properties

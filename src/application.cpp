@@ -26,6 +26,7 @@ static bool     bDisplayFps         = true;
 static WORD     keyCode;
 static WORD     keyFlags;
 
+static bool     MOUSE_DOWN          = false;
 static bool     W_DOWN              = false;
 static bool     A_DOWN              = false;
 static bool     S_DOWN              = false;
@@ -37,7 +38,7 @@ static float    MOUSE_WHEEL_DELTA   = 0.0;
 
 static double   CAMERA_SPEED        = 0.0025;
 static double   ROTATION            = 0.0;
-static double   ROTATION_SPEED      = 0.0010;
+static double   ROTATION_SPEED      = 0.25;
 
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
@@ -52,6 +53,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
     // Switch on message type
     switch (uMsg)
     {
+        // Window
         case WM_CREATE:
         {
             SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, 1, NULL);
@@ -64,11 +66,35 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
             bIsRunning = true;
             break;
         }
+
+        // Mouse
+        case WM_MOUSEMOVE:
+        {
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+            app->setMousePos(x, y);
+            break;
+        }
+        case WM_LBUTTONDOWN:
+        {
+            MOUSE_DOWN = true;
+            Point mousePos = app->getMousePos();
+            app->setMouseClickPos(mousePos.x(), mousePos.y());
+            break;
+        }
+        case WM_LBUTTONUP:
+        {
+            MOUSE_DOWN = false;
+            app->setMouseClickPos(-1, -1);
+            break;
+        }
         case WM_MOUSEWHEEL:
         {
             MOUSE_WHEEL_DELTA += GET_WHEEL_DELTA_WPARAM(wParam);
             break;
         }
+
+        // Keyboard
         case WM_KEYUP:
         case WM_SYSKEYUP:
         {
@@ -110,6 +136,8 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
             }
             break;
         }
+
+        // Resize
         case WM_SIZE:
         {
             app->setSize(width, height);
@@ -117,13 +145,8 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
             UpdateWindow(hwnd);
             break;
         } 
-        case WM_MOUSEMOVE:
-        {
-            int x = GET_X_LPARAM(lParam);
-            int y = GET_Y_LPARAM(lParam);
-            app->setMousePos(x, y);
-            break;
-        }
+
+        // Timer called every ms to update
         case WM_TIMER:
         {
             InvalidateRect(hwnd, NULL, FALSE);
@@ -226,7 +249,7 @@ int Application::run()
     MeshLoader::load(filename, mesh);
 
     // Move the camera to the default position
-    m_buffer->camera()->move(Vector3(0, 0, -5));
+    m_buffer->camera()->move(Vector3(0, 0, -5.0));
 
     // Run the message loop.
     while (!bIsRunning)
@@ -252,51 +275,67 @@ int Application::run()
         int width = m_buffer->getWidth();
         int height = m_buffer->getHeight();
 
-        // Rotate the model
-        ROTATION += ROTATION_SPEED * m_deltaTime;
-        m_buffer->modelRotation = ROTATION;
+        // Arcball rotation
+        PrintBuffer::debugPrintToScreen("MOUSE");
+        PrintBuffer::debugPrintToScreen("Mouse X, Y: %i, %i", m_mousePos.x(), m_mousePos.y());
+        PrintBuffer::debugPrintToScreen("Mouse Click X, Y: %i, %i", (int) m_mouseClickPos.x(), (int) m_mouseClickPos.y());
 
-        //// Move our camera
-        double d = CAMERA_SPEED * m_deltaTime;
-        Vector3 offset;
-        Transform xform = m_buffer->camera()->getTransform();
-        if (W_DOWN)
+        if (MOUSE_DOWN)
         {
-            offset = Vector3(0, 0, d);
+            Vector3 position = m_buffer->camera()->getTranslation();
+            Vector3 target = m_buffer->camera()->getTarget();
+            double length = distance(position, target);
+
+            // Delta
+            int dx = m_mousePos.x() - m_mouseLastPos.x();
+            int dy = m_mousePos.y() - m_mouseLastPos.y();
+
+            if (dx != 0.0 || dy != 0.0)
+            {
+                double scaleX = (double) abs(dx) / (double) width;
+                double scaleY = (double) abs(dy) / (double) height;
+
+                // Angle
+                double xRot = (double) dx * scaleX * ROTATION_SPEED;
+                double yRot = (double) dy * scaleY * ROTATION_SPEED;
+
+                PrintBuffer::debugPrintToScreen("Delta X, Y: %i, %i", dx, dy);
+
+                // TODO: Fix this
+                // Y/X need to be swapped for some reason
+                Matrix4 rx = makeRotationX(yRot);
+                Matrix4 ry = makeRotationY(xRot);
+                Matrix4 rz = makeRotationZ(0.0);
+
+                Vector3 d = position - target;
+                d.normalize();
+                Vector3 t = rx * ry * d * length;
+
+                m_buffer->camera()->setTranslation(t);
+                PrintBuffer::debugPrintToScreen("Camera position: %s", t.toString().c_str());
+            }
         }
-        if (A_DOWN)
-        {
-            offset = Vector3(-d, 0, 0);
-        }
-        if (S_DOWN)
-        {
-            offset = Vector3(0, 0, -d);
-        }
-        if (D_DOWN)
-        {
-            offset = Vector3(d, 0, 0);
-        }
-        if (E_DOWN)
-        {
-            offset = Vector3(0, d, 0);
-        }
-        if (Q_DOWN)
-        {
-            offset = Vector3(0, -d, 0);
-        }
-        offset += xform.getTranslation();
-        m_buffer->camera()->move(offset);
 
         if (MOUSE_WHEEL_DELTA != 0)
         {
-            auto fov = m_buffer->camera()->getFieldOfView() - (MOUSE_WHEEL_DELTA / 240.0);
-            m_buffer->camera()->setFieldOfView(fov);
+            double delta = MOUSE_WHEEL_DELTA / 240.0;
+            Vector3 cameraTarget = m_buffer->camera()->getTarget();
+            Vector3 cameraPosition = m_buffer->camera()->getTranslation();
+            
+            Vector3 normal = cameraTarget - cameraPosition;
+            normal.normalize();
+
+            m_buffer->camera()->setTranslation(cameraPosition + (normal * delta));
+
+            //auto fov = m_buffer->camera()->getFieldOfView() - (MOUSE_WHEEL_DELTA / 240.0);
+            //m_buffer->camera()->setFieldOfView(fov);
         }
 
         // Bind vertex and index buffers to the Framebuffer
         m_buffer->bindTriangleBuffer(mesh.getTris());
 
         // Draw our scene geometry as triangles
+        PrintBuffer::debugPrintToScreen("\n\nMESH");
         m_buffer->render();
 
         // Push our current RGB buffer to the display buffer
@@ -331,6 +370,8 @@ int Application::run()
         }
 
         ReleaseDC(m_hwnd, hdc);
+
+        setMouseLastPos(m_mousePos.x(), m_mousePos.y());
     };
 
     return 0;
@@ -349,12 +390,6 @@ void Application::setSize(int width, int height)
         m_height = height;
         m_buffer->setSize(width, height);
     }
-}
-
-void Application::setMousePos(int x, int y)
-{
-    m_mouseX = x;
-    m_mouseY = y;
 }
 
 Application *Application::instance = 0;

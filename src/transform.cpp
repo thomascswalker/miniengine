@@ -40,17 +40,20 @@ void Transform::setScale(const Vector3& s)
 
 const Vector3& Transform::getForward()
 {
-    return Vector3(0.0, 0.0, 1.0);
+    Matrix4 m = getMatrix();
+    return Vector3(m[1][0], m[1][1], m[1][2]);
 }
 
 const Vector3& Transform::getRight()
 {
-    return Vector3(1.0, 0.0, 0.0);
+    Matrix4 m = getMatrix();
+    return Vector3(m[0][0], m[0][1], m[0][2]);
 }
 
 const Vector3& Transform::getUp()
 {
-    return Vector3(0.0, 1.0, 0.0);
+    Matrix4 m = getMatrix();
+    return Vector3(m[2][0], m[2][1], m[2][2]);
 }
 
 MINI_NAMESPACE_CLOSE

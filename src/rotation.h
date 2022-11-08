@@ -60,6 +60,17 @@ public:
 		return rotation;
 	};
 
+	static Rotation fromEulerAngles(double yaw, double pitch, double roll)
+	{
+		double qx = sin(roll/2) * cos(pitch/2) * cos(yaw/2) - cos(roll/2) * sin(pitch/2) * sin(yaw/2);
+		double qy = cos(roll/2) * sin(pitch/2) * cos(yaw/2) + sin(roll/2) * cos(pitch/2) * sin(yaw/2);
+		double qz = cos(roll/2) * cos(pitch/2) * sin(yaw/2) - sin(roll/2) * sin(pitch/2) * cos(yaw/2);
+		double qw = cos(roll/2) * cos(pitch/2) * cos(yaw/2) + sin(roll/2) * sin(pitch/2) * sin(yaw/2);
+
+		Quaternion q(qw, Vector3(qx, qy, qz));
+		return Rotation(q);
+	}
+
 	const Vector3& getAxis()
 	{
 		return m_axis;

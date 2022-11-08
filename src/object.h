@@ -22,9 +22,12 @@ public:
 	const Vector3 getRight() { return m_transform.getRight(); }
 	const Vector3 getUp() { return m_transform.getUp(); }
 
+	void setTranslation(const Vector3& t) { m_transform.setTranslation(t); }
+	void setRotation(const Rotation& r) { m_transform.setRotation(r); }
+
 	void move(const Vector3& v);
 
-private:
+protected:
 	Transform m_transform = Transform();
 };
 
