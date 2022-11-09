@@ -304,7 +304,7 @@ int Application::run()
                 // TODO: Fix this
                 // Y/X need to be swapped for some reason
                 Matrix4 rx = makeRotationX(yRot);
-                Matrix4 ry = makeRotationY(xRot);
+                Matrix4 ry = makeRotationY(-xRot);
                 Matrix4 rz = makeRotationZ(0.0);
 
                 Vector3 d = position - target;

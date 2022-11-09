@@ -42,6 +42,7 @@ public:
     {
         m_width = (int) width;
         m_height = (int) height;
+        m_frame = Rect(0, 0, width, height);
 
         for (auto const& [k, c] : m_channels)
         {
@@ -77,7 +78,7 @@ public:
     double getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p);
 
     // Drawing
-    void drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3);
+    bool drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3);
     Rect getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3);
     void render();
 
@@ -101,6 +102,7 @@ private:
 
     int m_width = 512;
     int m_height = 512;
+    Rect m_frame;
 
     // Channels
     std::map<const char*, Channel*> m_channels;

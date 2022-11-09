@@ -129,13 +129,14 @@ Rect Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
 }
 
 // https://www.scratchapixel.com/code.php?id=26&origin=/lessons/3d-basic-rendering/rasterization-practical-implementation
-void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
+bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 {
     // Calculate normal
     Vector3 wv1 = m_model * v1;
     Vector3 wv2 = m_model * v2;
     Vector3 wv3 = m_model * v3;
     Vector3 normal = Triangle::getNormal(wv1, wv2, wv3);
+
     normal.normalize();
     normal = m_view * normal; // Convert to camera space
 
@@ -166,35 +167,16 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     worldToScreen(v2);
     worldToScreen(v3);
 
-    // If all vertices are behind the camera, skip
-    if (v1.z() < m_camera.getNearClip() && v2.z() < m_camera.getNearClip() && v3.z() < m_camera.getNearClip())
-    {
-        return;
-    }
-
     // Get the bounding box of the screen triangle
     Rect bounds = getBoundingBox(v1, v2, v3);
 
     // If the entire triangle is out of frame, skip
-    if (!isRectInFrame(bounds))
-    {
-        return;
-    }
-
     // Clip vertices which are off screen
-    double x1 = v1.x();
-    double x2 = v2.x();
-    double x3 = v3.x();
-    double y1 = v1.x();
-    double y2 = v2.x();
-    double y3 = v3.x();
-
-    x1 = clamp(x1, 0.0, (double) m_width);
-    x2 = clamp(x2, 0.0, (double) m_width);
-    x3 = clamp(x3, 0.0, (double) m_width);
-    y1 = clamp(y1, 0.0, (double) m_height);
-    y2 = clamp(y2, 0.0, (double) m_height);
-    y3 = clamp(y3, 0.0, (double) m_height);
+    
+    if (!m_frame.contains(v1) && !m_frame.contains(v2) && !m_frame.contains(v3))
+    {
+        return false;
+    }
 
     Channel* rChannel = m_channels[CHANNEL_R];
     Channel* gChannel = m_channels[CHANNEL_G];
@@ -249,6 +231,8 @@ void Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             bChannel->setPixel(x, y, cameraNormal.z());
         }   
     }
+
+    return true;
 }
 
 void Framebuffer::render()
@@ -269,15 +253,19 @@ void Framebuffer::render()
     // Update MVP matrix
     m_mvp = m_proj * m_view * m_model;
 
+    int count = 0;
     for (auto t : m_triangles)
     {
         auto v1 = t.v1().getTranslation();
         auto v2 = t.v2().getTranslation();
         auto v3 = t.v3().getTranslation();
 
-        drawTriangle(v1, v2, v3);
+        if (drawTriangle(v1, v2, v3))
+        {
+            count++;
+        }
     }
-
+    PrintBuffer::debugPrintToScreen("Visible tris: %i", count);
     PrintBuffer::debugPrintToScreen("Pixel count: %i", m_width * m_height);
 }
 

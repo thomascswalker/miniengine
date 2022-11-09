@@ -119,6 +119,10 @@ public:
     {
         return contains(p.x(), p.y());
     }
+    inline bool contains(Vector3& v)
+    {
+        return contains(v.x(), v.y());
+    }
 
 private:
     // Properties

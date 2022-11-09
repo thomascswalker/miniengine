@@ -171,6 +171,16 @@ public:
 		return Vector3(_x / d, _y / d, _z / d);
 	}
 
+	bool operator < (double d)
+	{
+		return _x < d && _y < d && _z < d;
+	}
+
+	bool operator < (Vector3& v)
+	{
+		return _x < v.x() && _y < v.y() && _z < v.z();
+	}
+
 	bool operator < (Vector3& v) const
 	{
 		return _x < v.x() && _y < v.y() && _z < v.z();
