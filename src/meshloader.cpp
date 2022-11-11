@@ -3,6 +3,8 @@
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
 
+// https://github.com/taurreco/sr/blob/6257fc7776a7fdf087d1fe782e6acf72eabfb70f/src/sr_obj.c
+
 std::istream&
 readLine(std::istream& stream, std::string& line)
 {
