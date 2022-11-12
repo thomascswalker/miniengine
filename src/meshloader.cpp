@@ -91,6 +91,20 @@ isStringANumber(std::string str)
 	return doesStringContainAny(str, "0123456789");
 }
 
+static std::vector<std::string> splitString(std::string string, const char del)
+{
+	std::stringstream stream(string);
+	std::vector<std::string> list;
+	std::string segment;
+
+	while (std::getline(stream, segment, del))
+	{
+		list.push_back(segment);
+	}
+
+	return list;
+}
+
 /*Given a string, attempt to parse a number from it.*/
 template <typename T>
 static bool
@@ -113,7 +127,7 @@ parseNumber(std::string value, T *result)
 }
 
 void
-MeshLoader::load(std::string filename, Mesh& mesh)
+MeshLoader::load(std::string filename, Mesh* mesh)
 {
 	std::vector<Vertex> vertices;	// Empty vertex array
 	std::vector<int> indices;		// Empty index array
@@ -161,6 +175,7 @@ MeshLoader::load(std::string filename, Mesh& mesh)
 					{
 						continue;
 					}
+
 					// Attempt to parse the result to a double
 					double result = 0.0;
 					if (parseNumber(str, &result))
@@ -181,7 +196,7 @@ MeshLoader::load(std::string filename, Mesh& mesh)
 			}
 
 			// Indices
-			if (*token == 'f')	// f 0 2 3
+			if (*token == 'f')	// f 0 2 3 ... n
 			{
 				std::istringstream istream(lineBuffer);
 				std::string str;
@@ -194,31 +209,44 @@ MeshLoader::load(std::string filename, Mesh& mesh)
 					{
 						continue;
 					}
+					
+					// Account for v/vt/vn in one face
+					std::vector<std::string> segments = splitString(str, '/');
+					if (segments.size() > 1)
+					{
+						str = segments[0];
+					}
+
 					// Attempt to parse the result to a integer
 					int result = 0;
 					if (parseNumber(str, &result))
 					{
 						// If it is a valid integer, we'll append to our values array
-						values.push_back(result - 1); // Account for 3ds Max .obj export being 1-based
+						values.push_back(result - 1); // Account for .obj being 1-based
 					}
 				}
 
-				if (values.size() != 3)
+				// Check if we have less than 3 indices per face
+				if (values.size() < 3)
 				{
 					throw std::runtime_error("Incorrect index definition.");
 				}
 
 				// Append each index to the indices array
-				indices.push_back(values[0]);
-				indices.push_back(values[1]);
-				indices.push_back(values[2]);
+				int triCount = values.size() - 2;
+				for (int i = 0; i < triCount; i++)
+				{
+					indices.push_back(values[0]);
+					indices.push_back(values[(int) i + 1]);
+					indices.push_back(values[(int) i + 2]);
+				}
 			}
 		}
 	}
 	
-	mesh.setVertices(vertices);
-	mesh.setIndices(indices);
-	mesh.bindTris();
+	mesh->setVertices(vertices);
+	mesh->setIndices(indices);
+	mesh->bindTris();
 }
 
 MINI_NAMESPACE_CLOSE

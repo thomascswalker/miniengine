@@ -121,7 +121,7 @@ public:
     }
     inline bool contains(Vector3& v)
     {
-        return contains(v.x(), v.y());
+        return contains((int) v.x(), (int) v.y());
     }
 
 private:

@@ -22,7 +22,7 @@ enum FileType
 class MeshLoader
 {
 public:
-	static void load(std::string filename, Mesh& mesh);
+	static void load(std::string filename, Mesh* mesh);
 };
 
 MINI_NAMESPACE_CLOSE

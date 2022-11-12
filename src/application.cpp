@@ -8,7 +8,7 @@
 #endif
 
 // Global variables
-static std::string MODEL_FILENAME = "../models/pumpkin.obj";
+static std::string MODEL_FILENAME = "../models/ringwave.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
@@ -245,7 +245,7 @@ int Application::run()
 
     // Load our mesh
     std::string filename = MODEL_FILENAME;
-    Mesh mesh;
+    Mesh* mesh = new Mesh();
     MeshLoader::load(filename, mesh);
 
     // Move the camera to the default position
@@ -332,7 +332,7 @@ int Application::run()
         }
 
         // Bind vertex and index buffers to the Framebuffer
-        m_buffer->bindTriangleBuffer(mesh.getTris());
+        m_buffer->bindTriangleBuffer(mesh->getTris());
 
         // Draw our scene geometry as triangles
         PrintBuffer::debugPrintToScreen("\n\nMESH");
@@ -356,8 +356,8 @@ int Application::run()
         );
 
         // Debug print to screen
-        PrintBuffer::debugPrintToScreen("Vertex count: %i", mesh.getVertices().size());
-        PrintBuffer::debugPrintToScreen("Triangle count: %i", mesh.getTris().size());
+        PrintBuffer::debugPrintToScreen("Vertex count: %i", mesh->getVertices().size());
+        PrintBuffer::debugPrintToScreen("Triangle count: %i", mesh->getTris().size());
 
         if (bDisplayDebugText)
         {
