@@ -8,7 +8,7 @@
 #endif
 
 // Global variables
-static std::string MODEL_FILENAME = "../models/ringwave.obj";
+static std::string MODEL_FILENAME = "../models/cow.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;

@@ -236,9 +236,13 @@ MeshLoader::load(std::string filename, Mesh* mesh)
 				int triCount = values.size() - 2;
 				for (int i = 0; i < triCount; i++)
 				{
-					indices.push_back(values[0]);
-					indices.push_back(values[(int) i + 1]);
-					indices.push_back(values[(int) i + 2]);
+					int i1 = 0;
+					int i2 = i + 1;
+					int i3 = i + 2;
+
+					indices.push_back(values[i1]);
+					indices.push_back(values[i2]);
+					indices.push_back(values[i3]);
 				}
 			}
 		}
