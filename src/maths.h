@@ -58,9 +58,11 @@ inline double dot(Vector3 v1, Vector3 v2)
 	return v1.x() * v2.x() + v1.y() * v2.y() + v1.z() * v2.z();
 }
 
-inline double area(Vector2 v1, Vector2 v2, Vector3 v3)
+inline double area(Vector2* v1, Vector2* v2, Vector3* v3)
 {
-    return abs((v1.x() * (v2.y() - v3.y()) + v2.x() * (v3.y() - v1.y()) + v3.x() * (v1.y() - v2.y())) / 2.0);
+    return abs((v1->x() * (v2->y() - v3->y()) +
+                v2->x() * (v3->y() - v1->y()) +
+                v3->x() * (v1->y() - v2->y())) / 2.0);
 }
 
 inline double distance(Vector2 v1, Vector2 v2)

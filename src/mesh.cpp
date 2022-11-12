@@ -9,13 +9,13 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<int> indices)
     bindTris();
 }
 
-void Mesh::addTri(Vertex v1, Vertex v2, Vertex v3)
+void Mesh::addTri(Vertex* v1, Vertex* v2, Vertex* v3)
 {
-    auto t = Triangle(v1, v2, v3);
+    auto t = new Triangle(v1, v2, v3);
     addTri(t);
 }
 
-void Mesh::addTri(Triangle t)
+void Mesh::addTri(Triangle* t)
 {
     m_triangles.push_back(t);
 }
@@ -52,7 +52,7 @@ void Mesh::bindTris()
         Vertex* v2 = &m_vertices[i2];
         Vertex* v3 = &m_vertices[i3];
 
-        addTri(*v1, *v2, *v3);
+        addTri(v1, v2, v3);
     }
 }
 

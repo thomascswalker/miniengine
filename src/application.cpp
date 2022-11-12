@@ -8,7 +8,7 @@
 #endif
 
 // Global variables
-static std::string MODEL_FILENAME = "../models/cow.obj";
+static std::string MODEL_FILENAME = "../models/pumpkin.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
@@ -249,7 +249,7 @@ int Application::run()
     MeshLoader::load(filename, mesh);
 
     // Move the camera to the default position
-    m_buffer->camera()->move(Vector3(0, 0, -5.0));
+    m_buffer->camera()->move(Vector3(0, 0, 5.0));
 
     // Run the message loop.
     while (!bIsRunning)
@@ -276,10 +276,6 @@ int Application::run()
         int height = m_buffer->getHeight();
 
         // Arcball rotation
-        PrintBuffer::debugPrintToScreen("MOUSE");
-        PrintBuffer::debugPrintToScreen("Mouse X, Y: %i, %i", m_mousePos.x(), m_mousePos.y());
-        PrintBuffer::debugPrintToScreen("Mouse Click X, Y: %i, %i", (int) m_mouseClickPos.x(), (int) m_mouseClickPos.y());
-
         if (MOUSE_DOWN)
         {
             Vector3 position = m_buffer->camera()->getTranslation();
@@ -326,16 +322,12 @@ int Application::run()
             normal.normalize();
 
             m_buffer->camera()->setTranslation(cameraPosition + (normal * delta));
-
-            //auto fov = m_buffer->camera()->getFieldOfView() - (MOUSE_WHEEL_DELTA / 240.0);
-            //m_buffer->camera()->setFieldOfView(fov);
         }
 
         // Bind vertex and index buffers to the Framebuffer
         m_buffer->bindTriangleBuffer(mesh->getTris());
 
         // Draw our scene geometry as triangles
-        PrintBuffer::debugPrintToScreen("\n\nMESH");
         m_buffer->render();
 
         // Push our current RGB buffer to the display buffer
@@ -356,9 +348,6 @@ int Application::run()
         );
 
         // Debug print to screen
-        PrintBuffer::debugPrintToScreen("Vertex count: %i", mesh->getVertices().size());
-        PrintBuffer::debugPrintToScreen("Triangle count: %i", mesh->getTris().size());
-
         if (bDisplayDebugText)
         {
             displayPrintText();
