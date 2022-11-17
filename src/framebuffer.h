@@ -67,6 +67,7 @@ public:
     void allocateDisplayPtr();
     void* getDisplayPtr() { return m_displayBuffer; }
     int getBufferSize() { return m_width * m_height * sizeof(unsigned int); }
+    HBITMAP getBitmap();
 
     // Vertex, index, triangle buffer
     void bindVertexBuffer(std::vector<Vertex> data);

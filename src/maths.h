@@ -37,13 +37,7 @@ inline T clamp(T& value, T min, T max)
 
 // Convert from Range A (old) to Range B (new)
 template <typename T>
-inline T normalize(T value, T amin, T amax, T bmin, T bmax)
-{
-    return (((value - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
-}
-
-template <typename T>
-inline T normalizeNew(T* value, const T amin, const T amax, const T bmin, const T bmax)
+inline T normalize(T* value, const T amin, const T amax, const T bmin, const T bmax)
 {
     return (((*value - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
 }
@@ -78,6 +72,34 @@ inline double distance(Vector3 v1, Vector3 v2)
     auto b = pow(v2.y() - v1.y(), 2);
     auto c = pow(v2.z() - v1.z(), 2);
     return sqrt(a + b + c);
+}
+
+inline Vector3 getNormal(Vector3& v1, Vector3& v2, Vector3& v3)
+{
+    Vector3 u = v2 - v1;
+    Vector3 v = v3 - v1;
+    return cross(u, v);
+}
+
+inline Vector3 getBarycentricCoords(Vector2& v1, Vector2& v2, Vector2& v3, Vector2& p)
+{
+    Vector2 v21 = v2 - v1;
+    Vector2 v31 = v3 - v1;
+    Vector2 vp1 = p - v1;
+
+    double d00 = dot(v21, v21);
+    double d01 = dot(v21, v31);
+    double d11 = dot(v31, v31);
+    double d20 = dot(vp1, v21);
+    double d21 = dot(vp1, v31);
+
+    double det = (d00 * d11) - (d01 * d01);
+
+    double v = (d11 * d20 - d01 * d21) / det;
+    double w = (d00 * d21 - d01 * d20) / det;
+    double u = 1.0 - v - w;
+
+    return Vector3(u, v, w);
 }
 
 

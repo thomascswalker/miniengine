@@ -8,7 +8,7 @@
 #endif
 
 // Global variables
-static std::string MODEL_FILENAME = "../models/box_quads.obj";
+static std::string MODEL_FILENAME = "../models/cow.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
@@ -137,6 +137,20 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
             break;
         }
 
+        //case WM_PAINT:
+        //{
+        //    PAINTSTRUCT ps;
+        //    HWND hwnd = app->getHwnd();
+        //    HDC hdc = BeginPaint(hwnd, &ps);
+
+        //    HBRUSH brush = CreateSolidBrush(RGB(255,0,0)); //create brush
+        //    SelectObject(hdc, brush); //select brush into DC
+        //    Rectangle(hdc, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)); //draw rectangle over whole screen
+
+        //    EndPaint(hwnd, &ps);
+        //    break;
+        //}
+
         // Resize
         case WM_SIZE:
         {
@@ -254,6 +268,9 @@ int Application::run()
     // Run the message loop.
     while (!bIsRunning)
     {
+        // Clear the screen
+        InvalidateRect(m_hwnd, NULL, TRUE);
+
         PrintBuffer::clear();
 
         MOUSE_WHEEL_DELTA = 0.0; // Reset mouse delta
@@ -335,16 +352,15 @@ int Application::run()
 
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);
-        StretchDIBits(
-            hdc,
-            0, 0,
-            width, height,
-            0, 0,
-            width, height,
-            m_buffer->getDisplayPtr(),
-            m_buffer->getBitmapInfo(),
-            DIB_RGB_COLORS,
-            SRCCOPY
+        HDC src = CreateCompatibleDC(hdc);
+        SelectObject(src, m_buffer->getBitmap());
+        BitBlt(
+            hdc,            // Target device context
+            0, 0,           // Target start coords
+            width, height,  // Target size
+            src,            // Source device context
+            0, 0,           // Source start coords
+            SRCCOPY         // Method
         );
 
         // Debug print to screen

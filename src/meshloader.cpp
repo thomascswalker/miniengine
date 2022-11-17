@@ -5,6 +5,9 @@ MINI_USING_DIRECTIVE
 
 // https://github.com/taurreco/sr/blob/6257fc7776a7fdf087d1fe782e6acf72eabfb70f/src/sr_obj.c
 
+static std::vector<const char*> INVALID_VERTEX_TOKENS = {"v", "vn", "vt", "", " "};
+static std::vector<const char*> INVALID_FACE_TOKENS = {"f", "", " "};
+
 std::istream&
 readLine(std::istream& stream, std::string& line)
 {
@@ -171,7 +174,7 @@ MeshLoader::load(std::string filename, Mesh* mesh)
 				// Split the line by spaces
 				while (std::getline(istream, str, ' '))
 				{
-					if (str == "v" || str == "" || str == " ")
+					if (std::count(INVALID_VERTEX_TOKENS.begin(), INVALID_VERTEX_TOKENS.end(), str))
 					{
 						continue;
 					}
@@ -205,7 +208,7 @@ MeshLoader::load(std::string filename, Mesh* mesh)
 				// Split the line by spaces
 				while (std::getline(istream, str, ' '))
 				{
-					if (str == "f" || str == "" || str == " ")
+					if (std::count(INVALID_FACE_TOKENS.begin(), INVALID_FACE_TOKENS.end(), str))
 					{
 						continue;
 					}

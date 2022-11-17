@@ -25,6 +25,11 @@ Framebuffer::~Framebuffer()
     //clear()/*;*/
 }
 
+HBITMAP Framebuffer::getBitmap()
+{
+    return CreateBitmap(m_width, m_height, 1, sizeof(double) * 4, m_displayBuffer);
+}
+
 void Framebuffer::setSize(Size size)
 {
     setSize(size.width(), size.height());
@@ -137,7 +142,7 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     Vector3 wv1 = m_model * v1;
     Vector3 wv2 = m_model * v2;
     Vector3 wv3 = m_model * v3;
-    Vector3 normal = Triangle::getNormal(wv1, wv2, wv3);
+    Vector3 normal = getNormal(wv1, wv2, wv3);
 
     normal.normalize();
     normal = m_view * normal; // Convert to camera space
@@ -158,9 +163,9 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     double rightRatio = dot(normal, right);
 
     // Normalize facing ratio from -1 => 1 to 0 => 1
-    facingRatio = normalizeNew(&facingRatio, -1.0, 1.0, 0.0, 1.0);
-    upRatio = normalizeNew(&upRatio, -1.0, 1.0, 0.0, 1.0);
-    rightRatio = normalizeNew(&rightRatio, -1.0, 1.0, 0.0, 1.0);
+    facingRatio = normalize(&facingRatio, -1.0, 1.0, 0.0, 1.0);
+    upRatio = normalize(&upRatio, -1.0, 1.0, 0.0, 1.0);
+    rightRatio = normalize(&rightRatio, -1.0, 1.0, 0.0, 1.0);
 
     Vector3 cameraNormal(rightRatio, upRatio, facingRatio);
 
@@ -197,7 +202,7 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             }
 
             // Get barycentric coordinates of triangle (uvw)
-            Vector3 uvw = Triangle::getBarycentricCoords(v1, v2, v3, p);
+            Vector3 uvw = getBarycentricCoords(v1, v2, v3, p);
 
             // If the total != 1.0, or all of the coord axes are less than 0,
             // we'll skip this (it's not in the triangle!)
@@ -314,9 +319,9 @@ void Framebuffer::allocateDisplayPtr()
             // Order is inverted; RGB => BBGGRRXX
             if (pixel != NULL)
             {
-                *pixel++ = (uint8) normalize(b, 0.0, 1.0, 0.0, 255.0);
-                *pixel++ = (uint8) normalize(g, 0.0, 1.0, 0.0, 255.0);
-                *pixel++ = (uint8) normalize(r, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) normalize(&b, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) normalize(&g, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) normalize(&r, 0.0, 1.0, 0.0, 255.0);
 
                 // A (alpha) is always 0
                 *pixel++ = (uint8) 0;
