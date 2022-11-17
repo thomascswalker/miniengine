@@ -69,11 +69,13 @@ class Channel
 
     void fill(double value)
     {
-        for (int x = 0; x < m_width; x++)
+        for (int y = 0; y < m_height; y++)
         {
-            for (int y = 0; y < m_height; y++)
+            double* memoryPtr = (double*) m_memoryBuffer;
+            memoryPtr += y * m_width;
+            for (int x = 0; x < m_width; x++)
             {
-                setPixel(x, y, value);
+                *memoryPtr++ = value;
             }
         }
     };
@@ -112,6 +114,11 @@ class Channel
         double* buffer = (double*) m_memoryBuffer;
         buffer += offset;
         *buffer = value;
+    }
+
+    void pasteBuffer(void* buffer)
+    {
+        memcpy(m_memoryBuffer, buffer, size());
     }
 
 private:

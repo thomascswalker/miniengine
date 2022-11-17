@@ -137,6 +137,20 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
             break;
         }
 
+        //case WM_PAINT:
+        //{
+        //    PAINTSTRUCT ps;
+        //    HWND hwnd = app->getHwnd();
+        //    HDC hdc = BeginPaint(hwnd, &ps);
+
+        //    HBRUSH brush = CreateSolidBrush(RGB(255,0,0)); //create brush
+        //    SelectObject(hdc, brush); //select brush into DC
+        //    Rectangle(hdc, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)); //draw rectangle over whole screen
+
+        //    EndPaint(hwnd, &ps);
+        //    break;
+        //}
+
         // Resize
         case WM_SIZE:
         {
@@ -249,11 +263,14 @@ int Application::run()
     MeshLoader::load(filename, mesh);
 
     // Move the camera to the default position
-    m_buffer->camera()->move(Vector3(0, 0, -5.0));
+    m_buffer->camera()->move(Vector3(0, 0, 5.0));
 
     // Run the message loop.
     while (!bIsRunning)
     {
+        // Clear the screen
+        InvalidateRect(m_hwnd, NULL, TRUE);
+
         PrintBuffer::clear();
 
         MOUSE_WHEEL_DELTA = 0.0; // Reset mouse delta
@@ -276,10 +293,6 @@ int Application::run()
         int height = m_buffer->getHeight();
 
         // Arcball rotation
-        PrintBuffer::debugPrintToScreen("MOUSE");
-        PrintBuffer::debugPrintToScreen("Mouse X, Y: %i, %i", m_mousePos.x(), m_mousePos.y());
-        PrintBuffer::debugPrintToScreen("Mouse Click X, Y: %i, %i", (int) m_mouseClickPos.x(), (int) m_mouseClickPos.y());
-
         if (MOUSE_DOWN)
         {
             Vector3 position = m_buffer->camera()->getTranslation();
@@ -326,16 +339,12 @@ int Application::run()
             normal.normalize();
 
             m_buffer->camera()->setTranslation(cameraPosition + (normal * delta));
-
-            //auto fov = m_buffer->camera()->getFieldOfView() - (MOUSE_WHEEL_DELTA / 240.0);
-            //m_buffer->camera()->setFieldOfView(fov);
         }
 
         // Bind vertex and index buffers to the Framebuffer
         m_buffer->bindTriangleBuffer(mesh->getTris());
 
         // Draw our scene geometry as triangles
-        PrintBuffer::debugPrintToScreen("\n\nMESH");
         m_buffer->render();
 
         // Push our current RGB buffer to the display buffer
@@ -343,22 +352,18 @@ int Application::run()
 
         // Copy the memory buffer to the device context
         HDC hdc = GetDC(m_hwnd);
-        StretchDIBits(
-            hdc,
-            0, 0,
-            width, height,
-            0, 0,
-            width, height,
-            m_buffer->getDisplayPtr(),
-            m_buffer->getBitmapInfo(),
-            DIB_RGB_COLORS,
-            SRCCOPY
+        HDC src = CreateCompatibleDC(hdc);
+        SelectObject(src, m_buffer->getBitmap());
+        BitBlt(
+            hdc,            // Target device context
+            0, 0,           // Target start coords
+            width, height,  // Target size
+            src,            // Source device context
+            0, 0,           // Source start coords
+            SRCCOPY         // Method
         );
 
         // Debug print to screen
-        PrintBuffer::debugPrintToScreen("Vertex count: %i", mesh->getVertices().size());
-        PrintBuffer::debugPrintToScreen("Triangle count: %i", mesh->getTris().size());
-
         if (bDisplayDebugText)
         {
             displayPrintText();

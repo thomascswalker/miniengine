@@ -25,6 +25,11 @@ Framebuffer::~Framebuffer()
     //clear()/*;*/
 }
 
+HBITMAP Framebuffer::getBitmap()
+{
+    return CreateBitmap(m_width, m_height, 1, sizeof(double) * 4, m_displayBuffer);
+}
+
 void Framebuffer::setSize(Size size)
 {
     setSize(size.width(), size.height());
@@ -40,7 +45,7 @@ void Framebuffer::bindIndexBuffer(std::vector<int> data)
     m_indices = data;
 }
 
-void Framebuffer::bindTriangleBuffer(std::vector<Triangle> data)
+void Framebuffer::bindTriangleBuffer(std::vector<Triangle*> data)
 {
     m_triangles = data;
 }
@@ -91,7 +96,7 @@ bool Framebuffer::worldToScreen(Vector3& v)
 }
 
 // Returns the Z-depth of point P given a triangle (v1, v2, v3).
-double Framebuffer::getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p)
+double Framebuffer::getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p)
 {
     // Calculate area of this triangle
     double a = area(v1, v2, v3);
@@ -100,15 +105,17 @@ double Framebuffer::getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p)
     double w1 = area(v2, v3, p);
     double w2 = area(v3, v1, p);
     double w3 = area(v1, v2, p);
+
     if (w1 < 0.0 && w2 < 0.0 && w3 < 0.0)
     {
         return DBL_MAX;
     }
+
     w1 /= a;
     w2 /= a;
     w3 /= a;
 
-    return w1 * v1.z() + w2 * v2.z() + w3 * v3.z();
+    return w1 * v1->z() + w2 * v2->z() + w3 * v3->z();
 }
 
 Rect Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
@@ -135,7 +142,7 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     Vector3 wv1 = m_model * v1;
     Vector3 wv2 = m_model * v2;
     Vector3 wv3 = m_model * v3;
-    Vector3 normal = Triangle::getNormal(wv1, wv2, wv3);
+    Vector3 normal = getNormal(wv1, wv2, wv3);
 
     normal.normalize();
     normal = m_view * normal; // Convert to camera space
@@ -147,7 +154,7 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     Vector3 up = -m_camera.getUp();
     up.normalize();
 
-    Vector3 right = m_camera.getRight();
+    Vector3 right = -m_camera.getRight();
     right.normalize();
 
     // Calculate facing ratio
@@ -156,9 +163,9 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     double rightRatio = dot(normal, right);
 
     // Normalize facing ratio from -1 => 1 to 0 => 1
-    facingRatio = normalizeNew(&facingRatio, -1.0, 1.0, 0.0, 1.0);
-    upRatio = normalizeNew(&upRatio, -1.0, 1.0, 0.0, 1.0);
-    rightRatio = normalizeNew(&rightRatio, -1.0, 1.0, 0.0, 1.0);
+    facingRatio = normalize(&facingRatio, -1.0, 1.0, 0.0, 1.0);
+    upRatio = normalize(&upRatio, -1.0, 1.0, 0.0, 1.0);
+    rightRatio = normalize(&rightRatio, -1.0, 1.0, 0.0, 1.0);
 
     Vector3 cameraNormal(rightRatio, upRatio, facingRatio);
 
@@ -167,26 +174,22 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     worldToScreen(v2);
     worldToScreen(v3);
 
-    // Get the bounding box of the screen triangle
-    Rect bounds = getBoundingBox(v1, v2, v3);
-
     // If the entire triangle is out of frame, skip
     // Clip vertices which are off screen
-    
     if (!m_frame.contains(v1) && !m_frame.contains(v2) && !m_frame.contains(v3))
     {
         return false;
     }
 
-    Channel* rChannel = m_channels[CHANNEL_R];
-    Channel* gChannel = m_channels[CHANNEL_G];
-    Channel* bChannel = m_channels[CHANNEL_B];
-    Channel* zChannel = m_channels[CHANNEL_Z];
+    // Get the bounding box of the screen triangle
+    Rect bounds = getBoundingBox(v1, v2, v3);
+    double maxX = bounds.getMax().x();
+    double maxY = bounds.getMax().y();
 
     // Draw each pixel within the bounding box
-    for (double y = bounds.getMin().y(); y < bounds.getMax().y(); y++)
+    for (double y = bounds.getMin().y(); y < maxY; y++)
     {
-        for (double x = bounds.getMin().x(); x < bounds.getMax().x(); x++)
+        for (double x = bounds.getMin().x(); x < maxX; x++)
         {
             // Current pixel index
             int i = ((int) y * (int) m_width) + (int) x;
@@ -199,7 +202,7 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             }
 
             // Get barycentric coordinates of triangle (uvw)
-            Vector3 uvw = Triangle::getBarycentricCoords(v1, v2, v3, p);
+            Vector3 uvw = getBarycentricCoords(v1, v2, v3, p);
 
             // If the total != 1.0, or all of the coord axes are less than 0,
             // we'll skip this (it's not in the triangle!)
@@ -209,7 +212,7 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             }
 
             // Calculate depth
-            double z = getDepth(v1, v2, v3, p);
+            double z = getDepth(&v1, &v2, &v3, &p);
 
             // If the z-depth is greater (further back) than what's currently at this pixel, we'll
             // skip it. Also skip if we're outside of the near/far clip.
@@ -218,17 +221,18 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             {
                 continue;
             }
-            zChannel->setPixel(x, y, z); // Otherwise we'll set the current pixel Z to this depth
+            // Store z-depth in channel
+            getChannel(CHANNEL_Z)->setPixel(x, y, z); // Otherwise we'll set the current pixel Z to this depth
             
             // Store normals in channel
-            m_channels[CHANNEL_NORMAL_R]->setPixel(x, y, cameraNormal.x());
-            m_channels[CHANNEL_NORMAL_G]->setPixel(x, y, cameraNormal.y());
-            m_channels[CHANNEL_NORMAL_B]->setPixel(x, y, cameraNormal.z());
+            getChannel(CHANNEL_NORMAL_R)->setPixel(x, y, cameraNormal.x());
+            getChannel(CHANNEL_NORMAL_G)->setPixel(x, y, cameraNormal.y());
+            getChannel(CHANNEL_NORMAL_B)->setPixel(x, y, cameraNormal.z());
 
             // Set final color in RGB buffer
-            rChannel->setPixel(x, y, cameraNormal.x());
-            gChannel->setPixel(x, y, cameraNormal.y());
-            bChannel->setPixel(x, y, cameraNormal.z());
+            getChannel(CHANNEL_R)->setPixel(x, y, cameraNormal.x());
+            getChannel(CHANNEL_G)->setPixel(x, y, cameraNormal.y());
+            getChannel(CHANNEL_B)->setPixel(x, y, cameraNormal.z());
         }   
     }
 
@@ -256,9 +260,9 @@ void Framebuffer::render()
     int count = 0;
     for (auto t : m_triangles)
     {
-        auto v1 = t.v1().getTranslation();
-        auto v2 = t.v2().getTranslation();
-        auto v3 = t.v3().getTranslation();
+        Vector3 v1 = t->v1()->getTranslation();
+        Vector3 v2 = t->v2()->getTranslation();
+        Vector3 v3 = t->v3()->getTranslation();
 
         if (drawTriangle(v1, v2, v3))
         {
@@ -315,9 +319,9 @@ void Framebuffer::allocateDisplayPtr()
             // Order is inverted; RGB => BBGGRRXX
             if (pixel != NULL)
             {
-                *pixel++ = (uint8) normalize(b, 0.0, 1.0, 0.0, 255.0);
-                *pixel++ = (uint8) normalize(g, 0.0, 1.0, 0.0, 255.0);
-                *pixel++ = (uint8) normalize(r, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) normalize(&b, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) normalize(&g, 0.0, 1.0, 0.0, 255.0);
+                *pixel++ = (uint8) normalize(&r, 0.0, 1.0, 0.0, 255.0);
 
                 // A (alpha) is always 0
                 *pixel++ = (uint8) 0;

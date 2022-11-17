@@ -52,6 +52,11 @@ public:
         }
     }
 
+    inline Channel* getChannel(const char* channel)
+    {
+        return m_channels[channel];
+    }
+
     // Camera
     Camera* camera() { return &m_camera; }
 
@@ -62,11 +67,12 @@ public:
     void allocateDisplayPtr();
     void* getDisplayPtr() { return m_displayBuffer; }
     int getBufferSize() { return m_width * m_height * sizeof(unsigned int); }
+    HBITMAP getBitmap();
 
     // Vertex, index, triangle buffer
     void bindVertexBuffer(std::vector<Vertex> data);
     void bindIndexBuffer(std::vector<int> data);
-    void bindTriangleBuffer(std::vector<Triangle> data);
+    void bindTriangleBuffer(std::vector<Triangle*> data);
     size_t getNumVertices();
     size_t getNumIndices();
     size_t getNumTriangles();
@@ -75,7 +81,7 @@ public:
     bool worldToScreen(Vector3& v);
     bool isPointInFrame(Vector2& p) const;
     bool isRectInFrame(Rect& r) const;
-    double getDepth(Vector3& v1, Vector3& v2, Vector3& v3, Vector3& p);
+    double getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p);
 
     // Drawing
     bool drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3);
@@ -116,7 +122,7 @@ private:
     // Vertex memory
     std::vector<Vertex> m_vertices;
     std::vector<int> m_indices;
-    std::vector<Triangle> m_triangles;
+    std::vector<Triangle*> m_triangles;
 
     std::vector<Vector2> m_screenVertices;
     std::vector<double> m_depthBuffer;
