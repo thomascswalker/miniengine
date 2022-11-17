@@ -208,7 +208,7 @@ void Application::displayFps()
     LPCWSTR text = stemp.c_str();
     RECT rect;
     GetClientRect(m_hwnd, &rect);
-    SetTextColor(hdc, (COLORREF) Color::cyan().hex());
+    SetTextColor(hdc, (COLORREF) Color::yellow().hex());
     SetBkMode(hdc, TRANSPARENT);
     rect.left = rect.right - 80;
     rect.top = 40;
