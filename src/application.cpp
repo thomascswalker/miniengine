@@ -12,8 +12,8 @@ static std::string MODEL_FILENAME = "../models/cow.obj";
 
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
-static int      initWidth           = 512;     // Standard HD
-static int      initHeight          = 512;
+static int      initWidth           = 640;     // Standard HD
+static int      initHeight          = 480;
 
 // Display options
 static bool     bDrawFaces          = true;

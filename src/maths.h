@@ -44,19 +44,19 @@ inline T normalize(T* value, const T amin, const T amax, const T bmin, const T b
 
 inline double dot(Vector2 v1, Vector2 v2)
 {
-    return v1.x() * v2.x() + v1.y() * v2.y();
+    return v1._x * v2._x + v1._y * v2._y;
 }
 
 inline double dot(Vector3 v1, Vector3 v2)
 {
-	return v1.x() * v2.x() + v1.y() * v2.y() + v1.z() * v2.z();
+	return v1._x * v2._x + v1._y * v2._y + v1._z * v2._z;
 }
 
 inline double area(Vector2* v1, Vector2* v2, Vector3* v3)
 {
-    return abs((v1->x() * (v2->y() - v3->y()) +
-                v2->x() * (v3->y() - v1->y()) +
-                v3->x() * (v1->y() - v2->y())) / 2.0);
+    return abs((v1->_x * (v2->_y - v3->_y) +
+                v2->_x * (v3->_y - v1->_y) +
+                v3->_x * (v1->_y - v2->_y)) / 2.0);
 }
 
 inline double distance(Vector2 v1, Vector2 v2)
@@ -81,7 +81,7 @@ inline Vector3 getNormal(Vector3& v1, Vector3& v2, Vector3& v3)
     return cross(u, v);
 }
 
-inline Vector3 getBarycentricCoords(Vector2& v1, Vector2& v2, Vector2& v3, Vector2& p)
+inline void getBarycentricCoords(Vector2& v1, Vector2& v2, Vector2& v3, Vector2& p, Vector3& uvw)
 {
     Vector2 v21 = v2 - v1;
     Vector2 v31 = v3 - v1;
@@ -93,13 +93,11 @@ inline Vector3 getBarycentricCoords(Vector2& v1, Vector2& v2, Vector2& v3, Vecto
     double d20 = dot(vp1, v21);
     double d21 = dot(vp1, v31);
 
-    double det = (d00 * d11) - (d01 * d01);
+    double den = (d00 * d11) - (d01 * d01);
 
-    double v = (d11 * d20 - d01 * d21) / det;
-    double w = (d00 * d21 - d01 * d20) / det;
-    double u = 1.0 - v - w;
-
-    return Vector3(u, v, w);
+    uvw._y = (d11 * d20 - d01 * d21) / den;
+    uvw._z = (d00 * d21 - d01 * d20) / den;
+    uvw._x = 1.0 - uvw._y - uvw._z;
 }
 
 

@@ -93,6 +93,11 @@ class Channel
         clear();
     }
 
+    void* getMemoryPtr()
+    {
+        return m_memoryBuffer;
+    }
+
     int getMemoryOffset(int x, int y)
     {
         return x + (y * m_width);
@@ -121,9 +126,11 @@ class Channel
         memcpy(m_memoryBuffer, buffer, size());
     }
 
+    void* m_memoryBuffer = nullptr;
+
 private:
     const char* m_name = "";
-    void* m_memoryBuffer = nullptr;
+    
     int m_bufferSize = 0;
     int m_width = 0;
     int m_height = 0;
