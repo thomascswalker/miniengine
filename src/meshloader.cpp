@@ -236,7 +236,7 @@ MeshLoader::load(std::string filename, Mesh* mesh)
 				}
 
 				// Append each index to the indices array
-				int triCount = values.size() - 2;
+				int triCount = (int) values.size() - 2;
 				for (int i = 0; i < triCount; i++)
 				{
 					int i1 = 0;

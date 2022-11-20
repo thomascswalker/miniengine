@@ -36,37 +36,37 @@ public:
 	// Operators
 	Vector2 operator + (Vector2& v) const
 	{
-		return Vector2(_x + v.x(), _y + v.y());
+		return Vector2(_x + v._x, _y + v._y);
 	}
 	
 	Vector2 operator - (Vector2& v) const
 	{
-		return Vector2(_x - v.x(), _y - v.y());
+		return Vector2(_x - v._x, _y - v._y);
 	}
 	
 	Vector2 operator * (Vector2& v) const
 	{
-		return Vector2(_x * v.x(), _y * v.y());
+		return Vector2(_x * v._x, _y * v._y);
 	}
 	
 	Vector2 operator / (Vector2& v) const
 	{
-		return Vector2(_x / v.x(), _y / v.y());
+		return Vector2(_x / v._x, _y / v._y);
 	}
 
 	bool operator < (Vector2& v) const
 	{
-		return _x < v.x() && _y < v.y();
+		return _x < v._x && _y < v._y;
 	}
 
 	bool operator > (Vector2& v) const
 	{
-		return _x > v.x() && _y > v.y();
+		return _x > v._x && _y > v._y;
 	}
 
 	bool operator == (Vector2& v) const
 	{
-		return _x - v.x() < 0.0001f && _y - v.y() < 0.0001f;
+		return _x - v._x < DBL_EPSILON && _y - v._y < DBL_EPSILON;
 	}
 };
 
@@ -109,49 +109,49 @@ public:
 
 	bool operator == (const Vector3& v) const
 	{
-		return (_x == v.x() &&
-				_y == v.y() &&
-				_z == v.z());
+		return (_x == v._x &&
+				_y == v._y &&
+				_z == v._z);
 	}
 
 	Vector3 operator + (Vector3& v) const
 	{
-		return Vector3(_x + v.x(), _y + v.y(), _z + v.z());
+		return Vector3(_x + v._x, _y + v._y, _z + v._z);
 	}
 
 	Vector3 operator + (const Vector3& v) const
 	{
-		return Vector3(_x + v.x(), _y + v.y(), _z + v.z());
+		return Vector3(_x + v._x, _y + v._y, _z + v._z);
 	}
 
 	Vector3 operator += (Vector3& v) const
 	{
-		return Vector3(_x + v.x(), _y + v.y(), _z + v.z());
+		return Vector3(_x + v._x, _y + v._y, _z + v._z);
 	}
 
 	Vector3 operator += (const Vector3& v) const
 	{
-		return Vector3(_x + v.x(), _y + v.y(), _z + v.z());
+		return Vector3(_x + v._x, _y + v._y, _z + v._z);
 	}
 	
 	Vector3 operator - (Vector3& v) const
 	{
-		return Vector3(_x - v.x(), _y - v.y(), _z - v.z());
+		return Vector3(_x - v._x, _y - v._y, _z - v._z);
 	}
 
 	const Vector3 operator - (const Vector3& v) const
 	{
-		return Vector3(_x - v.x(), _y - v.y(), _z - v.z());
+		return Vector3(_x - v._x, _y - v._y, _z - v._z);
 	}
 	
 	const Vector3 operator * (const Vector3& v) const
 	{
-		return Vector3(_x * v.x(), _y * v.y(), _z * v.z());
+		return Vector3(_x * v._x, _y * v._y, _z * v._z);
 	}
 
 	Vector3 operator * (Vector3& v) const
 	{
-		return Vector3(_x * v.x(), _y * v.y(), _z * v.z());
+		return Vector3(_x * v._x, _y * v._y, _z * v._z);
 	}
 
 	Vector3 operator * (double d) const
@@ -161,7 +161,7 @@ public:
 	
 	Vector3 operator / (Vector3& v) const
 	{
-		return Vector3(_x / v.x(), _y / v.y(), _z / v.z());
+		return Vector3(_x / v._x, _y / v._y, _z / v._z);
 	}
 
 	Vector3 operator / (double d) const
@@ -176,22 +176,22 @@ public:
 
 	bool operator < (Vector3& v)
 	{
-		return _x < v.x() && _y < v.y() && _z < v.z();
+		return _x < v._x && _y < v._y && _z < v._z;
 	}
 
 	bool operator < (Vector3& v) const
 	{
-		return _x < v.x() && _y < v.y() && _z < v.z();
+		return _x < v._x && _y < v._y && _z < v._z;
 	}
 
 	bool operator > (Vector3& v) const
 	{
-		return _x > v.x() && _y > v.y() && _z > v.z();
+		return _x > v._x && _y > v._y && _z > v._z;
 	}
 
 	bool operator == (Vector3& v) const
 	{
-		return _x - v.x() < 0.0001f && _y - v.y() < 0.0001f && _z - v.z() < 0.0001f;
+		return _x - v._x < 0.0001f && _y - v._y < 0.0001f && _z - v._z < 0.0001f;
 	}
 
 	Vector3 operator -() const
@@ -241,37 +241,37 @@ public:
 	// Operators
 	Vector4 operator + (Vector4& v) const
 	{
-		return Vector4(_x + v.x(), _y + v.y(), _z + v.z(), _w + v.w());
+		return Vector4(_x + v._x, _y + v._y, _z + v._z, _w + v._w);
 	}
 	
 	Vector4 operator - (Vector4& v) const
 	{
-		return Vector4(_x - v.x(), _y - v.y(), _z - v.z(), _w - v.w());
+		return Vector4(_x - v._x, _y - v._y, _z - v._z, _w - v._w);
 	}
 	
 	Vector4 operator * (Vector4& v) const
 	{
-		return Vector4(_x * v.x(), _y * v.y(), _z * v.z(), _w * v.w());
+		return Vector4(_x * v._x, _y * v._y, _z * v._z, _w * v._w);
 	}
 	
 	Vector4 operator / (Vector4& v) const
 	{
-		return Vector4(_x / v.x(), _y / v.y(), _z / v.z(), _w / v.w());
+		return Vector4(_x / v._x, _y / v._y, _z / v._z, _w / v._w);
 	}
 
 	bool operator < (Vector4& v) const
 	{
-		return _x < v.x() && _y < v.y() && _z < v.z() && _w < v.w();
+		return _x < v._x && _y < v._y && _z < v._z && _w < v._w;
 	}
 
 	bool operator > (Vector4& v) const
 	{
-		return _x > v.x() && _y > v.y() && _z > v.z() && _w > v.w();
+		return _x > v._x && _y > v._y && _z > v._z && _w > v._w;
 	}
 
 	bool operator == (Vector4& v) const
 	{
-		return _x - v.x() < 0.0001f && _y - v.y() < 0.0001f && _z - v.z() < 0.0001f && _w - v.w() < 0.0001f;
+		return _x - v._x < DBL_EPSILON && _y - v._y < DBL_EPSILON && _z - v._z < DBL_EPSILON && _w - v._w < DBL_EPSILON;
 	}
 
 	Vector4 operator *= (Vector4& v)
@@ -291,9 +291,6 @@ public:
 	double length() { return sqrt(_x * _x + _y * _y + _z * _z + _w * _w); }
 	void set(double x, double y, double z, double w) {_x = x, _y = y, _z = z, _w = w;}
 };
-
-double cross(const Vector2& v1, const Vector2& v2);
-Vector3 cross(const Vector3& v1, const Vector3& v2);
 
 MINI_NAMESPACE_CLOSE
 

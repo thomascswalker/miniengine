@@ -39,16 +39,10 @@ class Size
 {
 public:
     Size() {};
-    Size(double width, double height) : m_width(width), m_height(height) {};
+    Size(double _width, double _height) : width(_width), height(_height) {};
 
-    double width() { return m_width; }
-    double height() { return m_height; }
-    double setWidth(int width) { m_width = width; }
-    double setHeight(int height) { m_height = height; }
-
-private:
-    double m_width = 0;
-    double m_height = 0;
+    double width = 0;
+    double height = 0;
 };
 
 template <typename T>
@@ -73,7 +67,6 @@ public:
         return m_x != p.x() && m_y != p.y();
     }
 
-private:
     T m_x = 0;
     T m_y = 0;
 };
@@ -93,6 +86,12 @@ public:
     Point<double> getMin() { return Point(x, y); }
     Point<double> getMax() { return Point(x + width, y + height); }
 
+    /**
+     * @brief Check whether the rectangle contains the given X/Y coordinates.
+     * @param _x The x-coordinate.
+     * @param _y The y-coordinate.
+     * @return Whether the rectangle contains the X/Y coordinates or not.
+    */
     inline bool contains(int _x, int _y)
     {
         if (_x < x || _x > width)
@@ -105,10 +104,22 @@ public:
         }
         return true;
     }
+
+    /**
+     * @brief Check whether the rectangle contains the given point.
+     * @param p The point to check.
+     * @return Whether the rectangle contains the point or not.
+    */
     inline bool contains(Point<int> p)
     {
         return contains(p.x(), p.y());
     }
+
+    /**
+     * @brief Check whether the rectangle contains the given vector.
+     * @param v The vector to check.
+     * @return Whether the rectangle contains the vector or not.
+    */
     inline bool contains(Vector3& v)
     {
         return contains((int) v.x(), (int) v.y());
