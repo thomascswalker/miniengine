@@ -64,9 +64,6 @@
     <ClCompile Include="meshloader.cpp">
       <Filter>Source Files\assets</Filter>
     </ClCompile>
-    <ClCompile Include="triangle.cpp">
-      <Filter>Source Files\engine</Filter>
-    </ClCompile>
     <ClCompile Include="printbuffer.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>

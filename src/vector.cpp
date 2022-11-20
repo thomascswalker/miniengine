@@ -24,15 +24,15 @@ Vector3::Vector3(double x, double y, double z)
 
 Vector3::Vector3(Vector2& v)
 {
-	_x = v.x();
-	_y = v.y();
+	_x = v._x;
+	_y = v._y;
 	_z = 0.0;
 };
 
 Vector3::Vector3(Vector2& v, double z)
 {
-	_x = v.x();
-	_y = v.y();
+	_x = v._x;
+	_y = v._y;
 	_z = z;
 };
 
@@ -82,9 +82,9 @@ Vector4::Vector4(double x, double y, double z, double w)
 
 Vector4::Vector4(const Vector3& v, double w)
 {
-	_x = v.x();
-	_y = v.y();
-	_z = v.z();
+	_x = v._x;
+	_y = v._y;
+	_z = v._z;
 	_w = w;
 }
 
@@ -105,19 +105,6 @@ void Vector4::normalize()
 Vector4 Vector4::identity()
 {
 	return Vector4(1.0, 1.0, 1.0, 1.0);
-}
-
-double cross(const Vector2& v1, const Vector2& v2)
-{
-	return v1.x() * v2.y() - v2.x() * v1.y();
-}
-
-Vector3 cross(const Vector3& v1, const Vector3& v2)
-{
-	double x = (v1.y() * v2.z()) - (v1.z() * v2.y());
-	double y = (v1.z() * v2.x()) - (v1.x() * v2.z());
-	double z = (v1.x() * v2.y()) - (v1.y() * v2.x());
-	return Vector3(x, y, z);
 }
 
 MINI_NAMESPACE_CLOSE

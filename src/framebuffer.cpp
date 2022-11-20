@@ -22,7 +22,7 @@ Framebuffer::Framebuffer(HWND hwnd)
 
 Framebuffer::~Framebuffer()
 {
-    //clear()/*;*/
+    
 }
 
 HBITMAP Framebuffer::getBitmap()
@@ -30,45 +30,15 @@ HBITMAP Framebuffer::getBitmap()
     return CreateBitmap(m_width, m_height, 1, sizeof(double) * 4, m_displayBuffer);
 }
 
-void Framebuffer::setSize(Size size)
-{
-    setSize(size.width(), size.height());
-}
-
-void Framebuffer::bindVertexBuffer(std::vector<Vertex> data)
-{
-    m_vertices = data;
-}
-
-void Framebuffer::bindIndexBuffer(std::vector<int> data)
-{
-    m_indices = data;
-}
-
 void Framebuffer::bindTriangleBuffer(std::vector<Triangle*> data)
 {
     m_triangles = data;
 }
 
-size_t Framebuffer::getNumVertices()
-{
-    return m_vertices.size();
-}
-
-size_t Framebuffer::getNumIndices()
-{
-    return m_indices.size();
-}
-
-size_t Framebuffer::getNumTriangles()
-{
-    return m_triangles.size();
-}
-
 bool Framebuffer::isPointInFrame(Vector2& p) const
 {
-    auto x = p.x();
-    auto y = p.y();
+    auto x = p._x;
+    auto y = p._y;
     return (x > 0 && y > 0 && x < m_width && y < m_height);
 }
 
@@ -95,7 +65,7 @@ bool Framebuffer::worldToScreen(Vector3& v)
     return true;
 }
 
-// Returns the Z-depth of point P given a triangle (v1, v2, v3).
+
 double Framebuffer::getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p)
 {
     // Calculate area of this triangle
@@ -180,8 +150,8 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     //// Get the bounding box of the screen triangle
     Rect bounds = getBoundingBox(v1, v2, v3);
 
-    int maxX = bounds.x + bounds.width;
-    int maxY = bounds.y + bounds.height;
+    int maxX = (int)(bounds.x + bounds.width);
+    int maxY = (int)(bounds.y + bounds.height);
 
     // Draw each pixel within the bounding box
     for (int y = bounds.y; y < maxY; y++)
@@ -324,11 +294,6 @@ void Framebuffer::allocateDisplayPtr()
         }
         rowPtr += rowPtrOffset;
     }
-}
-
-bool operator == (const Framebuffer& f1, const Framebuffer& f2)
-{
-    return typeid(f1) == typeid(f2);
 }
 
 MINI_NAMESPACE_CLOSE

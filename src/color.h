@@ -10,7 +10,7 @@ MINI_USING_DIRECTIVE
 class Color
 {
 public:
-	Color() {};
+	Color() { *this = Color(128, 128, 128); }
 	Color(int rgb) : m_rgb(rgb) {};
 	Color(int r, int g, int b);
 

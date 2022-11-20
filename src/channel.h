@@ -30,6 +30,14 @@ Channels are comprised of an array of doubles.
 */
 class Channel
 {
+    const char* m_name = "";
+    
+    int m_bufferSize = 0;
+    int m_width = DEFAULT_WINDOW_WIDTH;
+    int m_height = DEFAULT_WINDOW_HEIGHT;
+
+    std::vector<double> m_pixels;
+
  public:
     Channel(const char* name, int width, int height)
         : m_name(name),
@@ -53,7 +61,7 @@ class Channel
         // Calculate the new buffer size and allocate memory of that size
         // Each raw channel is stored as double to maximize floating point precision without
         // getting too huge
-        m_bufferSize = m_width * m_height * sizeof(double);
+        m_bufferSize = getSize();
 
         // Allocate the memory buffer
         m_memoryBuffer = VirtualAlloc(0, m_bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
@@ -80,7 +88,7 @@ class Channel
         }
     };
 
-    int size()
+    int getSize()
     {
         return m_width * m_height * sizeof(double);
     }
@@ -103,19 +111,17 @@ class Channel
         return x + (y * m_width);
     }
 
-    template <typename T>
-    double getPixel(T x, T y)
+    double getPixel(int x, int y)
     {
-        int offset = getMemoryOffset((int)x, (int)y);
+        int offset = getMemoryOffset(x, y);
         double* buffer = (double*) m_memoryBuffer;
         buffer += offset;
         return *buffer;
     }
 
-    template <typename T>
-    void setPixel(T x, T y, double value)
+    void setPixel(int x, int y, double value)
     {
-        uint32 offset = getMemoryOffset((int)x, (int)y);
+        uint32 offset = getMemoryOffset(x, y);
         double* buffer = (double*) m_memoryBuffer;
         buffer += offset;
         *buffer = value;
@@ -123,19 +129,11 @@ class Channel
 
     void pasteBuffer(void* buffer)
     {
-        memcpy(m_memoryBuffer, buffer, size());
+        memcpy(m_memoryBuffer, buffer, getSize());
     }
 
+    // Variables
     void* m_memoryBuffer = nullptr;
-
-private:
-    const char* m_name = "";
-    
-    int m_bufferSize = 0;
-    int m_width = 0;
-    int m_height = 0;
-
-    std::vector<double> m_pixels;
 };
 
 MINI_NAMESPACE_CLOSE
