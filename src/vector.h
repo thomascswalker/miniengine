@@ -13,11 +13,11 @@ MINI_USING_DIRECTIVE
 
 class Vector2
 {
-protected:
+public:
 	double _x = 0;
 	double _y = 0;
 
-public:
+
 	// Constructors
 	Vector2() : _x(0), _y(0) {};
 	Vector2(double x, double y) : _x(x), _y(y) {};
@@ -72,10 +72,8 @@ public:
 
 class Vector3 : public Vector2
 {
-protected:
-	double _z = 0;
-
 public:
+	double _z = 0;
 
 	// Constructors
 	Vector3();
@@ -230,10 +228,9 @@ public:
 
 class Vector4 : public Vector3
 {
-protected:
+public:
 	double _w = 0;
 
-public:
 	Vector4();
 	Vector4(double d);
 	Vector4(double x, double y, double z, double w);

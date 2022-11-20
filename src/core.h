@@ -83,33 +83,23 @@ class Rect
 public:
     // Constructors
     Rect() {};
-    Rect(double x, double y, double width, double height) : m_x(x), m_y(y), m_width(width), m_height(height) {};
+    Rect(double _x, double _y, double _width, double _height) : x(_x), y(_y), width(_width), height(_height) {};
     Rect(Vector2 min, Vector2 max);
 
 
     // Methods
-    Point<double> pos() { return Point(m_x, m_y); }
-    Size size() { return Size(m_width, m_height); }
-    Point<double> getMin() { return Point(m_x, m_y); }
-    Point<double> getMax() { return Point(m_x + m_width, m_y + m_height); }
-    
-    // Accessors
-    double x() { return m_x; }
-    double y() { return m_y; }
-    double setX(int x) { m_x = x; }
-    double setY(int y) { m_y = y; }
-    double width() { return m_width; }
-    double height() { return m_height; }
-    double setWidth(double width) { m_width = width; }
-    double setHeight(double height) { m_height = height; }
+    Point<double> pos() { return Point(x, y); }
+    Size size() { return Size(width, height); }
+    Point<double> getMin() { return Point(x, y); }
+    Point<double> getMax() { return Point(x + width, y + height); }
 
-    inline bool contains(int x, int y)
+    inline bool contains(int _x, int _y)
     {
-        if (x < m_x || x > m_width)
+        if (_x < x || _x > width)
         {
             return false;
         }
-        if (y < m_y || y > m_height)
+        if (_y < y || _y > height)
         {
             return false;
         }
@@ -124,12 +114,11 @@ public:
         return contains((int) v.x(), (int) v.y());
     }
 
-private:
     // Properties
-    double m_x = 0;
-    double m_y = 0;
-    double m_width = 0;
-    double m_height = 0;
+    double x = 0.0;
+    double y = 0.0;
+    double width = 0.0;
+    double height = 0.0;
 };
 
 int getRefreshRate();

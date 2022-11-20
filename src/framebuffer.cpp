@@ -120,14 +120,10 @@ double Framebuffer::getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p)
 
 Rect Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
 {
-    // Determine the screen bounding box
-    std::vector<double> xList = { v1.x(), v2.x(), v3.x() };
-    std::vector<double> yList = { v1.y(), v2.y(), v3.y() };
-
-    auto minX = *std::min_element(std::begin(xList), std::end(xList));
-    auto maxX = *std::max_element(std::begin(xList), std::end(xList));
-    auto minY = *std::min_element(std::begin(yList), std::end(yList));
-    auto maxY = *std::max_element(std::begin(yList), std::end(yList));
+    double minX = std::min({v1._x, v2._x, v3._x});
+    double minY = std::min({v1._y, v2._y, v3._y});
+    double maxX = std::max({v1._x, v2._x, v3._x});
+    double maxY = std::max({v1._y, v2._y, v3._y});
 
     Vector2 min(minX, minY);
     Vector2 max(maxX, maxY);
@@ -181,18 +177,19 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
         return false;
     }
 
-    // Get the bounding box of the screen triangle
+    //// Get the bounding box of the screen triangle
     Rect bounds = getBoundingBox(v1, v2, v3);
-    double maxX = bounds.getMax().x();
-    double maxY = bounds.getMax().y();
+
+    int maxX = bounds.x + bounds.width;
+    int maxY = bounds.y + bounds.height;
 
     // Draw each pixel within the bounding box
-    for (double y = bounds.getMin().y(); y < maxY; y++)
+    for (int y = bounds.y; y < maxY; y++)
     {
-        for (double x = bounds.getMin().x(); x < maxX; x++)
+        for (int x = bounds.x; x < maxX; x++)
         {
             // Current pixel index
-            int i = ((int) y * (int) m_width) + (int) x;
+            int i = (y * m_width) + x;
 
             // If the pixel is outside the frame entirely, we'll skip it
             Vector3 p(x + 0.5, y + 0.5, 0);
@@ -201,12 +198,14 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
                 continue;
             }
 
-            // Get barycentric coordinates of triangle (uvw)
-            Vector3 uvw = getBarycentricCoords(v1, v2, v3, p);
+            //Get barycentric coordinates of triangle (uvw)
+            Vector3 uvw;
+            getBarycentricCoords(v1, v2, v3, p, uvw);
 
             // If the total != 1.0, or all of the coord axes are less than 0,
             // we'll skip this (it's not in the triangle!)
-            if (uvw.x() < 0 || uvw.y() < 0 || uvw.z() < 0)
+            double sum = uvw._x + uvw._y + uvw._z;
+            if (uvw._x < 0.0 || uvw._y < 0.0 || uvw._z < 0.0 || 1.0 - abs(sum) > EPSILON)
             {
                 continue;
             }
@@ -299,26 +298,22 @@ void Framebuffer::allocateDisplayPtr()
     Channel* gChannel = m_channels[CHANNEL_G];
     Channel* bChannel = m_channels[CHANNEL_B];
 
-    Channel* nrChannel = m_channels[CHANNEL_NORMAL_R];
-    Channel* ngChannel = m_channels[CHANNEL_NORMAL_G];
-    Channel* nbChannel = m_channels[CHANNEL_NORMAL_B];
-
-    uint8* row = (uint8*) m_displayBuffer;
-    int pitch = m_width * sizeof(uint32);
+    uint8* rowPtr = (uint8*) m_displayBuffer;
+    int rowPtrOffset = m_width * sizeof(uint32);
     for (int y = 0; y < m_height; y++)
     {
-        uint8* pixel = (uint8*) row;
+        uint8* pixel = (uint8*) rowPtr;
         for (int x = 0; x < m_width; x++)
         {
-            // Get r, g, b
-            double r = rChannel->getPixel(x, y);
-            double g = gChannel->getPixel(x, y);
-            double b = bChannel->getPixel(x, y);
-
-            // Normalize (0 => 255)
-            // Order is inverted; RGB => BBGGRRXX
             if (pixel != NULL)
             {
+                // Get r, g, b
+                double r = rChannel->getPixel(x, y);
+                double g = gChannel->getPixel(x, y);
+                double b = bChannel->getPixel(x, y);
+
+                // Normalize (0 => 255)
+                // Order is inverted; RGB => BBGGRRXX
                 *pixel++ = (uint8) normalize(&b, 0.0, 1.0, 0.0, 255.0);
                 *pixel++ = (uint8) normalize(&g, 0.0, 1.0, 0.0, 255.0);
                 *pixel++ = (uint8) normalize(&r, 0.0, 1.0, 0.0, 255.0);
@@ -327,7 +322,7 @@ void Framebuffer::allocateDisplayPtr()
                 *pixel++ = (uint8) 0;
             }
         }
-        row += pitch;
+        rowPtr += rowPtrOffset;
     }
 }
 

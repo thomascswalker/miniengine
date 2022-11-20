@@ -23,10 +23,10 @@ Size getScreenSize()
 
 Rect::Rect(Vector2 min, Vector2 max)
 {
-    m_x = min.x();
-    m_y = min.y();
-    m_width = max.x() - min.x();
-    m_height = max.y() - min.y();
+    x = min.x();
+    y = min.y();
+    width = max.x() - min.x();
+    height = max.y() - min.y();
 }
 
 double getCurrentTime()
