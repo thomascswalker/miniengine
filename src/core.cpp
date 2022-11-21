@@ -35,6 +35,11 @@ double getCurrentTime()
     return (double) duration.count();
 }
 
+int getDeltaTime(int previous, int offset)
+{
+    return (std::clock() - previous) + offset;
+}
+
 void print(const char* format, ...)
 {
     char text[1024];

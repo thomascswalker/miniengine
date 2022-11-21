@@ -136,6 +136,7 @@ int getRefreshRate();
 Size getScreenSize();
 
 double getCurrentTime();
+int getDeltaTime(int previous, int offset);
 
 void print(const char* format, ...);
 

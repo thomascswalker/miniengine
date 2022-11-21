@@ -142,6 +142,10 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
             app->setSize(width, height);
             InvalidateRect(hwnd, NULL, FALSE);
             UpdateWindow(hwnd);
+            
+            auto cursor = LoadCursor(NULL, IDC_SIZENESW);
+            SetCursor(cursor);
+
             break;
         } 
 
@@ -164,11 +168,6 @@ Application* Application::getAppInstance()
         instance = new Application();
     }
     return instance;
-}
-
-int deltaTime(int prev, int offset)
-{
-    return (std::clock() - prev) + offset;
 }
 
 void Application::displayPrintText()
@@ -236,39 +235,6 @@ void Application::init()
     m_buffer->setSize(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
 }
 
-bool Application::loadModel()
-{
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[256] = { 0 };
-
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = m_hwnd;
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = TEXT("Wavefront OBJ\0*.obj\0");
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-    if (GetOpenFileName(&ofn) == TRUE)
-    {
-        LPWSTR source = ofn.lpstrFile;
-        std::wstring wsource(source);
-        std::string dest(wsource.begin(), wsource.end());
-
-        m_mesh = new Mesh();
-        MeshLoader::load(dest, m_mesh);
-    }
-    else
-    {
-        return false;
-    }
-
-    return true;
-}
-
 int Application::run()
 {
     ShowWindow(m_hwnd, 1);
@@ -308,9 +274,6 @@ int Application::run()
             DispatchMessage(&message);
         }
 
-        int width = m_buffer->getWidth();
-        int height = m_buffer->getHeight();
-
         // Load our mesh
         if (O_DOWN)
         {
@@ -325,47 +288,18 @@ int Application::run()
         // Arcball rotation
         if (MOUSE_DOWN)
         {
-            Vector3 position = m_buffer->camera()->getTranslation();
-            Vector3 target = m_buffer->camera()->getTarget();
-            double length = distance(position, target);
-
-            // Delta
-            int dx = m_mousePos.x - m_mouseLastPos.x;
-            int dy = m_mousePos.y - m_mouseLastPos.y;
-
-            if (dx != 0.0 || dy != 0.0)
-            {
-                double scaleX = (double) abs(dx) / (double) width;
-                double scaleY = (double) abs(dy) / (double) height;
-
-                // Angle
-                double xRot = (double) dx * scaleX * ROTATION_SPEED;
-                double yRot = (double) dy * scaleY * ROTATION_SPEED;
-
-                // TODO: Fix this
-                // Y/X need to be swapped for some reason
-                Matrix4 rx = makeRotationX(yRot);
-                Matrix4 ry = makeRotationY(-xRot);
-                Matrix4 rz = makeRotationZ(0.0);
-
-                Vector3 d = position - target;
-                d.normalize();
-                Vector3 t = rx * ry * d * length;
-
-                m_buffer->camera()->setTranslation(t);
-            }
+            onMouseDown();
+        }
+        else
+        {
+            auto cursor = LoadCursor(NULL, IDC_ARROW);
+            SetCursor(cursor);
         }
 
+        // Mouse movement
         if (MOUSE_WHEEL_DELTA != 0)
         {
-            double delta = MOUSE_WHEEL_DELTA / 240.0;
-            Vector3 cameraTarget = m_buffer->camera()->getTarget();
-            Vector3 cameraPosition = m_buffer->camera()->getTranslation();
-            
-            Vector3 normal = cameraTarget - cameraPosition;
-            normal.normalize();
-
-            m_buffer->camera()->setTranslation(cameraPosition + (normal * delta));
+            onMouseMove();
         }
 
         // Bind vertex and index buffers to the Framebuffer
@@ -382,12 +316,12 @@ int Application::run()
         HDC src = CreateCompatibleDC(hdc);
         SelectObject(src, m_buffer->getBitmap());
         BitBlt(
-            hdc,            // Target device context
-            0, 0,           // Target start coords
-            width, height,  // Target size
-            src,            // Source device context
-            0, 0,           // Source start coords
-            SRCCOPY         // Method
+            hdc,                                         // Target device context
+            0, 0,                                        // Target start coords
+            m_buffer->getWidth(), m_buffer->getHeight(), // Target size
+            src,                                         // Source device context
+            0, 0,                                        // Source start coords
+            SRCCOPY                                      // Method
         );
 
         // Debug print to screen
@@ -423,6 +357,87 @@ void Application::setSize(int width, int height)
         m_buffer->setSize(width, height);
     }
 }
+
+bool Application::loadModel()
+{
+    OPENFILENAME ofn = { 0 };
+    TCHAR szFile[256] = { 0 };
+
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = m_hwnd;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = TEXT("Wavefront OBJ\0*.obj\0");
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    if (GetOpenFileName(&ofn) == TRUE)
+    {
+        std::wstring source = (std::wstring) ofn.lpstrFile;
+        std::string dest(source.begin(), source.end());
+
+        m_mesh = new Mesh();
+        MeshLoader::load(dest, m_mesh);
+    }
+    else
+    {
+        return false;
+    }
+
+    return true;
+}
+
+void Application::onMouseDown()
+{
+    Vector3 position = m_buffer->camera()->getTranslation();
+    Vector3 target = m_buffer->camera()->getTarget();
+    double length = distance(position, target);
+
+    // Delta
+    int dx = m_mousePos.x - m_mouseLastPos.x;
+    int dy = m_mousePos.y - m_mouseLastPos.y;
+
+    if (dx != 0.0 || dy != 0.0)
+    {
+        auto cursor = LoadCursor(NULL, IDC_HAND);
+        SetCursor(cursor);
+
+        double scaleX = (double) abs(dx) / (double) m_buffer->getWidth();
+        double scaleY = (double) abs(dy) / (double) m_buffer->getHeight();
+
+        // Angle
+        double xRot = (double) dx * scaleX * ROTATION_SPEED;
+        double yRot = (double) dy * scaleY * ROTATION_SPEED;
+
+        // TODO: Fix this
+        // Y/X need to be swapped for some reason
+        Matrix4 rx = makeRotationX(yRot);
+        Matrix4 ry = makeRotationY(-xRot);
+        Matrix4 rz = makeRotationZ(0.0);
+
+        Vector3 d = position - target;
+        d.normalize();
+        Vector3 t = rx * ry * d * length;
+
+        m_buffer->camera()->setTranslation(t);
+    }
+}
+
+void Application::onMouseMove()
+{
+    double delta = MOUSE_WHEEL_DELTA / 240.0;
+    Vector3 cameraTarget = m_buffer->camera()->getTarget();
+    Vector3 cameraPosition = m_buffer->camera()->getTranslation();
+            
+    Vector3 normal = cameraTarget - cameraPosition;
+    normal.normalize();
+
+    m_buffer->camera()->setTranslation(cameraPosition + (normal * delta));
+}
+
 
 Application *Application::instance = 0;
 

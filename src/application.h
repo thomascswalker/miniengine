@@ -30,13 +30,6 @@ class Application
 
     Mesh* m_mesh = new Mesh();
 
-protected:
-    static Application *instance;
-    Application() {};
-
-    void displayPrintText();
-    void displayFps();
-
 public:
     static Application* getAppInstance();
 
@@ -49,9 +42,6 @@ public:
     HINSTANCE getHInstance() { return m_hInstance; }
     void setHInstance(HINSTANCE hInstance) { m_hInstance = hInstance; }
 
-    bool loadModel();
-
-    Framebuffer* getFramebuffer() { return m_buffer; }
     void setSize(int width, int height);
 
     Point<int> getMousePos() { return m_mousePos; }
@@ -65,6 +55,19 @@ public:
     inline void setMousePos(Point<int> p) { m_mousePos = p; }
     inline void setMouseLastPos(Point<int> p) { m_mouseLastPos = p; }
     inline void setMouseClickPos(Point<int> p) { m_mouseClickPos = p; }
+
+protected:
+    static Application *instance;
+    Application() {};
+
+private:
+    bool loadModel();
+
+    void onMouseDown();
+    void onMouseMove();
+
+    void displayPrintText();
+    void displayFps();
 };
 
 MINI_NAMESPACE_CLOSE
