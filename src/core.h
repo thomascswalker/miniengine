@@ -50,25 +50,25 @@ class Point
 {
 public:
     Point() {};
-    Point(T x, T y) : m_x(x), m_y(y) {};
+    Point(T _x, T _y) : x(_x), y(_y) {};
 
-    T x() { return m_x; }
-    T y() { return m_y; }
-    void setX(T x) { m_x = x; }
-    void setY(T y) { m_y = y; }
+    //T x() { return m_x; }
+    //T y() { return m_y; }
+    //void setX(T x) { m_x = x; }
+    //void setY(T y) { m_y = y; }
 
     bool operator == (Point& p) const
     {
-        return m_x == p.x() && m_y == p.y();
+        return x == p.x && y == p.y;
     }
 
     bool operator != (Point& p) const
     {
-        return m_x != p.x() && m_y != p.y();
+        return x != p.x && y != p.y;
     }
 
-    T m_x = 0;
-    T m_y = 0;
+    T x = 0;
+    T y = 0;
 };
 
 class Rect
@@ -112,7 +112,7 @@ public:
     */
     inline bool contains(Point<int> p)
     {
-        return contains(p.x(), p.y());
+        return contains(p.x, p.y);
     }
 
     /**
@@ -122,7 +122,7 @@ public:
     */
     inline bool contains(Vector3& v)
     {
-        return contains((int) v.x(), (int) v.y());
+        return contains((int) v._x, (int) v._y);
     }
 
     // Properties

@@ -8,12 +8,8 @@
 #endif
 
 // Global variables
-static std::string MODEL_FILENAME = "../models/cow.obj";
-
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
-static int      initWidth           = DEFAULT_WINDOW_WIDTH;     // Standard HD
-static int      initHeight          = DEFAULT_WINDOW_HEIGHT;
 
 // Display options
 static bool     bDrawFaces          = true;
@@ -33,6 +29,7 @@ static bool     S_DOWN              = false;
 static bool     D_DOWN              = false;
 static bool     E_DOWN              = false;
 static bool     Q_DOWN              = false;
+static bool     O_DOWN              = false;
 static bool     SPACEBAR_DOWN       = false;
 static float    MOUSE_WHEEL_DELTA   = 0.0;
 
@@ -79,7 +76,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         {
             MOUSE_DOWN = true;
             Point mousePos = app->getMousePos();
-            app->setMouseClickPos(mousePos.x(), mousePos.y());
+            app->setMouseClickPos(mousePos.x, mousePos.y);
             break;
         }
         case WM_LBUTTONUP:
@@ -112,6 +109,7 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case 'D': D_DOWN = false; break;
                 case 'E': E_DOWN = false; break;
                 case 'Q': Q_DOWN = false; break;
+                case 'O': O_DOWN = false; break;
                 case 'T': bDisplayDebugText = !bDisplayDebugText; break;
                 case 'F': bDisplayFps = !bDisplayFps; break;
                 case VK_ESCAPE: bIsRunning = false; break;
@@ -132,24 +130,11 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
                 case 'D': D_DOWN = true; break;
                 case 'E': E_DOWN = true; break;
                 case 'Q': Q_DOWN = true; break;
+                case 'O': O_DOWN = true; break;
                 case VK_ESCAPE: bIsRunning = false; break;
             }
             break;
         }
-
-        //case WM_PAINT:
-        //{
-        //    PAINTSTRUCT ps;
-        //    HWND hwnd = app->getHwnd();
-        //    HDC hdc = BeginPaint(hwnd, &ps);
-
-        //    HBRUSH brush = CreateSolidBrush(RGB(255,0,0)); //create brush
-        //    SelectObject(hdc, brush); //select brush into DC
-        //    Rectangle(hdc, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)); //draw rectangle over whole screen
-
-        //    EndPaint(hwnd, &ps);
-        //    break;
-        //}
 
         // Resize
         case WM_SIZE:
@@ -237,8 +222,8 @@ void Application::init()
 
         CW_USEDEFAULT,
         CW_USEDEFAULT,
-        initWidth,                          // Width
-        initHeight,                         // Height
+        DEFAULT_WINDOW_WIDTH,               // Width
+        DEFAULT_WINDOW_HEIGHT,              // Height
 
         NULL,                               // Parent window    
         NULL,                               // Menu
@@ -248,7 +233,40 @@ void Application::init()
 
     // Initialize our framebuffer
     m_buffer = new Framebuffer(m_hwnd);
-    m_buffer->setSize(initWidth, initHeight);
+    m_buffer->setSize(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
+}
+
+bool Application::loadModel()
+{
+    OPENFILENAME ofn = { 0 };
+    TCHAR szFile[256] = { 0 };
+
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = m_hwnd;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = TEXT("Wavefront OBJ\0*.obj\0");
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    if (GetOpenFileName(&ofn) == TRUE)
+    {
+        LPWSTR source = ofn.lpstrFile;
+        std::wstring wsource(source);
+        std::string dest(wsource.begin(), wsource.end());
+
+        m_mesh = new Mesh();
+        MeshLoader::load(dest, m_mesh);
+    }
+    else
+    {
+        return false;
+    }
+
+    return true;
 }
 
 int Application::run()
@@ -256,11 +274,6 @@ int Application::run()
     ShowWindow(m_hwnd, 1);
     
     m_currentTime = getCurrentTime();
-
-    // Load our mesh
-    std::string filename = MODEL_FILENAME;
-    Mesh* mesh = new Mesh();
-    MeshLoader::load(filename, mesh);
 
     // Move the camera to the default position
     m_buffer->camera()->move(Vector3(0, 0, 5.0));
@@ -272,6 +285,12 @@ int Application::run()
         InvalidateRect(m_hwnd, NULL, TRUE);
 
         PrintBuffer::clear();
+
+        // Print instructions
+        PrintBuffer::debugPrintToScreen("O: Load a .obj file");
+        PrintBuffer::debugPrintToScreen("T: Toggle text display");
+        PrintBuffer::debugPrintToScreen("Left click + move: Orbit around");
+        PrintBuffer::debugPrintToScreen("Middle mouse scroll: Zoom in/out\n");
 
         MOUSE_WHEEL_DELTA = 0.0; // Reset mouse delta
 
@@ -292,6 +311,17 @@ int Application::run()
         int width = m_buffer->getWidth();
         int height = m_buffer->getHeight();
 
+        // Load our mesh
+        if (O_DOWN)
+        {
+            bool result = loadModel();
+            if (!result)
+            {
+                continue;
+            }
+            O_DOWN = false;
+        }
+
         // Arcball rotation
         if (MOUSE_DOWN)
         {
@@ -300,8 +330,8 @@ int Application::run()
             double length = distance(position, target);
 
             // Delta
-            int dx = m_mousePos.x() - m_mouseLastPos.x();
-            int dy = m_mousePos.y() - m_mouseLastPos.y();
+            int dx = m_mousePos.x - m_mouseLastPos.x;
+            int dy = m_mousePos.y - m_mouseLastPos.y;
 
             if (dx != 0.0 || dy != 0.0)
             {
@@ -311,8 +341,6 @@ int Application::run()
                 // Angle
                 double xRot = (double) dx * scaleX * ROTATION_SPEED;
                 double yRot = (double) dy * scaleY * ROTATION_SPEED;
-
-                PrintBuffer::debugPrintToScreen("Delta X, Y: %i, %i", dx, dy);
 
                 // TODO: Fix this
                 // Y/X need to be swapped for some reason
@@ -325,7 +353,6 @@ int Application::run()
                 Vector3 t = rx * ry * d * length;
 
                 m_buffer->camera()->setTranslation(t);
-                PrintBuffer::debugPrintToScreen("Camera position: %s", t.toString().c_str());
             }
         }
 
@@ -342,7 +369,7 @@ int Application::run()
         }
 
         // Bind vertex and index buffers to the Framebuffer
-        m_buffer->bindTriangleBuffer(mesh->getTris());
+        m_buffer->bindTriangleBuffer(m_mesh->getTris());
 
         // Draw our scene geometry as triangles
         m_buffer->render();
@@ -376,7 +403,7 @@ int Application::run()
 
         ReleaseDC(m_hwnd, hdc);
 
-        setMouseLastPos(m_mousePos.x(), m_mousePos.y());
+        setMouseLastPos(m_mousePos.x, m_mousePos.y);
     };
 
     return 0;
