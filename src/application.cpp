@@ -18,10 +18,6 @@ static bool     bDrawVertices       = false;
 static bool     bDisplayDebugText   = true;
 static bool     bDisplayFps         = true;
 
-// Keyboard input
-static WORD     keyCode;
-static WORD     keyFlags;
-
 static bool     MOUSE_DOWN          = false;
 static bool     W_DOWN              = false;
 static bool     A_DOWN              = false;
@@ -44,8 +40,8 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 {
     auto app = Application::getAppInstance();
 
-    int width = LOWORD(lParam);
-    int height = HIWORD(lParam);
+    WORD keyCode;
+    WORD keyFlags;
 
     // Switch on message type
     switch (uMsg)
@@ -139,6 +135,9 @@ LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
         // Resize
         case WM_SIZE:
         {
+            int width = LOWORD(lParam);
+            int height = HIWORD(lParam);
+
             app->setSize(width, height);
             InvalidateRect(hwnd, NULL, FALSE);
             UpdateWindow(hwnd);
