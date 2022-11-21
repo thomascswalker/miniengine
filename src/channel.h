@@ -119,9 +119,23 @@ class Channel
         return *buffer;
     }
 
+    double getPixel(int offset)
+    {
+        double* buffer = (double*) m_memoryBuffer;
+        buffer += offset;
+        return *buffer;
+    }
+
     void setPixel(int x, int y, double value)
     {
         uint32 offset = getMemoryOffset(x, y);
+        double* buffer = (double*) m_memoryBuffer;
+        buffer += offset;
+        *buffer = value;
+    }
+
+    void setPixel(int offset, double value)
+    {
         double* buffer = (double*) m_memoryBuffer;
         buffer += offset;
         *buffer = value;

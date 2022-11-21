@@ -44,10 +44,10 @@ bool Framebuffer::isPointInFrame(Vector2& p) const
 
 bool Framebuffer::isRectInFrame(Rect& r) const
 {
-    return r.getMin().x() < m_width - 1.0   ||
-           r.getMax().x() > 0.0             ||
-           r.getMin().y() < m_height - 1.0  ||
-           r.getMax().y() > 0.0;
+    return r.getMin().x < m_width - 1.0   ||
+           r.getMax().x > 0.0             ||
+           r.getMin().y < m_height - 1.0  ||
+           r.getMax().y > 0.0;
 };
 
 bool Framebuffer::worldToScreen(Vector3& v)
@@ -55,12 +55,12 @@ bool Framebuffer::worldToScreen(Vector3& v)
     // Convert to normalized device coords
     Vector4 ndc = m_mvp * Vector4(v, 1.0);          // m_mvp is precalculated in Framebuffer::render()
 
-    double x = ((ndc.x() + 1.0) * m_width) / 2.0;
-    double y = ((ndc.y() + 1.0) * m_height) / 2.0;
+    double x = ((ndc._x + 1.0) * m_width) / 2.0;
+    double y = ((ndc._y + 1.0) * m_height) / 2.0;
 
     v.setX(x);
     v.setY(y);
-    v.setZ(1.0 / ndc.z());                          // Invert Z
+    v.setZ(1.0 / ndc._z);                          // Invert Z
 
     return true;
 }
@@ -85,7 +85,7 @@ double Framebuffer::getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p)
     w2 /= a;
     w3 /= a;
 
-    return w1 * v1->z() + w2 * v2->z() + w3 * v3->z();
+    return w1 * v1->_z + w2 * v2->_z + w3 * v3->_z;
 }
 
 Rect Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
@@ -156,10 +156,11 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     // Draw each pixel within the bounding box
     for (int y = bounds.y; y < maxY; y++)
     {
+        int rowOffset = y * m_width;
         for (int x = bounds.x; x < maxX; x++)
         {
             // Current pixel index
-            int i = (y * m_width) + x;
+            int pixelOffset = rowOffset + x;
 
             // If the pixel is outside the frame entirely, we'll skip it
             Vector3 p(x + 0.5, y + 0.5, 0);
@@ -185,23 +186,24 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 
             // If the z-depth is greater (further back) than what's currently at this pixel, we'll
             // skip it. Also skip if we're outside of the near/far clip.
-            double currentZ = m_channels[CHANNEL_Z]->getPixel(x, y);
+            double currentZ = getChannel(CHANNEL_Z)->getPixel(pixelOffset);
             if (z > currentZ || z < m_camera.getNearClip() || z > m_camera.getFarClip())
             {
                 continue;
             }
+
             // Store z-depth in channel
-            getChannel(CHANNEL_Z)->setPixel(x, y, z); // Otherwise we'll set the current pixel Z to this depth
+            getChannel(CHANNEL_Z)->setPixel(pixelOffset, z); // Otherwise we'll set the current pixel Z to this depth
             
             // Store normals in channel
-            getChannel(CHANNEL_NORMAL_R)->setPixel(x, y, cameraNormal.x());
-            getChannel(CHANNEL_NORMAL_G)->setPixel(x, y, cameraNormal.y());
-            getChannel(CHANNEL_NORMAL_B)->setPixel(x, y, cameraNormal.z());
+            getChannel(CHANNEL_NORMAL_R)->setPixel(pixelOffset, cameraNormal._x);
+            getChannel(CHANNEL_NORMAL_G)->setPixel(pixelOffset, cameraNormal._y);
+            getChannel(CHANNEL_NORMAL_B)->setPixel(pixelOffset, cameraNormal._z);
 
             // Set final color in RGB buffer
-            getChannel(CHANNEL_R)->setPixel(x, y, cameraNormal.x());
-            getChannel(CHANNEL_G)->setPixel(x, y, cameraNormal.y());
-            getChannel(CHANNEL_B)->setPixel(x, y, cameraNormal.z());
+            getChannel(CHANNEL_R)->setPixel(pixelOffset, cameraNormal._x);
+            getChannel(CHANNEL_G)->setPixel(pixelOffset, cameraNormal._y);
+            getChannel(CHANNEL_B)->setPixel(pixelOffset, cameraNormal._z);
         }   
     }
 
