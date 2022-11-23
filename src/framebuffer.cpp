@@ -104,7 +104,7 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 
     Vector3 right = -m_camera.getRight();
     right.normalize();
-
+    
     // Calculate facing ratio
     double facingRatio = dot(normal, forward);
     double upRatio = dot(normal, up);

@@ -80,6 +80,7 @@ class Channel
         return m_width * m_height;
     }
 
+
     void setSize(int width, int height)
     {
         m_width = width;
