@@ -52,11 +52,6 @@ public:
     Point() {};
     Point(T _x, T _y) : x(_x), y(_y) {};
 
-    //T x() { return m_x; }
-    //T y() { return m_y; }
-    //void setX(T x) { m_x = x; }
-    //void setY(T y) { m_y = y; }
-
     bool operator == (Point& p) const
     {
         return x == p.x && y == p.y;
@@ -71,65 +66,60 @@ public:
     T y = 0;
 };
 
+template <typename T>
 class Rect
 {
 public:
     // Constructors
     Rect() {};
-    Rect(double _x, double _y, double _width, double _height) : x(_x), y(_y), width(_width), height(_height) {};
-    Rect(Vector2 min, Vector2 max);
-
+    Rect(T _x, T _y, T _width, T _height)
+        : x(_x), y(_y), width(_width), height(_height) {};
+    Rect(Vector2 min, Vector2 max)
+        : x(min._x), y(min._y), width(max._x - min._x), height(max._y - min._y) {};
 
     // Methods
-    Point<double> pos() { return Point(x, y); }
+    Point<T> pos() { return Point(x, y); }
     Size size() { return Size(width, height); }
-    Point<double> getMin() { return Point(x, y); }
-    Point<double> getMax() { return Point(x + width, y + height); }
+    Point<T> getMin() { return Point(x, y); }
+    Point<T> getMax() { return Point(x + width, y + height); }
 
-    /**
-     * @brief Check whether the rectangle contains the given X/Y coordinates.
-     * @param _x The x-coordinate.
-     * @param _y The y-coordinate.
-     * @return Whether the rectangle contains the X/Y coordinates or not.
-    */
-    inline bool contains(int _x, int _y)
+    inline bool overlaps(T _x, T _y)
     {
-        if (_x < x || _x > width)
-        {
-            return false;
-        }
-        if (_y < y || _y > height)
-        {
-            return false;
-        }
-        return true;
+        return (_x > x ||
+                _x < getMax().x - 1 ||
+                _y > y ||
+                _y < getMax().y - 1);
     }
 
-    /**
-     * @brief Check whether the rectangle contains the given point.
-     * @param p The point to check.
-     * @return Whether the rectangle contains the point or not.
-    */
-    inline bool contains(Point<int> p)
+    inline bool overlaps(Rect r)
     {
-        return contains(p.x, p.y);
+        return (r.x > x ||
+                r.x + r.width < x + width ||
+                r.y > y ||
+                r.y + r.height < y + height);
     }
 
-    /**
-     * @brief Check whether the rectangle contains the given vector.
-     * @param v The vector to check.
-     * @return Whether the rectangle contains the vector or not.
-    */
-    inline bool contains(Vector3& v)
+    inline bool contains(T _x, T _y)
     {
-        return contains((int) v._x, (int) v._y);
+        return (_x > x &&
+                _x < getMax().x - 1 &&
+                _y > y &&
+                _y < getMax().y - 1);
+    }
+
+    inline bool contains(Rect r)
+    {
+        return (r.x > x &&
+                r.x + r.width < x + width &&
+                r.y > y &&
+                r.y + r.height < y + height);
     }
 
     // Properties
-    double x = 0.0;
-    double y = 0.0;
-    double width = 0.0;
-    double height = 0.0;
+    T x = 0.0;
+    T y = 0.0;
+    T width = 0.0;
+    T height = 0.0;
 };
 
 int getRefreshRate();

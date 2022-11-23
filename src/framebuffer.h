@@ -30,7 +30,7 @@ class Framebuffer
 
     int m_width = DEFAULT_WINDOW_WIDTH;
     int m_height = DEFAULT_WINDOW_HEIGHT;
-    Rect m_frame;
+    Rect<int> m_frame;
 
     // Channels
     std::map<const char*, Channel*> m_channels;
@@ -64,18 +64,19 @@ public:
     int getHeight() { return m_height; }
     void setHeight(int height) { m_height = height; }
 
-    /**
-     * @brief Set the Framebuffer to the given width and height. This also sets all channels
-     * to this new size.
-     * @param width The new width.
-     * @param height The new height.
-    */
+    /// <summary>
+    /// Set the Framebuffer to the given width and height. This also sets all channels
+    /// to this new size.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="width">The new width.</param>
+    /// <param name="height">The new height.</param>
     template <typename T>
     inline void setSize(T width, T height)
     {
         m_width = (int) width;
         m_height = (int) height;
-        m_frame = Rect(0, 0, width, height);
+        m_frame = Rect<int>(0, 0, m_width, m_height);
 
         for (auto const& [k, c] : m_channels)
         {
@@ -85,14 +86,20 @@ public:
         }
     }
 
+    /// <summary>
+    /// Set the Framebuffer to the given size's width and height. This also sets all channels
+    /// to this new size.
+    /// </summary>
+    /// <param name="size">The new size.</param>
     inline void setSize(Size size) { setSize(size.width, size.height); }
 
-    /**
-     * @brief Returns the channel pointer from the given channel name.
-     * @param channel The channel name. See definitions in "channel.h".
-     * @return The pointer to the Channel object.
-    */
+    /// <summary>
+    /// Get the pointer to the given channel.
+    /// </summary>
+    /// <param name="channel"></param>
+    /// <returns>The pointer to the channel.</returns>
     inline Channel* getChannel(const char* channel) { return m_channels[channel]; }
+    
 
     // Camera
     Camera* camera() { return &m_camera; }
@@ -100,91 +107,10 @@ public:
     // Pixel buffer
     HWND getHwnd() { return m_hwnd; }
 
-    /**
-     * @brief Allocates the display memory void pointer by combining the
-     * R, G, and B channels into a single void pointer filled with uint8 for
-     * each channel, with the fourth chunk set to zero.
-     * 
-     * @brief
-     * Because channel pixels are doubles, we need to convert those to 0 => 255.
-     * 
-     * @brief
-     *  R  |  G  |  B  | None 
-     * --- | --- | --- | ---- 
-     * 255 | 128 | 50  | 0
-    */
-    void allocateDisplayPtr();
-    void* getDisplayPtr() { return m_displayBuffer; }
     int getBufferSize() { return m_width * m_height * sizeof(unsigned int); }
 
-    /**
-     * @brief Generates a HBITMAP based on the current content of the display buffer.
-     * @return The HBITMAP struct object generated from the display buffer.
-    */
     HBITMAP getBitmap();
-
-    /**
-     * @brief Set the buffer of triangles to the given triangle list.
-     * @param data The pointer list of triangles to bind.
-    */
     void bindTriangleBuffer(std::vector<Triangle*> data);
-
-    /**
-     * @brief Given a point, determine if it fits within the current Framebuffer frame.
-     * @param p The point to check.
-     * @return Whether the point is within the frame.
-    */
-    bool isPointInFrame(Vector2& p) const;
-
-    /**
-     * @brief Given a rectangle, determine if it fits within the current Framebuffer frame.
-     * @param r The rectangle to check.
-     * @return Whether the rectangle is within the frame.
-    */
-    bool isRectInFrame(Rect& r) const;
-
-    /**
-     * @brief Converts the given world-space vector to a screen-space vector. This
-     * takes into account our MVP matrix is already generated in Framebuffer::render().
-     * @param v The world-space vector to convert.
-     * @return Whether the conversion worked or not.
-    */
-    bool worldToScreen(Vector3& v);
-
-    /**
-     * @brief Returns the Z-depth of point P given a triangle (v1, v2, v3).
-     * @param v1 Screen-space position of vertex 1.
-     * @param v2 Screen-space position of vertex 2.
-     * @param v3 Screen-space position of vertex 3.
-     * @param p Screen-space position of target point to find depth of.
-     * @return The depth value of the point.
-    */
-    double getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p);
-
-    /**
-     * @brief Returns the 2D bounding box of the screen-space points provided.
-     * @param v1 Screen-space position of vertex 1.
-     * @param v2 Screen-space position of vertex 2.
-     * @param v3 Screen-space position of vertex 3.
-     * @return The bounding box of the triangle.
-    */
-    Rect getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3);
-
-    /**
-     * @brief Converts the world-space vertex positions to normalized screen-space positions. 
-     * This will allocate the R, G, and B channels to contain the rendered pixel data.
-     * @param v1 World-space position of vertex 1.
-     * @param v2 World-space position of vertex 2.
-     * @param v3 World-space position of vertex 3.
-     * @return Whether the triangle was drawn or not.
-    */
-    bool drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3);
-
-    /**
-     * @brief Clears the current list of channels, calculates the new MVP camera matrix,
-     * and, for each triangle which is bound, renders that triangle.
-    */
-    void render();
 
     // Matrices
     Vector3 getTargetTranslation() { return m_targetPosition; }
@@ -194,7 +120,69 @@ public:
     Matrix4 getProjectionMatrix() { return m_proj; }
     Matrix4 getModelViewProjMatrix() { return m_mvp; }
 
-    double modelRotation = 0.0;
+    /// <summary>
+    /// Converts the given vertex from world-space to screen-space. This assumes the MVP
+    /// matrix has already been computed.
+    /// </summary>
+    /// <param name="v">The vertex to get screens-space coordinates of.</param>
+    bool worldToScreen(Vector3& v);
+
+    /// <summary>
+    /// Given a triangle and a screen-space point on the triangle, returns the z-depth
+    /// of said point.
+    /// </summary>
+    /// <param name="v1">First point in the triangle.</param>
+    /// <param name="v2">Second point in the triangle.</param>
+    /// <param name="v3">Third point in the triangle.</param>
+    /// <param name="p">The screen-space point to determine depth for.</param>
+    /// <returns>The z-depth value. Higher values mean further away.</returns>
+    double getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p);
+
+    /// <summary>
+    /// Constructs a bounding box of the min and max points of a screen-space triangle.
+    /// </summary>
+    /// <param name="v1">First point in the triangle.</param>
+    /// <param name="v2">Second point in the triangle.</param>
+    /// <param name="v3">Third point in the triangle.</param>
+    /// <returns>The bounding box rectangle.</returns>
+    Rect<int> getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3);
+
+    /// <summary>
+    /// Renders the given triangle, through its world-space vertices, to the RGB/Z buffer(s).
+    /// </summary>
+    /// <param name="v1">First point in the triangle.</param>
+    /// <param name="v2">Second point in the triangle.</param>
+    /// <param name="v3">Third point in the triangle.</param>
+    /// <returns>Whether the triangle was drawn on the buffer (screen) or not.</returns>
+    bool drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3);
+
+    /// <summary>
+    /// Renders all triangles in the scene (triangle buffer).
+    /// 1. Clear all channels of memory.
+    /// 2. Set Z channel to be filled with the camera's far clip value.
+    /// 3. Construct the MVP matrix, given the current camera orientation.
+    /// 4. Draw each triangle to the RGB/Z buffers.
+    /// </summary>
+    void render();
+
+    /// <summary>
+    /// Returns the void pointer to the display buffer.
+    /// </summary>
+    void* getDisplayPtr() { return m_displayBuffer; }
+
+    /// <summary>
+    /// Allocates the display memory void pointer by combining the
+    /// R, G, and B channels into a single void pointer filled with uint8 for
+    /// each channel, with the fourth chunk set to zero.
+    /// 
+    /// Because channel pixels are doubles, we need to convert those to 0 = > 255.
+    /// 
+    /// R | G | B | None
+    /// -- - | -- - | -- - | ----
+    /// 255 | 128 | 50 | 0
+    /// </summary>
+    void allocateDisplayPtr();
+    
 };
 
 MINI_NAMESPACE_CLOSE
