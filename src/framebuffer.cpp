@@ -72,17 +72,16 @@ double Framebuffer::getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p)
     return w1 * v1->_z + w2 * v2->_z + w3 * v3->_z;
 }
 
-Rect<double> Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
+Rect<int> Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
 {
-    double minX = std::min({v1._x, v2._x, v3._x});
-    double minY = std::min({v1._y, v2._y, v3._y});
-    double maxX = std::max({v1._x, v2._x, v3._x});
-    double maxY = std::max({v1._y, v2._y, v3._y});
+    int x0 = std::min({v1._x, v2._x, v3._x});
+    int y0 = std::min({v1._y, v2._y, v3._y});
+    int x1 = std::max({v1._x, v2._x, v3._x});
+    int y1 = std::max({v1._y, v2._y, v3._y});
 
-    Vector2 min(minX, minY);
-    Vector2 max(maxX, maxY);
-
-    return Rect<double>(min, max);
+    int width = x1 - x0;
+    int height = y1 - y0;
+    return Rect<int>(x0, y0, width, height);
 }
 
 bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
@@ -123,18 +122,17 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
     worldToScreen(v2);
     worldToScreen(v3);
 
+    //// Get the bounding box of the screen triangle
     // If the entire triangle is out of frame, skip
     // Clip vertices which are off screen
-    if (!m_frame.contains(v1) && !m_frame.contains(v2) && !m_frame.contains(v3))
+    Rect<int> bounds = getBoundingBox(v1, v2, v3);
+    if (!m_frame.overlaps(bounds))
     {
         return false;
     }
 
-    //// Get the bounding box of the screen triangle
-    Rect bounds = getBoundingBox(v1, v2, v3);
-
-    int maxX = (int)(bounds.x + bounds.width);
-    int maxY = (int)(bounds.y + bounds.height);
+    int maxX = bounds.getMax().x;
+    int maxY = bounds.getMax().y;
 
     // Draw each pixel within the bounding box
     for (int y = bounds.y; y < maxY; y++)
@@ -146,8 +144,8 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             int pixelOffset = rowOffset + x;
 
             // If the pixel is outside the frame entirely, we'll skip it
-            Vector3 p(x + 0.5, y + 0.5, 0);
-            if (!m_frame.contains(p))
+            Vector3 p(x + 1, y + 1, 0);
+            if (!m_frame.contains(p._x, p._y))
             {
                 continue;
             }

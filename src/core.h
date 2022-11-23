@@ -83,48 +83,36 @@ public:
     Point<T> getMin() { return Point(x, y); }
     Point<T> getMax() { return Point(x + width, y + height); }
 
-    /**
-     * @brief Check whether the rectangle contains the given X/Y coordinates.
-     * @param _x The x-coordinate.
-     * @param _y The y-coordinate.
-     * @return Whether the rectangle contains the X/Y coordinates or not.
-    */
-    inline bool contains(T _x, T _y)
+    inline bool overlaps(T _x, T _y)
     {
-        if (_x < x || _x > width)
-        {
-            return false;
-        }
-        if (_y < y || _y > height)
-        {
-            return false;
-        }
-        return true;
+        return (_x > x ||
+                _x < getMax().x - 1 ||
+                _y > y ||
+                _y < getMax().y - 1);
     }
 
-    /**
-     * @brief Check whether the rectangle contains the given point.
-     * @param p The point to check.
-     * @return Whether the rectangle contains the point or not.
-    */
-    inline bool contains(Point<T> p)
+    inline bool overlaps(Rect r)
     {
-        return contains(p.x, p.y);
+        return (r.x > x ||
+                r.x + r.width < x + width ||
+                r.y > y ||
+                r.y + r.height < y + height);
+    }
+
+    inline bool contains(T _x, T _y)
+    {
+        return (_x > x &&
+                _x < getMax().x - 1 &&
+                _y > y &&
+                _y < getMax().y - 1);
     }
 
     inline bool contains(Rect r)
     {
-        return contains(r.getMin()) && contains(r.getMin());
-    }
-
-    /**
-     * @brief Check whether the rectangle contains the given vector.
-     * @param v The vector to check.
-     * @return Whether the rectangle contains the vector or not.
-    */
-    inline bool contains(Vector3& v)
-    {
-        return contains(v._x, v._y);
+        return (r.x > x &&
+                r.x + r.width < x + width &&
+                r.y > y &&
+                r.y + r.height < y + height);
     }
 
     // Properties

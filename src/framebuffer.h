@@ -145,7 +145,7 @@ public:
     /// <param name="v2">Second point in the triangle.</param>
     /// <param name="v3">Third point in the triangle.</param>
     /// <returns>The bounding box rectangle.</returns>
-    Rect<double> getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3);
+    Rect<int> getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3);
 
     /// <summary>
     /// Renders the given triangle, through its world-space vertices, to the RGB/Z buffer(s).
