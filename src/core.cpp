@@ -21,14 +21,6 @@ Size getScreenSize()
     return Size(desktop.right, desktop.bottom);
 }
 
-Rect::Rect(Vector2 min, Vector2 max)
-{
-    x = min.x();
-    y = min.y();
-    width = max.x() - min.x();
-    height = max.y() - min.y();
-}
-
 double getCurrentTime()
 {            
     auto duration = duration_cast<milliseconds>(system_clock::now().time_since_epoch());

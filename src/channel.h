@@ -2,6 +2,7 @@
 #define CHANNEL_H
 
 #include "api.h"
+#include "core.h"
 
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
@@ -36,9 +37,11 @@ class Channel
     int m_width = DEFAULT_WINDOW_WIDTH;
     int m_height = DEFAULT_WINDOW_HEIGHT;
 
-    std::vector<double> m_pixels;
 
  public:
+
+    std::vector<double> m_pixels;
+
     Channel(const char* name, int width, int height)
         : m_name(name),
           m_width(width),
@@ -51,20 +54,8 @@ class Channel
 
     void allocate()
     {
-        // Clear the color buffer
-        if (m_memoryBuffer)
-        {
-            VirtualFree(m_memoryBuffer, 0, MEM_RELEASE);
-            m_memoryBuffer = nullptr;
-        }
-
-        // Calculate the new buffer size and allocate memory of that size
-        // Each raw channel is stored as double to maximize floating point precision without
-        // getting too huge
-        m_bufferSize = getSize();
-
-        // Allocate the memory buffer
-        m_memoryBuffer = VirtualAlloc(0, m_bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        size_t size = m_width * m_height;
+        m_pixels.reserve(size);
     };
 
     /*
@@ -77,20 +68,16 @@ class Channel
 
     void fill(double value)
     {
-        for (int y = 0; y < m_height; y++)
+        int size = getSize();
+        for (int i = 0; i < size; i++)
         {
-            double* memoryPtr = (double*) m_memoryBuffer;
-            memoryPtr += y * m_width;
-            for (int x = 0; x < m_width; x++)
-            {
-                *memoryPtr++ = value;
-            }
+            m_pixels[i] = value;
         }
     };
 
     int getSize()
     {
-        return m_width * m_height * sizeof(double);
+        return m_width * m_height;
     }
 
     void setSize(int width, int height)
@@ -101,53 +88,32 @@ class Channel
         clear();
     }
 
-    void* getMemoryPtr()
-    {
-        return m_memoryBuffer;
-    }
-
     int getMemoryOffset(int x, int y)
     {
         return x + (y * m_width);
     }
 
-    double getPixel(int x, int y)
-    {
-        int offset = getMemoryOffset(x, y);
-        double* buffer = (double*) m_memoryBuffer;
-        buffer += offset;
-        return *buffer;
-    }
-
     double getPixel(int offset)
     {
-        double* buffer = (double*) m_memoryBuffer;
-        buffer += offset;
-        return *buffer;
+        return m_pixels[offset];
     }
 
-    void setPixel(int x, int y, double value)
+    double getPixel(int x, int y)
     {
-        uint32 offset = getMemoryOffset(x, y);
-        double* buffer = (double*) m_memoryBuffer;
-        buffer += offset;
-        *buffer = value;
+        int offset = (m_width * y) + x;
+        return m_pixels[offset];
     }
 
     void setPixel(int offset, double value)
     {
-        double* buffer = (double*) m_memoryBuffer;
-        buffer += offset;
-        *buffer = value;
+        m_pixels[offset] = value;
     }
 
-    void pasteBuffer(void* buffer)
+    double setPixel(int x, int y, double value)
     {
-        memcpy(m_memoryBuffer, buffer, getSize());
+        int offset = (m_width * y) + x;
+        m_pixels[offset] = value;
     }
-
-    // Variables
-    void* m_memoryBuffer = nullptr;
 };
 
 MINI_NAMESPACE_CLOSE

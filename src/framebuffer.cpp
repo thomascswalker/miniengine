@@ -35,21 +35,6 @@ void Framebuffer::bindTriangleBuffer(std::vector<Triangle*> data)
     m_triangles = data;
 }
 
-bool Framebuffer::isPointInFrame(Vector2& p) const
-{
-    auto x = p._x;
-    auto y = p._y;
-    return (x > 0 && y > 0 && x < m_width && y < m_height);
-}
-
-bool Framebuffer::isRectInFrame(Rect& r) const
-{
-    return r.getMin().x < m_width - 1.0   ||
-           r.getMax().x > 0.0             ||
-           r.getMin().y < m_height - 1.0  ||
-           r.getMax().y > 0.0;
-};
-
 bool Framebuffer::worldToScreen(Vector3& v)
 {
     // Convert to normalized device coords
@@ -64,7 +49,6 @@ bool Framebuffer::worldToScreen(Vector3& v)
 
     return true;
 }
-
 
 double Framebuffer::getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p)
 {
@@ -88,7 +72,7 @@ double Framebuffer::getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p)
     return w1 * v1->_z + w2 * v2->_z + w3 * v3->_z;
 }
 
-Rect Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
+Rect<double> Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
 {
     double minX = std::min({v1._x, v2._x, v3._x});
     double minY = std::min({v1._y, v2._y, v3._y});
@@ -98,10 +82,9 @@ Rect Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
     Vector2 min(minX, minY);
     Vector2 max(maxX, maxY);
 
-    return Rect(min, max);
+    return Rect<double>(min, max);
 }
 
-// https://www.scratchapixel.com/code.php?id=26&origin=/lessons/3d-basic-rendering/rasterization-practical-implementation
 bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 {
     // Calculate normal
@@ -164,7 +147,7 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 
             // If the pixel is outside the frame entirely, we'll skip it
             Vector3 p(x + 0.5, y + 0.5, 0);
-            if (!isPointInFrame(p))
+            if (!m_frame.contains(p))
             {
                 continue;
             }
@@ -176,7 +159,8 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
             // If the total != 1.0, or all of the coord axes are less than 0,
             // we'll skip this (it's not in the triangle!)
             double sum = uvw._x + uvw._y + uvw._z;
-            if (uvw._x < 0.0 || uvw._y < 0.0 || uvw._z < 0.0 || 1.0 - abs(sum) > EPSILON)
+            double oneMinusSum = 1.0 - abs(sum);
+            if (uvw._x < 0.0 || uvw._y < 0.0 || uvw._z < 0.0 || oneMinusSum > EPSILON)
             {
                 continue;
             }
@@ -214,7 +198,7 @@ void Framebuffer::render()
 {
     for (auto const& [k, c] : m_channels)
     {
-        c->allocate();
+        //c->allocate();
         c->clear();
     }
 
@@ -244,6 +228,7 @@ void Framebuffer::render()
     PrintBuffer::debugPrintToScreen("Pixel count: %i", m_width * m_height);
 }
 
+
 void Framebuffer::allocateDisplayPtr()
 {
     // Clear the color buffer
@@ -266,9 +251,9 @@ void Framebuffer::allocateDisplayPtr()
     m_bufferBmi.bmiHeader.biHeight = -m_height; // When height is negative, it will invert the bitmap vertically.
 
     // Get the R, G, and B channels' pixel contents
-    Channel* rChannel = m_channels[CHANNEL_R];
-    Channel* gChannel = m_channels[CHANNEL_G];
-    Channel* bChannel = m_channels[CHANNEL_B];
+    auto rChannel = m_channels[CHANNEL_R];
+    auto gChannel = m_channels[CHANNEL_G];
+    auto bChannel = m_channels[CHANNEL_B];
 
     uint8* rowPtr = (uint8*) m_displayBuffer;
     int rowPtrOffset = m_width * sizeof(uint32);
@@ -279,10 +264,11 @@ void Framebuffer::allocateDisplayPtr()
         {
             if (pixel != NULL)
             {
+                int i = (m_width * y) + x;
                 // Get r, g, b
-                double r = rChannel->getPixel(x, y);
-                double g = gChannel->getPixel(x, y);
-                double b = bChannel->getPixel(x, y);
+                double r = rChannel->getPixel(i);
+                double g = gChannel->getPixel(i);
+                double b = bChannel->getPixel(i);
 
                 // Normalize (0 => 255)
                 // Order is inverted; RGB => BBGGRRXX
