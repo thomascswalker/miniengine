@@ -36,8 +36,6 @@ class Channel
     int m_bufferSize = 0;
     int m_width = DEFAULT_WINDOW_WIDTH;
     int m_height = DEFAULT_WINDOW_HEIGHT;
-
-
  public:
 
     std::vector<double> m_pixels;
