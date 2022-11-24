@@ -7,8 +7,7 @@ This is primarily a learning project for myself. My goal was to build a real-tim
 - Visual Studio 2022
 - C++ 20
 - Windows 10.0 SDK (latest)
-
-![](https://github.com/thomascswalker/miniengine/blob/ca63d62682592c27f7ef82e97fca5b7c4f1eb4a4/images/example.gif)
+![](https://github.com/thomascswalker/miniengine/blob/af18643c20aff401325ff25a2ff8983e489b1999/images/example.gif)
 
 ## Progress
 - [x] Launch window
