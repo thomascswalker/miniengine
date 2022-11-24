@@ -25,9 +25,9 @@ public:
 	Quaternion			getNormalized() const;
 
 	double				getReal() { return m_real; }
-	double				setReal(double r) { m_real = r; }
+	void				setReal(double r) { m_real = r; }
 	Vector3				getImaginary() { return m_imaginary; }
-	Vector3				setImaginary(const Vector3& v) { m_imaginary; }
+	void				setImaginary(const Vector3& v) { m_imaginary; }
 
 	// Operators
 	bool operator == (const Quaternion& q) const
