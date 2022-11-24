@@ -39,7 +39,8 @@ class Size
 {
 public:
     Size() {};
-    Size(double _width, double _height) : width(_width), height(_height) {};
+    Size(double _width, double _height)
+        : width(_width), height(_height) {};
 
     double width = 0;
     double height = 0;
@@ -50,7 +51,8 @@ class Point
 {
 public:
     Point() {};
-    Point(T _x, T _y) : x(_x), y(_y) {};
+    Point(T _x, T _y)
+        : x(_x), y(_y) {};
 
     bool operator == (Point& p) const
     {
@@ -71,7 +73,8 @@ class Rect
 {
 public:
     // Constructors
-    Rect() {};
+    Rect()
+        : x(0), y(0), width(1), height(1) {};
     Rect(T _x, T _y, T _width, T _height)
         : x(_x), y(_y), width(_width), height(_height) {};
     Rect(Vector2 min, Vector2 max)
@@ -116,10 +119,10 @@ public:
     }
 
     // Properties
-    T x = 0.0;
-    T y = 0.0;
-    T width = 0.0;
-    T height = 0.0;
+    T x;
+    T y;
+    T width;
+    T height;
 };
 
 int getRefreshRate();

@@ -176,11 +176,6 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 
             // Store z-depth in channel
             getChannel(CHANNEL_Z)->setPixel(pixelOffset, z); // Otherwise we'll set the current pixel Z to this depth
-            
-            // Store normals in channel
-            getChannel(CHANNEL_NORMAL_R)->setPixel(pixelOffset, cameraNormal._x);
-            getChannel(CHANNEL_NORMAL_G)->setPixel(pixelOffset, cameraNormal._y);
-            getChannel(CHANNEL_NORMAL_B)->setPixel(pixelOffset, cameraNormal._z);
 
             // Set final color in RGB buffer
             getChannel(CHANNEL_R)->setPixel(pixelOffset, cameraNormal._x);
@@ -194,11 +189,9 @@ bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
 
 void Framebuffer::render()
 {
-    for (auto const& [k, c] : m_channels)
-    {
-        //c->allocate();
-        c->clear();
-    }
+    m_channels[CHANNEL_R]->fill(0.0);
+    m_channels[CHANNEL_G]->fill(0.0);
+    m_channels[CHANNEL_B]->fill(0.0);
 
     // Reset z-buffer
     m_channels[CHANNEL_Z]->fill(m_camera.getFarClip());
@@ -260,23 +253,25 @@ void Framebuffer::allocateDisplayPtr()
         uint8* pixel = (uint8*) rowPtr;
         for (int x = 0; x < m_width; x++)
         {
-            if (pixel != NULL)
+            if (pixel == NULL)
             {
-                int i = (m_width * y) + x;
-                // Get r, g, b
-                double r = rChannel->getPixel(i);
-                double g = gChannel->getPixel(i);
-                double b = bChannel->getPixel(i);
-
-                // Normalize (0 => 255)
-                // Order is inverted; RGB => BBGGRRXX
-                *pixel++ = (uint8) normalize(&b, 0.0, 1.0, 0.0, 255.0);
-                *pixel++ = (uint8) normalize(&g, 0.0, 1.0, 0.0, 255.0);
-                *pixel++ = (uint8) normalize(&r, 0.0, 1.0, 0.0, 255.0);
-
-                // A (alpha) is always 0
-                *pixel++ = (uint8) 0;
+                continue;
             }
+
+            int i = (m_width * y) + x;
+            // Get r, g, b
+            double r = rChannel->getPixel(i);
+            double g = gChannel->getPixel(i);
+            double b = bChannel->getPixel(i);
+
+            // Normalize (0 => 255)
+            // Order is inverted; RGB => BBGGRRXX
+            *pixel++ = (uint8) normalize(&b, 0.0, 1.0, 0.0, 255.0);
+            *pixel++ = (uint8) normalize(&g, 0.0, 1.0, 0.0, 255.0);
+            *pixel++ = (uint8) normalize(&r, 0.0, 1.0, 0.0, 255.0);
+
+            // A (alpha) is always 0
+            *pixel++ = (uint8) 0;
         }
         rowPtr += rowPtrOffset;
     }

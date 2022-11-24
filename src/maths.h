@@ -97,9 +97,10 @@ inline Vector3 cross(const Vector3& v1, const Vector3& v2)
  */
 inline double area(Vector3* v1, Vector3* v2, Vector3* v3)
 {
-    return abs((v1->_x * (v2->_y - v3->_y) +
-                v2->_x * (v3->_y - v1->_y) +
-                v3->_x * (v1->_y - v2->_y)) / 2.0);
+    double result = (v1->_x * (v2->_y - v3->_y) +
+                     v2->_x * (v3->_y - v1->_y) +
+                     v3->_x * (v1->_y - v2->_y)) / 2.0;
+    return abs(result);
 }
 
 /**
