@@ -84,8 +84,12 @@ Rect<int> Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
     return Rect<int>(x0, y0, width, height);
 }
 
-bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
+bool Framebuffer::drawTriangle(Triangle* t)
 {
+    Vector3 v1 = t->v1()->getTranslation();
+    Vector3 v2 = t->v2()->getTranslation();
+    Vector3 v3 = t->v3()->getTranslation();
+
     // Calculate normal
     Vector3 wv1 = m_model * v1;
     Vector3 wv2 = m_model * v2;
@@ -206,11 +210,7 @@ void Framebuffer::render()
     int count = 0;
     for (auto t : m_triangles)
     {
-        Vector3 v1 = t->v1()->getTranslation();
-        Vector3 v2 = t->v2()->getTranslation();
-        Vector3 v3 = t->v3()->getTranslation();
-
-        if (drawTriangle(v1, v2, v3))
+        if (drawTriangle(t))
         {
             count++;
         }

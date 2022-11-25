@@ -100,7 +100,6 @@ public:
     /// <returns>The pointer to the channel.</returns>
     inline Channel* getChannel(const char* channel) { return m_channels[channel]; }
     
-
     // Camera
     Camera* camera() { return &m_camera; }
 
@@ -112,12 +111,27 @@ public:
     HBITMAP getBitmap();
     void bindTriangleBuffer(std::vector<Triangle*> data);
 
-    // Matrices
     Vector3 getTargetTranslation() { return m_targetPosition; }
 
+    /// <summary>
+    /// Sets the current model matrix to the given matrix.
+    /// </summary>
+    /// <param name="m">The new matrix to set the model to.</param>
     void setModelMatrix(Matrix4& m) { m_model = m; }
+
+    /// <summary>
+    /// Returns the view (camera) matrix.
+    /// </summary>
     Matrix4 getViewMatrix() { return m_view; }
+
+    /// <summary>
+    /// Returns the projection matrix.
+    /// </summary>
     Matrix4 getProjectionMatrix() { return m_proj; }
+
+    /// <summary>
+    /// Returns the MVP matrix.
+    /// </summary>
     Matrix4 getModelViewProjMatrix() { return m_mvp; }
 
     /// <summary>
@@ -150,11 +164,9 @@ public:
     /// <summary>
     /// Renders the given triangle, through its world-space vertices, to the RGB/Z buffer(s).
     /// </summary>
-    /// <param name="v1">First point in the triangle.</param>
-    /// <param name="v2">Second point in the triangle.</param>
-    /// <param name="v3">Third point in the triangle.</param>
+    /// <param name="t">The triangle to draw.</param>
     /// <returns>Whether the triangle was drawn on the buffer (screen) or not.</returns>
-    bool drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3);
+    bool drawTriangle(Triangle* t);
 
     /// <summary>
     /// Renders all triangles in the scene (triangle buffer).

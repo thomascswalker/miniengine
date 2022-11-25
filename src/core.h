@@ -89,9 +89,9 @@ public:
     inline bool overlaps(T _x, T _y)
     {
         return (_x > x ||
-                _x < getMax().x - 1 ||
+                _x < x + width - 1 ||
                 _y > y ||
-                _y < getMax().y - 1);
+                _y < y + height - 1);
     }
 
     inline bool overlaps(Rect r)
@@ -105,9 +105,9 @@ public:
     inline bool contains(T _x, T _y)
     {
         return (_x > x &&
-                _x < getMax().x - 1 &&
+                _x < x + width &&
                 _y > y &&
-                _y < getMax().y - 1);
+                _y < y + height);
     }
 
     inline bool contains(Rect r)
