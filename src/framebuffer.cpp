@@ -86,15 +86,13 @@ Rect<int> Framebuffer::getBoundingBox(Vector3* v1, Vector3* v2, Vector3* v3)
 
 bool Framebuffer::drawTriangle(Triangle* worldTriangle)
 {
-    Vector3 v1 = worldTriangle->v1()->getTranslation();
-    Vector3 v2 = worldTriangle->v2()->getTranslation();
-    Vector3 v3 = worldTriangle->v3()->getTranslation();
+    // Get model-space vertex positions of the triangle
+    Vector3 v1 = m_model * worldTriangle->v1()->getTranslation();
+    Vector3 v2 = m_model * worldTriangle->v2()->getTranslation();
+    Vector3 v3 = m_model * worldTriangle->v3()->getTranslation();
 
     // Calculate world normal
-    Vector3 wv1 = m_model * v1;
-    Vector3 wv2 = m_model * v2;
-    Vector3 wv3 = m_model * v3;
-    Vector3 worldNormal = getNormal(wv1, wv2, wv3);
+    Vector3 worldNormal = getNormal(v1, v2, v3);
     worldNormal.normalize();
 
     // Convert to camera space
@@ -105,11 +103,11 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
     Vector3 up = -m_camera.getUp();
     Vector3 right = -m_camera.getRight();
     Vector3 cameraNormal = getCameraNormal(viewNormal, forward, up, right);
-    cameraNormal.normalize();
+    //cameraNormal.normalize();
 
     // Backface cull if enabled
 #ifdef BACKFACE_CULL
-    if (1.0 > cameraNormal._z < -1.0)
+    if (cameraNormal._z < 0.0)
     {
         return false;
     }
