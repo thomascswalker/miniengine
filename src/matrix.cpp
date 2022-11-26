@@ -59,17 +59,17 @@ Vector3& Matrix4::getTranslation() const
 Matrix4& Matrix4::setTranslate(const Vector3& t)
 {
     setIdentity();
-    m_mtx[0][3] = t.x();
-    m_mtx[1][3] = t.y();
-    m_mtx[2][3] = t.z();
+    m_mtx[0][3] = t._x;
+    m_mtx[1][3] = t._y;
+    m_mtx[2][3] = t._z;
     return *this;
 }
 
 Matrix4& Matrix4::setTranslateOnly(const Vector3& t)
 {
-    m_mtx[0][3] = t.x();
-    m_mtx[1][3] = t.y();
-    m_mtx[2][3] = t.z();
+    m_mtx[0][3] = t._x;
+    m_mtx[1][3] = t._y;
+    m_mtx[2][3] = t._z;
     return *this;
 }
 
@@ -102,9 +102,9 @@ Matrix4& Matrix4::setScale(double s)
 Matrix4& Matrix4::setScale(const Vector3& s)
 {
     setIdentity();
-    m_mtx[0][0] = s.x();
-    m_mtx[1][1] = s.y();
-    m_mtx[2][2] = s.z();
+    m_mtx[0][0] = s._x;
+    m_mtx[1][1] = s._y;
+    m_mtx[2][2] = s._z;
     return *this;
 }
 
@@ -268,9 +268,9 @@ Rotation& Matrix4::getRotation() const
 	    int k = (i + 2) % 3;
 	    double q = 0.5 * sqrt(m_mtx[i][i] - m_mtx[j][j] - m_mtx[k][k] + m_mtx[3][3]); 
 
-        imaginary.setX(q);
-        imaginary.setY((m_mtx[i][j] + m_mtx[j][i]) / (4.0 * q));
-        imaginary.setZ((m_mtx[k][i] + m_mtx[i][k]) / (4.0 * q));
+        imaginary._x = q;
+        imaginary._y = (m_mtx[i][j] + m_mtx[j][i]) / (4.0 * q);
+        imaginary._z = (m_mtx[k][i] + m_mtx[i][k]) / (4.0 * q);
 	    real         = (m_mtx[j][k] - m_mtx[k][j]) / (4.0 * q);
     }
 
@@ -478,10 +478,10 @@ Matrix4 lookAt(const Vector3 eye, const Vector3 at, const Vector3 up)
     Vector3 newUp = cross(right, forward);
 
     Matrix4 view;
-    view.set( right.x(),   right.y(),   right.z(),   -dot(right, eye),
-              newUp.x(),   newUp.y(),   newUp.z(),   -dot(newUp, eye),
-              forward.x(), forward.y(), forward.z(), -dot(forward, eye),
-              0.0,         0.0,         0.0,         1.0);
+    view.set( right._x,   right._y,   right._z,   -dot(right, eye),
+              newUp._x,   newUp._y,   newUp._z,   -dot(newUp, eye),
+              forward._x, forward._y, forward._z, -dot(forward, eye),
+              0.0,        0.0,        0.0,        1.0);
 
     return view;
 }
@@ -490,9 +490,9 @@ Matrix4 makeTranslate(const Vector3& translation)
 {
     Matrix4 t;
     t.setIdentity();
-    t[3][0] = translation.x();
-    t[3][1] = translation.y();
-    t[3][2] = translation.z();
+    t[3][0] = translation._x;
+    t[3][1] = translation._y;
+    t[3][2] = translation._z;
     return t;
 }
 
@@ -566,17 +566,17 @@ Matrix4 makeRotation(const Rotation& rotation)
 
     Matrix4 m = Matrix4();
 
-    m[0][0] = axis.x() * axis.x() * (1 - c) + c;
-    m[0][1] = axis.y() * axis.x() * (1 - c) - s * axis.z();
-    m[0][2] = axis.z() * axis.x() * (1 - c) + s * axis.y();
+    m[0][0] = axis._x * axis._x * (1 - c) + c;
+    m[0][1] = axis._y * axis._x * (1 - c) - s * axis._z;
+    m[0][2] = axis._z * axis._x * (1 - c) + s * axis._y;
 
-    m[1][0] = axis.x() * axis.y() * (1 - c) + s * axis.z();
-    m[1][1] = axis.y() * axis.y() * (1 - c) + c;
-    m[1][2] = axis.z() * axis.y() * (1 - c) - s * axis.x();
+    m[1][0] = axis._x * axis._y * (1 - c) + s * axis._z;
+    m[1][1] = axis._y * axis._y * (1 - c) + c;
+    m[1][2] = axis._z * axis._y * (1 - c) - s * axis._x;
 
-    m[2][0] = axis.x() * axis.z() * (1 - c) - s * axis.y();
-    m[2][1] = axis.y() * axis.z() * (1 - c) + s * axis.x();
-    m[2][2] = axis.z() * axis.z() * (1 - c) + c;
+    m[2][0] = axis._x * axis._z * (1 - c) - s * axis._y;
+    m[2][1] = axis._y * axis._z * (1 - c) + s * axis._x;
+    m[2][2] = axis._z * axis._z * (1 - c) + c;
 
     return m;
 }
@@ -584,10 +584,10 @@ Matrix4 makeRotation(const Rotation& rotation)
 Matrix4 makeScale(const Vector3& scale)
 {
     Matrix4 s;
-    s.set(scale.x(), 0.0,       0.0,       0.0,
-          0.0,       scale.y(), 0.0,       0.0,
-          0.0,       0.0,       scale.z(), 0.0,
-          0.0,       0.0,       0.0,       1.0);
+    s.set(scale._x, 0.0,      0.0,      0.0,
+          0.0,      scale._y, 0.0,      0.0,
+          0.0,      0.0,      scale._z, 0.0,
+          0.0,      0.0,      0.0,      1.0);
     return s;
 }
 

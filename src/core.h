@@ -118,6 +118,30 @@ public:
                 r.y + r.height < y + height);
     }
 
+    /// <summary>
+    /// Trim this rectangle with the bounds of the given rectangle.
+    /// </summary>
+    /// <param name="r">The rectangle that does the trimming.</param>
+    inline void trim(Rect r)
+    {
+        if (x < r.x)
+        {
+            x = r.x;
+        }
+        if (y < r.y)
+        {
+            y = r.y;
+        }
+        if (width > r.width)
+        {
+            width = r.width;
+        }
+        if (height > r.height)
+        {
+            height = r.height;
+        }
+    }
+
     // Properties
     T x;
     T y;
