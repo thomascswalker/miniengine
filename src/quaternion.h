@@ -39,8 +39,8 @@ public:
 	{
 		double r1 = m_real;
 		double r2 = q.m_real;
-		const Vector3& i1 = m_imaginary;
-		const Vector3& i2 = q.m_imaginary;
+		const Vector3 i1 = m_imaginary;
+		const Vector3 i2 = q.m_imaginary;
 
 		double r = r1 * r2 - dot(i1, i2);
 

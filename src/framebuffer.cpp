@@ -35,17 +35,17 @@ void Framebuffer::bindTriangleBuffer(std::vector<Triangle*> data)
     m_triangles = data;
 }
 
-bool Framebuffer::worldToScreen(Vector3& v)
+bool Framebuffer::worldToScreen(Vector3* v)
 {
     // Convert to normalized device coords
-    Vector4 ndc = m_mvp * Vector4(v, 1.0);          // m_mvp is precalculated in Framebuffer::render()
+    Vector4 ndc = m_mvp * Vector4(*v, 1.0);          // m_mvp is precalculated in Framebuffer::render()
 
     double x = ((ndc._x + 1.0) * m_width) / 2.0;
     double y = ((ndc._y + 1.0) * m_height) / 2.0;
 
-    v.setX(x);
-    v.setY(y);
-    v.setZ(1.0 / ndc._z);                          // Invert Z
+    v->_x = x;
+    v->_y = y;
+    v->_z = 1.0 / ndc._z;                          // Invert Z
 
     return true;
 }
@@ -53,13 +53,13 @@ bool Framebuffer::worldToScreen(Vector3& v)
 double Framebuffer::getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p)
 {
     // Calculate area of this triangle
-    double a = area(v1, v2, v3);
+    double a = area(*v1, *v2, *v3);
 
     // Calculate depth
-    double w1 = area(v2, v3, p);
-    double w2 = area(v3, v1, p);
-    double w3 = area(v1, v2, p);
-
+    double w1 = area(*v2, *v3, *p);
+    double w2 = area(*v3, *v1, *p);
+    double w3 = area(*v1, *v2, *p);
+    
     if (w1 < 0.0 && w2 < 0.0 && w3 < 0.0)
     {
         return DBL_MAX;
@@ -72,94 +72,96 @@ double Framebuffer::getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p)
     return w1 * v1->_z + w2 * v2->_z + w3 * v3->_z;
 }
 
-Rect<int> Framebuffer::getBoundingBox(Vector3& v1, Vector3& v2, Vector3& v3)
+Rect<int> Framebuffer::getBoundingBox(Vector3* v1, Vector3* v2, Vector3* v3)
 {
-    int x0 = std::min({v1._x, v2._x, v3._x});
-    int y0 = std::min({v1._y, v2._y, v3._y});
-    int x1 = std::max({v1._x, v2._x, v3._x});
-    int y1 = std::max({v1._y, v2._y, v3._y});
+    int x0 = std::min({v1->_x, v2->_x, v3->_x});
+    int y0 = std::min({v1->_y, v2->_y, v3->_y});
+    int x1 = std::max({v1->_x, v2->_x, v3->_x});
+    int y1 = std::max({v1->_y, v2->_y, v3->_y});
 
     int width = x1 - x0;
     int height = y1 - y0;
     return Rect<int>(x0, y0, width, height);
 }
 
-bool Framebuffer::drawTriangle(Vector3& v1, Vector3& v2, Vector3& v3)
+bool Framebuffer::drawTriangle(Triangle* worldTriangle)
 {
-    // Calculate normal
-    Vector3 wv1 = m_model * v1;
-    Vector3 wv2 = m_model * v2;
-    Vector3 wv3 = m_model * v3;
-    Vector3 normal = getNormal(wv1, wv2, wv3);
+    // Get model-space vertex positions of the triangle
+    Vector3 v1 = m_model * worldTriangle->v1()->getTranslation();
+    Vector3 v2 = m_model * worldTriangle->v2()->getTranslation();
+    Vector3 v3 = m_model * worldTriangle->v3()->getTranslation();
 
-    normal.normalize();
-    normal = m_view * normal; // Convert to camera space
+    // Calculate world normal
+    Vector3 worldNormal = getNormal(v1, v2, v3);
+    worldNormal.normalize();
 
-    // Calculate view direction
+    // Convert to camera space
+    Vector3 viewNormal = m_view * worldNormal;
+
+    // Calculate the camera normal
     Vector3 forward = -m_camera.getForward();
-    forward.normalize();
-
     Vector3 up = -m_camera.getUp();
-    up.normalize();
-
     Vector3 right = -m_camera.getRight();
-    right.normalize();
-    
-    // Calculate facing ratio
-    double facingRatio = dot(normal, forward);
-    double upRatio = dot(normal, up);
-    double rightRatio = dot(normal, right);
+    Vector3 cameraNormal = getCameraNormal(viewNormal, forward, up, right);
+    //cameraNormal.normalize();
 
-    // Normalize facing ratio from -1 => 1 to 0 => 1
-    facingRatio = normalize(&facingRatio, -1.0, 1.0, 0.0, 1.0);
-    upRatio = normalize(&upRatio, -1.0, 1.0, 0.0, 1.0);
-    rightRatio = normalize(&rightRatio, -1.0, 1.0, 0.0, 1.0);
-
-    Vector3 cameraNormal(rightRatio, upRatio, facingRatio);
+    // Backface cull if enabled
+#ifdef BACKFACE_CULL
+    if (cameraNormal._z < 0.0)
+    {
+        return false;
+    }
+#endif
 
     // Convert world-space to screenspace
-    worldToScreen(v1);
-    worldToScreen(v2);
-    worldToScreen(v3);
+    worldToScreen(&v1);
+    worldToScreen(&v2);
+    worldToScreen(&v3);
 
-    //// Get the bounding box of the screen triangle
+    // Get the bounding box of the screen triangle
     // If the entire triangle is out of frame, skip
     // Clip vertices which are off screen
-    Rect<int> bounds = getBoundingBox(v1, v2, v3);
-    if (!m_frame.overlaps(bounds))
+    Rect bounds = getBoundingBox(&v1, &v2, &v3);
+
+    // TODO: This should be overlap, but overlap fails on backside tris
+    // OR contains tris which should be clipped or are too big for whatever
+    // reason. Perhaps tris need to be clipped after being determined they're
+    // overlapping?
+    if (!m_frame.contains(bounds))
     {
         return false;
     }
 
+    // Trim the size of the bounds rect to clip anything outside the frame.
+    bounds.trim(m_frame);
+
+    int minX = bounds.getMin().x;
+    int minY = bounds.getMin().y;
     int maxX = bounds.getMax().x;
     int maxY = bounds.getMax().y;
 
     // Draw each pixel within the bounding box
-    for (int y = bounds.y; y < maxY; y++)
+    for (int y = minY; y < maxY; y++)
     {
         int rowOffset = y * m_width;
-        for (int x = bounds.x; x < maxX; x++)
+        for (int x = minX; x < maxX; x++)
         {
             // Current pixel index
             int pixelOffset = rowOffset + x;
 
             // If the pixel is outside the frame entirely, we'll skip it
-            Vector3 p(x + 1, y + 1, 0);
-            if (!m_frame.contains(p._x, p._y))
+            Vector3 p(x + 1.0, y + 1.0, 0);
+            if (!m_frame.contains(x, y))
             {
                 continue;
             }
 
             //Get barycentric coordinates of triangle (uvw)
-            Vector3 uvw;
-            getBarycentricCoords(v1, v2, v3, p, uvw);
-
-            // If the total != 1.0, or all of the coord axes are less than 0,
-            // we'll skip this (it's not in the triangle!)
-            double sum = uvw._x + uvw._y + uvw._z;
-            double oneMinusSum = 1.0 - abs(sum);
-            if (uvw._x < 0.0 || uvw._y < 0.0 || uvw._z < 0.0 || oneMinusSum > EPSILON)
+            Vector3 uvw(0.0);
+            if (!getBarycentricCoords(v1, v2, v3, p, uvw))
             {
+                // If the total != 1.0, or all of the coord axes are less than 0,
+                // we'll skip this (it's not in the triangle!)
                 continue;
             }
 
@@ -206,11 +208,7 @@ void Framebuffer::render()
     int count = 0;
     for (auto t : m_triangles)
     {
-        Vector3 v1 = t->v1()->getTranslation();
-        Vector3 v2 = t->v2()->getTranslation();
-        Vector3 v3 = t->v3()->getTranslation();
-
-        if (drawTriangle(v1, v2, v3))
+        if (drawTriangle(t))
         {
             count++;
         }
@@ -253,12 +251,15 @@ void Framebuffer::allocateDisplayPtr()
         uint8* pixel = (uint8*) rowPtr;
         for (int x = 0; x < m_width; x++)
         {
+            // Validate pixel is not null
             if (pixel == NULL)
             {
                 continue;
             }
 
+            // Pixel array offset
             int i = (m_width * y) + x;
+
             // Get r, g, b
             double r = rChannel->getPixel(i);
             double g = gChannel->getPixel(i);

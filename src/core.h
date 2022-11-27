@@ -89,9 +89,9 @@ public:
     inline bool overlaps(T _x, T _y)
     {
         return (_x > x ||
-                _x < getMax().x - 1 ||
+                _x < x + width - 1 ||
                 _y > y ||
-                _y < getMax().y - 1);
+                _y < y + height - 1);
     }
 
     inline bool overlaps(Rect r)
@@ -105,9 +105,9 @@ public:
     inline bool contains(T _x, T _y)
     {
         return (_x > x &&
-                _x < getMax().x - 1 &&
+                _x < x + width &&
                 _y > y &&
-                _y < getMax().y - 1);
+                _y < y + height);
     }
 
     inline bool contains(Rect r)
@@ -116,6 +116,30 @@ public:
                 r.x + r.width < x + width &&
                 r.y > y &&
                 r.y + r.height < y + height);
+    }
+
+    /// <summary>
+    /// Trim this rectangle with the bounds of the given rectangle.
+    /// </summary>
+    /// <param name="r">The rectangle that does the trimming.</param>
+    inline void trim(Rect r)
+    {
+        if (x < r.x)
+        {
+            x = r.x;
+        }
+        if (y < r.y)
+        {
+            y = r.y;
+        }
+        if (width > r.width)
+        {
+            width = r.width;
+        }
+        if (height > r.height)
+        {
+            height = r.height;
+        }
     }
 
     // Properties

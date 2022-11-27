@@ -11,7 +11,9 @@ class Triangle
 {
 public:
 	Triangle(Vertex* v1, Vertex* v2, Vertex* v3)
-		: m_v1(v1), m_v2(v2), m_v3(v3) { };
+		: m_v1(v1),
+		  m_v2(v2),
+		  m_v3(v3) { };
 
 	Vertex* v1() { return m_v1; }
 	Vertex* v2() { return m_v2; }
