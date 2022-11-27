@@ -21,13 +21,13 @@
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
 
-/**
- * @brief Clamps value within the given min/max range.
- * @param value The value to clamp.
- * @param min The minimum value for the range.
- * @param max The maximum value for the range.
- * @return The clamped value.
-*/
+/// <summary>
+/// Clamps value within the given min/max range.
+/// </summary>
+/// <param name="value">The value to clamp.</param>
+/// <param name="min">Minimum value to clamp to.</param>
+/// <param name="max">Maximum value to clamp to.</param>
+/// <returns>The clamped value. This remains the same if it's already within the target range.</returns>
 template <typename T>
 inline T clamp(T& value, T min, T max)
 {
@@ -42,15 +42,15 @@ inline T clamp(T& value, T min, T max)
     return value;
 };
 
-/**
- * @brief Convert value from Range A (old) to Range B (new)
- * @param value The value to convert.
- * @param amin Minimum value for Range A.
- * @param amax Maximum value for Range A.
- * @param bmin Minimum value for Range B.
- * @param bmax Maximum value for Range B.
- * @return The new normalized value.
-*/
+/// <summary>
+/// Convert value from Range A (old) to Range B (new).
+/// </summary>
+/// <param name="value">The value to normalize.</param>
+/// <param name="amin">Minimum value of original range.</param>
+/// <param name="amax">Maxmimum value of original range.</param>
+/// <param name="bmin">Minimum value of new range.</param>
+/// <param name="bmax">Maximum value of new range.</param>
+/// <returns>The normalized (re-ranged) value.</returns>
 template <typename T>
 inline T normalize(T* value,
                    const T amin,
@@ -61,33 +61,33 @@ inline T normalize(T* value,
     return (((*value - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
 }
 
-/**
- * @brief 2D dot product.
-*/
+/// <summary>
+/// 2D dot product.
+/// </summary>
 inline double dot(Vector2 v1, Vector2 v2)
 {
     return v1._x * v2._x + v1._y * v2._y;
 }
 
-/**
- * @brief 3D dot product.
-*/
+/// <summary>
+/// 3D dot product.
+/// </summary>
 inline double dot(Vector3 v1, Vector3 v2)
 {
 	return v1._x * v2._x + v1._y * v2._y + v1._z * v2._z;
 }
 
-/**
- * @brief 2D cross product.
-*/
+/// <summary>
+/// 2D cross product.
+/// </summary>
 inline double cross(const Vector2& v1, const Vector2& v2)
 {
 	return v1._x * v2._y - v2._x * v1._y;
 }
 
-/**
- * @brief 3D cross product.
-*/
+/// <summary>
+/// 3D cross product.
+/// </summary>
 inline Vector3 cross(const Vector3& v1, const Vector3& v2)
 {
 	double x = (v1._y * v2._z) - (v1._z * v2._y);
@@ -208,7 +208,7 @@ inline bool getBarycentricCoords(Vector3& v1,
     double oneMinusSum = 1.0 - sum;
     bool isOutsideTriangle = uvw._x <= 0.0 || uvw._y <= 0.0 || uvw._z <= 0.0 || oneMinusSum > EPSILON;
 
-    return isOutsideTriangle;
+    return !isOutsideTriangle;
 }
 
 

@@ -67,7 +67,7 @@ class Channel
     /// </summary>
     void allocate()
     {
-        size_t size = (size_t) (m_width * m_height);
+        size_t size = (size_t) m_width * (size_t) m_height;
         m_pixels.reserve(size);
     };
 

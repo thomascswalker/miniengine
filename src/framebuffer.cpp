@@ -150,15 +150,15 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             int pixelOffset = rowOffset + x;
 
             // If the pixel is outside the frame entirely, we'll skip it
-            Vector3 p(x + 1, y + 1, 0);
-            if (!m_frame.contains(p._x, p._y))
+            Vector3 p(x + 1.0, y + 1.0, 0);
+            if (!m_frame.contains(x, y))
             {
                 continue;
             }
 
             //Get barycentric coordinates of triangle (uvw)
             Vector3 uvw(0.0);
-            if (getBarycentricCoords(v1, v2, v3, p, uvw))
+            if (!getBarycentricCoords(v1, v2, v3, p, uvw))
             {
                 // If the total != 1.0, or all of the coord axes are less than 0,
                 // we'll skip this (it's not in the triangle!)
