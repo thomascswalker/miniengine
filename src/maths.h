@@ -151,24 +151,26 @@ inline Vector3 getNormal(Vector3& v1, Vector3& v2, Vector3& v3)
 /// <param name="right">Right component of the camera.</param>
 /// <returns>The camera normal vector.</returns>
 inline Vector3 getCameraNormal(Vector3& viewNormal,
-                               Vector3& forward,
+                               Vector3& right,
                                Vector3& up,
-                               Vector3& right)
+                               Vector3& forward)
 {
     // Calculate view direction
-    forward.normalize();
-    up.normalize();
-    right.normalize();
+    //forward.normalize();
+    //up.normalize();
+    //right.normalize();
 
     // Calculate facing, up, right ratios
-    double facingRatio = dot(viewNormal, forward);
-    double upRatio = dot(viewNormal, up);
+    
     double rightRatio = dot(viewNormal, right);
+    double upRatio = dot(viewNormal, up);
+    double facingRatio = dot(viewNormal, forward);
+    
 
     // Normalize ratios from -1 => 1 to 0 => 1
-    facingRatio = normalize(&facingRatio, -1.0, 1.0, 0.0, 1.0);
-    upRatio = normalize(&upRatio, -1.0, 1.0, 0.0, 1.0);
-    rightRatio = normalize(&rightRatio, -1.0, 1.0, 0.0, 1.0);
+    //facingRatio = normalize(&facingRatio, -1.0, 1.0, 0.0, 1.0);
+    //upRatio = normalize(&upRatio, -1.0, 1.0, 0.0, 1.0);
+    //rightRatio = normalize(&rightRatio, -1.0, 1.0, 0.0, 1.0);
 
     return Vector3(rightRatio, upRatio, facingRatio);
 }

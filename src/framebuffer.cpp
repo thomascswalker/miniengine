@@ -99,19 +99,24 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
     Vector3 viewNormal = m_view * worldNormal;
 
     // Calculate the camera normal
-    Vector3 forward = -m_camera.getForward();
-    Vector3 up = -m_camera.getUp();
     Vector3 right = -m_camera.getRight();
-    Vector3 cameraNormal = getCameraNormal(viewNormal, forward, up, right);
-    //cameraNormal.normalize();
+    Vector3 up = -m_camera.getUp();
+    Vector3 forward = -m_camera.getForward();
+    
+    Vector3 cameraNormal = getCameraNormal(worldNormal, right, up, forward);
+    cameraNormal.normalize();
 
     // Backface cull if enabled
 #ifdef BACKFACE_CULL
-    if (cameraNormal._z < 0.0)
+    if (cameraNormal._z < 0.0 || cameraNormal._z > 1.0)
     {
         return false;
     }
 #endif
+
+    cameraNormal._x = normalize(&cameraNormal._x, -1.0, 1.0, 0.0, 1.0);
+    cameraNormal._y = normalize(&cameraNormal._y, -1.0, 1.0, 0.0, 1.0);
+    cameraNormal._z = normalize(&cameraNormal._z, -1.0, 1.0, 0.0, 1.0);
 
     // Convert world-space to screenspace
     worldToScreen(&v1);
@@ -150,8 +155,8 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             int pixelOffset = rowOffset + x;
 
             // If the pixel is outside the frame entirely, we'll skip it
-            Vector3 p(x + 1.0, y + 1.0, 0);
-            if (!m_frame.contains(x, y))
+            Vector3 p(x + 1, y + 1, 0);
+            if (!m_frame.contains(p._x, p._y))
             {
                 continue;
             }
@@ -180,8 +185,8 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             getChannel(CHANNEL_Z)->setPixel(pixelOffset, z); // Otherwise we'll set the current pixel Z to this depth
 
             // Set final color in RGB buffer
-            getChannel(CHANNEL_R)->setPixel(pixelOffset, cameraNormal._x);
-            getChannel(CHANNEL_G)->setPixel(pixelOffset, cameraNormal._y);
+            getChannel(CHANNEL_R)->setPixel(pixelOffset, cameraNormal._z);
+            getChannel(CHANNEL_G)->setPixel(pixelOffset, cameraNormal._z);
             getChannel(CHANNEL_B)->setPixel(pixelOffset, cameraNormal._z);
         }   
     }
