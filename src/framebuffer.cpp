@@ -93,25 +93,15 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
 
     // Calculate world normal
     Vector3 worldNormal = getNormal(v1, v2, v3);
-    worldNormal.normalize();
+    Vector3 cameraNormal = m_proj * m_view * worldNormal;
+    cameraNormal.normalize();
 
-    // Convert to camera space
-    Vector3 viewNormal = m_view * worldNormal;
-
-    // Calculate the camera normal
-    Vector3 forward = -m_camera.getForward();
-    Vector3 up = -m_camera.getUp();
-    Vector3 right = -m_camera.getRight();
-    Vector3 cameraNormal = getCameraNormal(viewNormal, forward, up, right);
-    //cameraNormal.normalize();
-
-    // Backface cull if enabled
-#ifdef BACKFACE_CULL
-    if (cameraNormal._z < 0.0)
+    if (cameraNormal._z < 0.0 || cameraNormal._z > 1.0)
     {
         return false;
     }
-#endif
+
+    cameraNormal.rescale(-1.0, 1.0, 0.0, 1.0);
 
     // Convert world-space to screenspace
     worldToScreen(&v1);
@@ -150,8 +140,8 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             int pixelOffset = rowOffset + x;
 
             // If the pixel is outside the frame entirely, we'll skip it
-            Vector3 p(x + 1.0, y + 1.0, 0);
-            if (!m_frame.contains(x, y))
+            Vector3 p(x + 1, y + 1, 0);
+            if (!m_frame.contains(p._x, p._y))
             {
                 continue;
             }
@@ -267,9 +257,9 @@ void Framebuffer::allocateDisplayPtr()
 
             // Normalize (0 => 255)
             // Order is inverted; RGB => BBGGRRXX
-            *pixel++ = (uint8) normalize(&b, 0.0, 1.0, 0.0, 255.0);
-            *pixel++ = (uint8) normalize(&g, 0.0, 1.0, 0.0, 255.0);
-            *pixel++ = (uint8) normalize(&r, 0.0, 1.0, 0.0, 255.0);
+            *pixel++ = (uint8) rescale(&b, 0.0, 1.0, 0.0, 255.0);
+            *pixel++ = (uint8) rescale(&g, 0.0, 1.0, 0.0, 255.0);
+            *pixel++ = (uint8) rescale(&r, 0.0, 1.0, 0.0, 255.0);
 
             // A (alpha) is always 0
             *pixel++ = (uint8) 0;
