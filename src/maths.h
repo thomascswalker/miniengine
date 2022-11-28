@@ -52,11 +52,11 @@ inline T clamp(T& value, T min, T max)
 /// <param name="bmax">Maximum value of new range.</param>
 /// <returns>The normalized (re-ranged) value.</returns>
 template <typename T>
-inline T normalize(T* value,
-                   const T amin,
-                   const T amax,
-                   const T bmin,
-                   const T bmax)
+inline T rescale(T* value,
+                 const T amin,
+                 const T amax,
+                 const T bmin,
+                 const T bmax)
 {
     return (((*value - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
 }
@@ -156,21 +156,20 @@ inline Vector3 getCameraNormal(Vector3& viewNormal,
                                Vector3& forward)
 {
     // Calculate view direction
-    //forward.normalize();
-    //up.normalize();
-    //right.normalize();
+    forward.normalize();
+    up.normalize();
+    right.normalize();
 
     // Calculate facing, up, right ratios
-    
     double rightRatio = dot(viewNormal, right);
     double upRatio = dot(viewNormal, up);
     double facingRatio = dot(viewNormal, forward);
     
 
     // Normalize ratios from -1 => 1 to 0 => 1
-    //facingRatio = normalize(&facingRatio, -1.0, 1.0, 0.0, 1.0);
-    //upRatio = normalize(&upRatio, -1.0, 1.0, 0.0, 1.0);
-    //rightRatio = normalize(&rightRatio, -1.0, 1.0, 0.0, 1.0);
+    facingRatio = rescale(&facingRatio, -1.0, 1.0, 0.0, 1.0);
+    upRatio = rescale(&upRatio, -1.0, 1.0, 0.0, 1.0);
+    rightRatio = rescale(&rightRatio, -1.0, 1.0, 0.0, 1.0);
 
     return Vector3(rightRatio, upRatio, facingRatio);
 }

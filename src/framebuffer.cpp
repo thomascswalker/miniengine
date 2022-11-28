@@ -93,30 +93,15 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
 
     // Calculate world normal
     Vector3 worldNormal = getNormal(v1, v2, v3);
-    worldNormal.normalize();
-
-    // Convert to camera space
-    Vector3 viewNormal = m_view * worldNormal;
-
-    // Calculate the camera normal
-    Vector3 right = -m_camera.getRight();
-    Vector3 up = -m_camera.getUp();
-    Vector3 forward = -m_camera.getForward();
-    
-    Vector3 cameraNormal = getCameraNormal(worldNormal, right, up, forward);
+    Vector3 cameraNormal = m_proj * m_view * worldNormal;
     cameraNormal.normalize();
 
-    // Backface cull if enabled
-#ifdef BACKFACE_CULL
     if (cameraNormal._z < 0.0 || cameraNormal._z > 1.0)
     {
         return false;
     }
-#endif
 
-    cameraNormal._x = normalize(&cameraNormal._x, -1.0, 1.0, 0.0, 1.0);
-    cameraNormal._y = normalize(&cameraNormal._y, -1.0, 1.0, 0.0, 1.0);
-    cameraNormal._z = normalize(&cameraNormal._z, -1.0, 1.0, 0.0, 1.0);
+    cameraNormal.rescale(-1.0, 1.0, 0.0, 1.0);
 
     // Convert world-space to screenspace
     worldToScreen(&v1);
@@ -185,8 +170,8 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             getChannel(CHANNEL_Z)->setPixel(pixelOffset, z); // Otherwise we'll set the current pixel Z to this depth
 
             // Set final color in RGB buffer
-            getChannel(CHANNEL_R)->setPixel(pixelOffset, cameraNormal._z);
-            getChannel(CHANNEL_G)->setPixel(pixelOffset, cameraNormal._z);
+            getChannel(CHANNEL_R)->setPixel(pixelOffset, cameraNormal._x);
+            getChannel(CHANNEL_G)->setPixel(pixelOffset, cameraNormal._y);
             getChannel(CHANNEL_B)->setPixel(pixelOffset, cameraNormal._z);
         }   
     }
@@ -272,9 +257,9 @@ void Framebuffer::allocateDisplayPtr()
 
             // Normalize (0 => 255)
             // Order is inverted; RGB => BBGGRRXX
-            *pixel++ = (uint8) normalize(&b, 0.0, 1.0, 0.0, 255.0);
-            *pixel++ = (uint8) normalize(&g, 0.0, 1.0, 0.0, 255.0);
-            *pixel++ = (uint8) normalize(&r, 0.0, 1.0, 0.0, 255.0);
+            *pixel++ = (uint8) rescale(&b, 0.0, 1.0, 0.0, 255.0);
+            *pixel++ = (uint8) rescale(&g, 0.0, 1.0, 0.0, 255.0);
+            *pixel++ = (uint8) rescale(&r, 0.0, 1.0, 0.0, 255.0);
 
             // A (alpha) is always 0
             *pixel++ = (uint8) 0;

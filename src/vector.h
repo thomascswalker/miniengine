@@ -217,6 +217,14 @@ public:
 
 	// Normalizes the length of the vector so length == 1
 	void normalize();
+
+	template <typename T>
+	inline void rescale(T amin, T amax, T bmin, T bmax)
+	{
+		_x = (((_x - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
+		_y = (((_y - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
+		_z = (((_z - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
+	}
 	static Vector3 identity();
 	double length()
 	{
