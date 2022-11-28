@@ -8,6 +8,9 @@ This is primarily a learning project for myself. My goal was to build a real-tim
 - C++ 20
 - Windows 10.0 SDK (latest)
 
+## Wiki
+Follow this ![link](https://github.com/thomascswalker/miniengine/wiki) to view the wiki.
+
 ## Example
 ![](https://github.com/thomascswalker/miniengine/blob/af18643c20aff401325ff25a2ff8983e489b1999/images/example.gif)
 
