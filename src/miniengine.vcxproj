@@ -188,6 +188,7 @@
     <ClInclude Include="printbuffer.h" />
     <ClInclude Include="quaternion.h" />
     <ClInclude Include="rotation.h" />
+    <ClInclude Include="shader.h" />
     <ClInclude Include="transform.h" />
     <ClInclude Include="triangle.h" />
     <ClInclude Include="vector.h" />

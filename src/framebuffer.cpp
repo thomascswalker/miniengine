@@ -86,6 +86,8 @@ Rect<int> Framebuffer::getBoundingBox(Vector3* v1, Vector3* v2, Vector3* v3)
 
 bool Framebuffer::drawTriangle(Triangle* worldTriangle)
 {
+    auto lightDirection = Vector3(1.0, 1.0, 0.0);
+
     // Get model-space vertex positions of the triangle
     Vector3 v1 = m_model * worldTriangle->v1()->getTranslation();
     Vector3 v2 = m_model * worldTriangle->v2()->getTranslation();
@@ -93,6 +95,8 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
 
     // Calculate world normal
     Vector3 worldNormal = getNormal(v1, v2, v3);
+    worldNormal.normalize();
+
     Vector3 cameraNormal = m_proj * m_view * worldNormal;
     cameraNormal.normalize();
 
@@ -169,10 +173,14 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             // Store z-depth in channel
             getChannel(CHANNEL_Z)->setPixel(pixelOffset, z); // Otherwise we'll set the current pixel Z to this depth
 
+            
+            auto shader = PixelShader(p, worldNormal, lightDirection);
+            auto final = shader.process();
+
             // Set final color in RGB buffer
-            getChannel(CHANNEL_R)->setPixel(pixelOffset, cameraNormal._x);
-            getChannel(CHANNEL_G)->setPixel(pixelOffset, cameraNormal._y);
-            getChannel(CHANNEL_B)->setPixel(pixelOffset, cameraNormal._z);
+            getChannel(CHANNEL_R)->setPixel(pixelOffset, final._x);
+            getChannel(CHANNEL_G)->setPixel(pixelOffset, final._y);
+            getChannel(CHANNEL_B)->setPixel(pixelOffset, final._z);
         }   
     }
 
