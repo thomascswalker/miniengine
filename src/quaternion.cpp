@@ -5,7 +5,8 @@ MINI_USING_DIRECTIVE
 
 Quaternion Quaternion::getNormalized() const
 {
-    double length = sqrt(Quaternion::p_getLengthSquared());
+    double lengthSquared = _getLengthSquared();
+    double length = sqrt(lengthSquared);
     if (length < EPSILON)
     {
         return Quaternion::getIdentity();

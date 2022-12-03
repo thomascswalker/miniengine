@@ -212,6 +212,12 @@ inline bool getBarycentricCoords(Vector3& v1,
     return !isOutsideTriangle;
 }
 
+inline Vector3 rotateAround(const Vector3& p1, const Vector3& p2,
+                            double x, double y, double z)
+{
+    
+}
+
 
 MINI_NAMESPACE_CLOSE
 

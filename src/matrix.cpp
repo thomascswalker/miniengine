@@ -546,11 +546,59 @@ Matrix4 makeRotationZ(double z)
 
 Matrix4 makeRotation(double x, double y, double z)
 {
-    Matrix4 rx = makeRotationX(x);
-    Matrix4 ry = makeRotationY(y);
-    Matrix4 rz = makeRotationZ(z);
+    double cr = cos(x * 0.5);
+    double sr = sin(x * 0.5);
+    double cp = cos(y * 0.5);
+    double sp = sin(y * 0.5);
+    double cy = cos(z * 0.5);
+    double sy = sin(z * 0.5);
 
-    return rx * ry * rz;
+    
+    double angle = cr * cp * cy + sr * sp * sy;
+    double _x = sr * cp * cy - cr * sp * sy;
+    double _y = cr * sp * cy + sr * cp * sy;
+    double _z = cr * cp * sy - sr * sp * cy;
+
+    Vector3 axis(_x, _y, _z);
+
+    double c = cos(angle);
+    double s = sin(angle);
+
+    Matrix4 m = Matrix4();
+
+    m[0][0] = axis._x * axis._x * (1.0 - c) + c;
+    m[0][1] = axis._y * axis._x * (1.0 - c) - s * axis._z;
+    m[0][2] = axis._z * axis._x * (1.0 - c) + s * axis._y;
+
+    m[1][0] = axis._x * axis._y * (1.0 - c) + s * axis._z;
+    m[1][1] = axis._y * axis._y * (1.0 - c) + c;
+    m[1][2] = axis._z * axis._y * (1.0 - c) - s * axis._x;
+
+    m[2][0] = axis._x * axis._z * (1.0 - c) - s * axis._y;
+    m[2][1] = axis._y * axis._z * (1.0 - c) + s * axis._x;
+    m[2][2] = axis._z * axis._z * (1.0 - c) + c;
+
+    return m;
+    //Matrix4 r = Matrix4();
+    //r.setIdentity();
+
+    //r[0][0] = cos(y) * cos(z);
+    //r[1][0] = -cos(x) * sin(z) + sin(x) * sin(y) * cos(z);
+    //r[2][0] = sin(x) * sin(z) + cos(x) * sin(y) * cos(z);
+
+    //r[0][1] = cos(y) * cos(z);
+    //r[1][1] = cos(x) * cos(z) + sin(x) * sin(y) * sin(z);
+    //r[2][1] = -sin(x) * cos(z) + cos(x) * sin(y) * sin(z);
+
+    //r[0][2] = -sin(y);
+    //r[1][2] = sin(x) * cos(y);
+    //r[2][2] = cos(x) * cos(y);
+
+    //auto rx = makeRotationX(x);
+    //auto ry = makeRotationY(y); 
+    //auto rz = makeRotationZ(z);
+
+    //return rz * ry * rx;
 }
 
 Matrix4 makeRotation(const Rotation& rotation)
@@ -566,17 +614,17 @@ Matrix4 makeRotation(const Rotation& rotation)
 
     Matrix4 m = Matrix4();
 
-    m[0][0] = axis._x * axis._x * (1 - c) + c;
-    m[0][1] = axis._y * axis._x * (1 - c) - s * axis._z;
-    m[0][2] = axis._z * axis._x * (1 - c) + s * axis._y;
+    m[0][0] = axis._x * axis._x * (1.0 - c) + c;
+    m[0][1] = axis._y * axis._x * (1.0 - c) - s * axis._z;
+    m[0][2] = axis._z * axis._x * (1.0 - c) + s * axis._y;
 
-    m[1][0] = axis._x * axis._y * (1 - c) + s * axis._z;
-    m[1][1] = axis._y * axis._y * (1 - c) + c;
-    m[1][2] = axis._z * axis._y * (1 - c) - s * axis._x;
+    m[1][0] = axis._x * axis._y * (1.0 - c) + s * axis._z;
+    m[1][1] = axis._y * axis._y * (1.0 - c) + c;
+    m[1][2] = axis._z * axis._y * (1.0 - c) - s * axis._x;
 
-    m[2][0] = axis._x * axis._z * (1 - c) - s * axis._y;
-    m[2][1] = axis._y * axis._z * (1 - c) + s * axis._x;
-    m[2][2] = axis._z * axis._z * (1 - c) + c;
+    m[2][0] = axis._x * axis._z * (1.0 - c) - s * axis._y;
+    m[2][1] = axis._y * axis._z * (1.0 - c) + s * axis._x;
+    m[2][2] = axis._z * axis._z * (1.0 - c) + c;
 
     return m;
 }

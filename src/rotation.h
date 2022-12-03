@@ -31,12 +31,11 @@ public:
 	{
 		double len = q.getImaginary().length();
 
-		if (len < 1e-10) // Minimum vector length
+		if (len < EPSILON) // Minimum vector length
 		{
 			auto r = q.getReal();
 			double x = acos(clamp(r, -1.0, 1.0));
-			setAxisAngle(q.getImaginary() / len,
-						 2.0 * RADIANS(x));
+			setAxisAngle(q.getImaginary() / len, 2.0 * RADIANS(x));
 		}
 		else
 		{
@@ -62,10 +61,10 @@ public:
 
 	static Rotation fromEulerAngles(double yaw, double pitch, double roll)
 	{
-		double qx = sin(roll/2) * cos(pitch/2) * cos(yaw/2) - cos(roll/2) * sin(pitch/2) * sin(yaw/2);
-		double qy = cos(roll/2) * sin(pitch/2) * cos(yaw/2) + sin(roll/2) * cos(pitch/2) * sin(yaw/2);
-		double qz = cos(roll/2) * cos(pitch/2) * sin(yaw/2) - sin(roll/2) * sin(pitch/2) * cos(yaw/2);
-		double qw = cos(roll/2) * cos(pitch/2) * cos(yaw/2) + sin(roll/2) * sin(pitch/2) * sin(yaw/2);
+		double qx = sin(roll/2.0) * cos(pitch/2.0) * cos(yaw/2.0) - cos(roll/2.0) * sin(pitch/2.0) * sin(yaw/2.0);
+		double qy = cos(roll/2.0) * sin(pitch/2.0) * cos(yaw/2.0) + sin(roll/2.0) * cos(pitch/2.0) * sin(yaw/2.0);
+		double qz = cos(roll/2.0) * cos(pitch/2.0) * sin(yaw/2.0) - sin(roll/2.0) * sin(pitch/2.0) * cos(yaw/2.0);
+		double qw = cos(roll/2.0) * cos(pitch/2.0) * cos(yaw/2.0) + sin(roll/2.0) * sin(pitch/2.0) * sin(yaw/2.0);
 
 		Quaternion q(qw, Vector3(qx, qy, qz));
 		return Rotation(q);
@@ -99,7 +98,14 @@ public:
 
 	std::string toString()
 	{
-		return m_axis.toString();
+		return "Axis: " + m_axis.toString() + ", Angle: " + std::format("%d", m_angle);
+	}
+
+	Rotation& operator += (const Rotation& r)
+	{
+		m_axis += r.m_axis;
+		m_angle += r.m_angle;
+		return *this;
 	}
 
 private:

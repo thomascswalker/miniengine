@@ -86,6 +86,8 @@ Rect<int> Framebuffer::getBoundingBox(Vector3* v1, Vector3* v2, Vector3* v3)
 
 bool Framebuffer::drawTriangle(Triangle* worldTriangle)
 {
+    auto lightDirection = Vector3(1.0, 1.0, 0.0);
+
     // Get model-space vertex positions of the triangle
     Vector3 v1 = m_model * worldTriangle->v1()->getTranslation();
     Vector3 v2 = m_model * worldTriangle->v2()->getTranslation();
@@ -93,15 +95,18 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
 
     // Calculate world normal
     Vector3 worldNormal = getNormal(v1, v2, v3);
-    Vector3 cameraNormal = m_proj * m_view * worldNormal;
-    cameraNormal.normalize();
+    worldNormal.normalize();
 
-    if (cameraNormal._z < 0.0 || cameraNormal._z > 1.0)
+    Vector3 viewNormal = m_proj * m_view * worldNormal;
+    viewNormal.normalize();
+
+    // Backface culling
+    if (viewNormal._z < -1.0 || viewNormal._z > 1.0)
     {
         return false;
     }
-
-    cameraNormal.rescale(-1.0, 1.0, 0.0, 1.0);
+    // Rescale from -1 => 1 to 0 => 1
+    viewNormal.rescale(-1.0, 1.0, 0.0, 1.0);
 
     // Convert world-space to screenspace
     worldToScreen(&v1);
@@ -169,10 +174,14 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             // Store z-depth in channel
             getChannel(CHANNEL_Z)->setPixel(pixelOffset, z); // Otherwise we'll set the current pixel Z to this depth
 
+            // Compile pixel shader
+            auto shader = PixelShader(p, worldNormal, viewNormal, lightDirection);
+            auto finalColor = shader.process();
+
             // Set final color in RGB buffer
-            getChannel(CHANNEL_R)->setPixel(pixelOffset, cameraNormal._x);
-            getChannel(CHANNEL_G)->setPixel(pixelOffset, cameraNormal._y);
-            getChannel(CHANNEL_B)->setPixel(pixelOffset, cameraNormal._z);
+            getChannel(CHANNEL_R)->setPixel(pixelOffset, finalColor._x);
+            getChannel(CHANNEL_G)->setPixel(pixelOffset, finalColor._y);
+            getChannel(CHANNEL_B)->setPixel(pixelOffset, finalColor._z);
         }   
     }
 
@@ -193,7 +202,7 @@ void Framebuffer::render()
     m_proj = m_camera.getProjectionMatrix(m_width, m_height);                         // Projection matrix
 
     // Update MVP matrix
-    m_mvp = m_proj * m_view * m_model;
+    m_mvp = m_proj * m_view;// * m_model;
 
     int count = 0;
     for (auto t : m_triangles)

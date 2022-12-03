@@ -16,6 +16,7 @@
 #include "matrix.h"
 #include "mesh.h"
 #include "printbuffer.h"
+#include "shader.h"
 
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
