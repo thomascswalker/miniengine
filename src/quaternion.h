@@ -42,14 +42,14 @@ public:
 		const Vector3 i1 = m_imaginary;
 		const Vector3 i2 = q.m_imaginary;
 
-		double r = r1 * r2 - dot(i1, i2);
+		double r = (r1 * r2) - dot(i1, i2);
 
-		Vector3 i(r1 * i2[0] + r2 * i1[0] + (i1[1] * i2[2] - i1[2] * i2[1]),
-				  r1 * i2[1] + r2 * i1[1] + (i1[2] * i2[0] - i1[0] * i2[2]),
-				  r1 * i2[2] + r2 * i1[2] + (i1[0] * i2[1] - i1[1] * i2[0]));
+		Vector3 i(r1 * i2._x + r2 * i1._x + (i1._y * i2._z - i1._z * i2._y),
+				  r1 * i2._y + r2 * i1._y + (i1._z * i2._x - i1._x * i2._z),
+				  r1 * i2._z + r2 * i1._z + (i1._x * i2._y - i1._y * i2._x));
 
-		setReal(r);
-		setImaginary(i);
+		m_real = r;
+		m_imaginary = i;
 
 		return *this;
 	}
@@ -59,7 +59,15 @@ public:
 		m_imaginary *= s;
 		return *this;
 	}
-	///// Scales this quaternion by 1 / \p s.
+
+	Quaternion& operator += (const Quaternion& q)
+	{
+		m_real += q.m_real;
+		m_imaginary += q.m_imaginary;
+		return *this;
+	}
+
+	// Scales this quaternion by 1 / \p s.
 	Quaternion& operator /= (double s) {
 		return (*this) *= 1.0 / s;
 	}
@@ -80,7 +88,7 @@ private:
 	Vector3 m_imaginary;
 
 	// Private methods
-	double p_getLengthSquared() const
+	double _getLengthSquared() const
 	{
 		return (m_real * m_real * dot(m_imaginary, m_imaginary));
 	}

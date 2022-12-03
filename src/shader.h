@@ -17,18 +17,26 @@ class PixelShader
 {
 	// Shader components
 	Vector3 m_diffuse = Vector3(0.5, 0.5, 0.5);
+	Vector3 m_emission = Vector3(0.0);
+	double m_ior = 1.52;
 
 	// Context components
 	Vector3 m_position;
 	Vector3 m_lightDirection;
+	Vector3 m_worldNormal;
 	Vector3 m_viewNormal;
 	Vector3 m_cameraNormal;
 
+	// Light
+	double m_lightIntensity = 1.0;
+
 public:
 	PixelShader(Vector3& const position,
+				Vector3& const worldNormal,
 			    Vector3& const viewNormal,
 				Vector3& const lightDirection)
 					: m_position(position),
+					  m_worldNormal(worldNormal),
 					  m_viewNormal(viewNormal),
 					  m_lightDirection(lightDirection) { };
 
@@ -40,14 +48,22 @@ public:
 	inline Vector3 process()
 	{
 		// Lambertian shading
-		double lightIntensity = dot(m_lightDirection, m_viewNormal);
-		Vector3 finalColor = m_diffuse * lightIntensity;
-		if (finalColor._x < 0.0)
-			finalColor._x = 0.0;
-		if (finalColor._y < 0.0)
-			finalColor._y = 0.0;
-		if (finalColor._z < 0.0)
-			finalColor._z = 0.0;
+		double lighting = dot(m_lightDirection, m_worldNormal);
+		lighting *= m_lightIntensity;
+		Vector3 finalColor = m_diffuse * lighting;
+
+		// Add some fresnel
+		double facingRatio = (1.0 - m_viewNormal._z) * m_ior;
+
+		finalColor._x = finalColor._x + facingRatio;
+		finalColor._y = finalColor._y + facingRatio;
+		finalColor._z = finalColor._z + facingRatio;
+
+		// Floor
+		finalColor._x = clamp(finalColor._x, 0.0, 1.0);
+		finalColor._y = clamp(finalColor._y, 0.0, 1.0);
+		finalColor._z = clamp(finalColor._z, 0.0, 1.0);
+
 		return finalColor;
 	}
 };

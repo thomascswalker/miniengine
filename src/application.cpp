@@ -7,6 +7,9 @@
 #define MAIN_WINDOW_TIMER_ID 1001
 #endif
 
+MINI_NAMESPACE_OPEN
+MINI_USING_DIRECTIVE
+
 // Global variables
 static bool     bIsRunning          = false;
 static bool     bFlipFlop           = false;
@@ -33,8 +36,7 @@ static double   CAMERA_SPEED        = 0.0025;
 static double   ROTATION            = 0.0;
 static double   ROTATION_SPEED      = 0.25;
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+Rotation MODEL_ROTATION = Rotation();
 
 LRESULT CALLBACK windowProcessMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -393,6 +395,12 @@ void Application::onMouseDown()
 {
     Vector3 position = m_buffer->camera()->getTranslation();
     Vector3 target = m_buffer->camera()->getTarget();
+
+    // Get original orientation
+    Vector3 orientation = position - target;
+    orientation.normalize();
+
+    // Get distance from position to target
     double length = distance(position, target);
 
     // Delta
@@ -404,15 +412,14 @@ void Application::onMouseDown()
         auto cursor = LoadCursor(NULL, IDC_HAND);
         SetCursor(cursor);
 
+        // Scale delta x/y
         double scaleX = (double) abs(dx) / (double) m_buffer->getWidth();
         double scaleY = (double) abs(dy) / (double) m_buffer->getHeight();
 
-        // Angle
+        // Angle (in radians)
         double xRot = (double) dx * scaleX * ROTATION_SPEED;
         double yRot = (double) dy * scaleY * ROTATION_SPEED;
 
-        // TODO: Fix this
-        // Y/X need to be swapped for some reason
         Matrix4 rx = makeRotationX(yRot);
         Matrix4 ry = makeRotationY(-xRot);
         Matrix4 rz = makeRotationZ(0.0);
