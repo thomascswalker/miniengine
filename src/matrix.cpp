@@ -357,7 +357,7 @@ Matrix4& Matrix4::operator += (const Matrix4& m)
     return *this;
 }
 
-Matrix4& Matrix4::operator*=(const Matrix4& m)
+Matrix4& Matrix4::operator *= (const Matrix4& m)
 {
     // Save current values before they are overwritten
     Matrix4 tmp = *this;

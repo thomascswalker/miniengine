@@ -7,6 +7,7 @@
 
 #include "framebuffer.h"
 #include "meshloader.h"
+#include "staticmesh.h"
 
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
@@ -28,7 +29,7 @@ class Application
     double m_currentTime = 0.0;
     double m_deltaTime = 0.0;
 
-    Mesh* m_mesh = new Mesh();
+    StaticMesh* m_staticMesh = new StaticMesh();
 
 public:
     static Application* getAppInstance();
@@ -62,9 +63,11 @@ protected:
 
 private:
     bool loadModel();
+    bool loadShader();
 
     void onMouseDown();
     void onMouseMove();
+    void onMouseScroll();
 
     void displayPrintText();
     void displayFps();
