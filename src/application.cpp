@@ -7,6 +7,8 @@
 #define MAIN_WINDOW_TIMER_ID 1001
 #endif
 
+#define MIN_ZOOM_DISTANCE 2.0
+
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
 
@@ -33,6 +35,7 @@ static bool     SPACEBAR_DOWN       = false;
 static float    MOUSE_WHEEL_DELTA   = 0.0;
 
 static double   CAMERA_SPEED        = 0.0025;
+
 static double   ROTATION            = 0.0;
 static double   ROTATION_SPEED      = 0.25;
 
@@ -243,7 +246,7 @@ int Application::run()
     m_currentTime = getCurrentTime();
 
     // Move the camera to the default position
-    m_buffer->camera()->move(Vector3(0, 0, 5.0));
+    m_buffer->getCamera()->move(Vector3(0, 0, 5.0));
 
     // Run the message loop.
     while (!bIsRunning)
@@ -278,8 +281,11 @@ int Application::run()
         // Load our mesh
         if (O_DOWN)
         {
-            bool result = loadModel();
-            if (!result)
+            if (!loadModel())
+            {
+                continue;
+            }
+            if (!loadShader())
             {
                 continue;
             }
@@ -297,14 +303,15 @@ int Application::run()
             SetCursor(cursor);
         }
 
-        // Mouse movement
+        // Mouse scroll
         if (MOUSE_WHEEL_DELTA != 0)
         {
-            onMouseMove();
+            onMouseScroll();
         }
 
         // Bind vertex and index buffers to the Framebuffer
-        m_buffer->bindTriangleBuffer(m_mesh->getTris());
+        auto tris = m_staticMesh->getMesh()->getTris();
+        m_buffer->bindTriangleBuffer(tris);
 
         // Draw our scene geometry as triangles
         m_buffer->render();
@@ -380,8 +387,40 @@ bool Application::loadModel()
         std::wstring source = (std::wstring) ofn.lpstrFile;
         std::string dest(source.begin(), source.end());
 
-        m_mesh = new Mesh();
-        MeshLoader::load(dest, m_mesh);
+        Mesh* mesh = new Mesh();
+        MeshLoader::load(dest, mesh);
+        m_staticMesh->setMesh(mesh);
+    }
+    else
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool Application::loadShader()
+{
+    OPENFILENAME ofn = { 0 };
+    TCHAR szFile[256] = { 0 };
+
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = m_hwnd;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = TEXT("Shader File\0*.ini\0");
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    if (GetOpenFileName(&ofn) == TRUE)
+    {
+        std::wstring source = (std::wstring) ofn.lpstrFile;
+        std::string dest(source.begin(), source.end());
+        PixelShader* shader = new PixelShader(dest);
+        m_buffer->setPixelShader(shader);
     }
     else
     {
@@ -393,8 +432,8 @@ bool Application::loadModel()
 
 void Application::onMouseDown()
 {
-    Vector3 position = m_buffer->camera()->getTranslation();
-    Vector3 target = m_buffer->camera()->getTarget();
+    Vector3 position = m_buffer->getCamera()->getTranslation();
+    Vector3 target = m_buffer->getCamera()->getTarget();
 
     // Get original orientation
     Vector3 orientation = position - target;
@@ -428,20 +467,38 @@ void Application::onMouseDown()
         d.normalize();
         Vector3 t = rx * ry * d * length;
 
-        m_buffer->camera()->setTranslation(t);
+        m_buffer->getCamera()->setTranslation(t);
     }
 }
 
 void Application::onMouseMove()
 {
+
+}
+
+void Application::onMouseScroll()
+{
     double delta = MOUSE_WHEEL_DELTA / 240.0;
-    Vector3 cameraTarget = m_buffer->camera()->getTarget();
-    Vector3 cameraPosition = m_buffer->camera()->getTranslation();
-            
+    Vector3 cameraTarget = m_buffer->getCamera()->getTarget();
+    Vector3 cameraPosition = m_buffer->getCamera()->getTranslation();
+
+    // Get camera orientation (normal)
     Vector3 normal = cameraTarget - cameraPosition;
     normal.normalize();
+    
+    // Calculate new camera position given the current camera position and adding
+    // the normalized camera orientation and delta multiplier (how much we're scrolling).
+    Vector3 newPosition = cameraPosition + (normal * delta);
+    double dist = distance(newPosition, cameraTarget);
 
-    m_buffer->camera()->setTranslation(cameraPosition + (normal * delta));
+    // Handle minimum zoom so we can't go past the origin
+    if (dist < MIN_ZOOM_DISTANCE)
+    {
+        return;
+    }
+
+    // Set the new position of the camera
+    m_buffer->getCamera()->setTranslation(newPosition);
 }
 
 

@@ -25,6 +25,17 @@ public:
 	void setTranslation(const Vector3& t) { m_transform.setTranslation(t); }
 	void setRotation(const Rotation& r) { m_transform.setRotation(r); }
 
+	void addTranslation(const Vector3& t)
+	{
+		Vector3 newTranslation = m_transform.getTranslation() + t;
+		m_transform.setTranslation(newTranslation);
+	}
+	void addRotation(const Rotation& r)
+	{
+		Rotation newRotation = m_transform.getRotation() + r;
+		m_transform.setRotation(newRotation);
+	}
+
 	void move(const Vector3& v);
 
 protected:

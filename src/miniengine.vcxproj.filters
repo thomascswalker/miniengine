@@ -135,5 +135,8 @@
     <ClInclude Include="shader.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
+    <ClInclude Include="staticmesh.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -108,6 +108,19 @@ public:
 		return *this;
 	}
 
+	const Rotation& operator += (const Rotation& r) const
+	{
+		Rotation tmp = *this;
+		tmp.m_axis += r.m_axis;
+		tmp.m_angle += r.m_angle;
+		return *this;
+	}
+
+	friend inline Rotation operator +(const Rotation& r1, const Rotation& r2)
+	{
+		return r1 += r2;
+	}
+
 private:
 	Vector3 m_axis;
 	double m_angle;

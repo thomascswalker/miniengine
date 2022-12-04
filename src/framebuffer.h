@@ -45,6 +45,9 @@ class Framebuffer
     // Vertex memory
     std::vector<Triangle*> m_triangles;
 
+    // Shaders
+    PixelShader* m_pixelShader = new PixelShader();
+
     // Camera and matrices
     Camera m_camera;
     Vector3 m_targetPosition;
@@ -102,7 +105,7 @@ public:
     inline Channel* getChannel(const char* channel) { return m_channels[channel]; }
     
     // Camera
-    Camera* camera() { return &m_camera; }
+    Camera* getCamera() { return &m_camera; }
 
     // Pixel buffer
     HWND getHwnd() { return m_hwnd; }
@@ -111,6 +114,8 @@ public:
 
     HBITMAP getBitmap();
     void bindTriangleBuffer(std::vector<Triangle*> data);
+
+    void setPixelShader(PixelShader* shader) { m_pixelShader = shader; }
 
     Vector3 getTargetTranslation() { return m_targetPosition; }
 

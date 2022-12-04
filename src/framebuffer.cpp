@@ -175,8 +175,7 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             getChannel(CHANNEL_Z)->setPixel(pixelOffset, z); // Otherwise we'll set the current pixel Z to this depth
 
             // Compile pixel shader
-            auto shader = PixelShader(p, worldNormal, viewNormal, lightDirection);
-            auto finalColor = shader.process();
+            Vector3 finalColor = m_pixelShader->process(p, worldNormal, viewNormal, lightDirection); // p, worldNormal, viewNormal, lightDirection
 
             // Set final color in RGB buffer
             getChannel(CHANNEL_R)->setPixel(pixelOffset, finalColor._x);
