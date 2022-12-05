@@ -196,6 +196,9 @@
     <ClInclude Include="application.h" />
     <ClInclude Include="vertex.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\models\shader.ini" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

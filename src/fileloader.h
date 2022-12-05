@@ -15,6 +15,9 @@
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
 
+#define FILE_FILTER_OBJ L"Wavefront OBJ (.obj)\0*.obj\0"
+#define FILE_FILTER_SHADER L"Shader File (.ini)\0*.ini\0"
+
 static std::vector<const char*> INVALID_VERTEX_TOKENS = {"v", "vn", "vt", "", " "};
 static std::vector<const char*> INVALID_FACE_TOKENS = {"f", "", " "};
 
@@ -135,7 +138,10 @@ static bool parseNumber(std::string value, T *result)
 	}
 }
 
-bool getOpenFilename(const char* filter, std::string& filename);
+/// <summary>
+/// Wrapper for GetOpenFileNameW to simplify the parameter inputs.
+/// </summary>
+bool getOpenFilename(const wchar_t* filter, std::string& filename);
 
 Mesh* loadMeshFile(std::string filename);
 PixelShader* loadShaderFile(std::string filename);

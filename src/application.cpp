@@ -369,7 +369,7 @@ void Application::setSize(int width, int height)
 bool Application::loadModel()
 {
     std::string filename;
-    if (!getOpenFilename("Wavefront OBJ\0*.obj\0", filename))
+    if (!getOpenFilename(FILE_FILTER_OBJ, filename))
     {
         return false;
     }
@@ -383,7 +383,7 @@ bool Application::loadModel()
 bool Application::loadShader()
 {
     std::string filename;
-    if (!getOpenFilename("Shader File\0*.ini\0", filename))
+    if (!getOpenFilename(FILE_FILTER_SHADER, filename))
     {
         return false;
     }

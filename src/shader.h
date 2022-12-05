@@ -19,7 +19,7 @@ class PixelShader
 	std::string m_filename = "";
 
 	// Shader components
-	Vector3 m_diffuse = Vector3(0.5, 0.30, 0.25);
+	Vector3 m_color = Vector3(0.5, 0.30, 0.25);
 	Vector3 m_emission = Vector3(0.0);
 	double m_ior = 1.52;
 
@@ -28,6 +28,8 @@ class PixelShader
 
 public:
 	PixelShader() { };
+
+	void setColor(Vector3& color) { m_color = color; }
 
 	/// <summary>
 	/// Simple PBR shader.
@@ -47,7 +49,7 @@ public:
 		double specularIntensity = 0.0;
 
 		// Compute final color
-		Vector3 finalColor = (m_diffuse * lighting) + specularIntensity;
+		Vector3 finalColor = (m_color * lighting) + specularIntensity;
 
 		// Clamp final values so they're within the 0 => 1 range.
 		finalColor._x = clamp(finalColor._x, 0.0, 1.0);

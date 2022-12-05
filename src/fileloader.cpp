@@ -3,9 +3,7 @@
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
 
-#define T(x) L##x
-
-bool getOpenFilename(const char* filter, std::string& filename)
+bool getOpenFilename(const wchar_t* filter, std::string& filename)
 {
     OPENFILENAME ofn = { 0 };
     TCHAR szFile[256] = { 0 };
@@ -14,9 +12,7 @@ bool getOpenFilename(const char* filter, std::string& filename)
     ofn.hwndOwner = 0;
     ofn.lpstrFile = szFile;
     ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = T(filter);
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
+	ofn.lpstrFilter = (LPCWSTR) filter;
     ofn.nMaxFileTitle = 0;
     ofn.lpstrInitialDir = NULL;
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
@@ -46,33 +42,31 @@ Mesh* loadMeshFile(std::string filename)
 		std::stringstream stream;	// New string stream
 		stream << file.rdbuf();		// Read data
 		
-		std::string lineBuffer;		// New buffer for the current line
+		std::string line;			// New buffer for the current line
 
 		// Keep reading until end-of-file
 		while (stream.peek() != -1)
 		{
 			// (Safely) get the current line
-			readLine(stream, lineBuffer);
+			readLine(stream, line);
+
+			if (line.starts_with('\0'))			// Skip if line is empty
+			{
+				continue;
+			}
+
+			if (line.starts_with('#'))			// Skip if the line is commented
+			{
+				continue;
+			}
 
 			// Pointer to first character in line
-			const char *token = lineBuffer.c_str();
-
-			// Skip if the line is empty
-			if (*token == '\0')
-			{
-				continue;
-			}
-
-			// Skip if the line is commented
-			if (*token == '#')
-			{
-				continue;
-			}
+			const char* token = line.c_str();
 
 			// Vertices
 			if (*token == 'v')	// v 0.5 2.32843 -1.23
 			{
-				std::istringstream istream(lineBuffer);
+				std::istringstream istream(line);
 				std::string str;
 				std::vector<double> values;
 
@@ -106,7 +100,7 @@ Mesh* loadMeshFile(std::string filename)
 			// Indices
 			if (*token == 'f')	// f 0 2 3 ... n
 			{
-				std::istringstream istream(lineBuffer);
+				std::istringstream istream(line);
 				std::string str;
 				std::vector<int> values;
 
@@ -166,6 +160,62 @@ Mesh* loadMeshFile(std::string filename)
 PixelShader* loadShaderFile(std::string filename)
 {
 	PixelShader* shader = new PixelShader();
+
+	std::ifstream file(filename);	// New filestream
+	if (file)
+	{
+		std::stringstream stream;	// New string stream
+		stream << file.rdbuf();		// Read data
+
+		std::string line;			// New buffer for the current line
+
+		// Keep reading until end-of-file
+		while (stream.peek() != -1)
+		{
+			readLine(stream, line);				// Read current line
+			const char* token = line.c_str();	// Pointer to first character in line
+
+			if (line.starts_with('\0'))			// Skip if line is empty
+			{
+				continue;
+			}
+
+			if (line.starts_with('#'))			// Skip if the line is commented
+			{
+				continue;
+			}
+
+			auto equalsIndex = line.find('=');
+			if (equalsIndex == std::string::npos)	// If there's no = found
+			{
+				continue;
+			}
+			auto key = line.substr(0, equalsIndex);
+			auto value = line.substr(equalsIndex + 1, line.size());
+			
+			auto test = splitString(value, ',');
+			std::vector<double> rgba;
+			for (auto str : test)
+			{
+				int result = 0;
+				if (parseNumber(str, &result))
+				{
+					rgba.push_back(result);
+				}
+			}
+			Vector3 vec(rgba[0], rgba[1], rgba[2]);
+
+			if (key == "color")
+			{
+				shader->setColor(vec);
+			}
+			else
+			{
+				continue;
+			}
+		}
+	}
+
 	return shader;
 }
 
