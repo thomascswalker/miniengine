@@ -147,6 +147,8 @@ public:
     /// <param name="v">The vertex to get screens-space coordinates of.</param>
     bool worldToScreen(Vector3* v);
 
+    Vector3 screenToWorld(double x, double y, double z);
+
     /// <summary>
     /// Given a triangle and a screen-space point on the triangle, returns the z-depth
     /// of said point.
@@ -157,6 +159,8 @@ public:
     /// <param name="p">The screen-space point to determine depth for.</param>
     /// <returns>The z-depth value. Higher values mean further away.</returns>
     double getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p);
+    
+    
 
     /// <summary>
     /// Constructs a bounding box of the min and max points of a screen-space triangle.

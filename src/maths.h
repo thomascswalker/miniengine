@@ -6,6 +6,10 @@
 #include "core.h"
 #include "triangle.h"
 
+// Comparison
+#define     MAX(x, y)                   x > y ? x : y
+#define     MIN(x, y)                   x < y ? x : y
+
 // Constants
 #define     PI                          3.14159265359
 #define     EPSILON                     DBL_EPSILON

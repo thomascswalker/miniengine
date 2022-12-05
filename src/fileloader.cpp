@@ -207,7 +207,8 @@ PixelShader* loadShaderFile(std::string filename)
 
 			if (key == "color")
 			{
-				shader->setColor(vec);
+				continue;
+				//shader->setColor(vec);
 			}
 			else
 			{

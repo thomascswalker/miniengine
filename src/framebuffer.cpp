@@ -50,6 +50,22 @@ bool Framebuffer::worldToScreen(Vector3* v)
     return true;
 }
 
+Vector3 Framebuffer::screenToWorld(double x, double y, double depth)
+{
+    // Screen to clip space
+    double clipX = 2.0 * (x / (double) m_width) - 1.0;
+    double clipY = 2.0 * (y / (double) m_height) - 1.0;
+    double clipZ = 1.0 / depth;
+    double clipW = 1.0;
+
+    // Clip to camera space then world space (via MVP matrix)
+    Matrix4 inverseMatrix = m_mvp.getInverse();
+    Vector4 worldPosition = inverseMatrix * Vector4(clipX, clipY, clipZ, clipW);
+
+    // Return final world position
+    return Vector3(worldPosition._x, worldPosition._y, worldPosition._z);
+}
+
 double Framebuffer::getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p)
 {
     // Calculate area of this triangle
@@ -72,6 +88,8 @@ double Framebuffer::getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p)
     return w1 * v1->_z + w2 * v2->_z + w3 * v3->_z;
 }
 
+
+
 Rect<int> Framebuffer::getBoundingBox(Vector3* v1, Vector3* v2, Vector3* v3)
 {
     int x0 = std::min({v1->_x, v2->_x, v3->_x});
@@ -86,7 +104,7 @@ Rect<int> Framebuffer::getBoundingBox(Vector3* v1, Vector3* v2, Vector3* v3)
 
 bool Framebuffer::drawTriangle(Triangle* worldTriangle)
 {
-    auto lightDirection = Vector3(1.0, 1.0, 0.0);
+    auto lightPosition = Vector3(1.0, 1.0, 0.0);
 
     // Get model-space vertex positions of the triangle
     Vector3 v1 = m_model * worldTriangle->v1()->getTranslation();
@@ -145,15 +163,15 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             int pixelOffset = rowOffset + x;
 
             // If the pixel is outside the frame entirely, we'll skip it
-            Vector3 p(x + 1, y + 1, 0);
-            if (!m_frame.contains(p._x, p._y))
+            Vector3 screenPosition(x + 1, y + 1, 0);
+            if (!m_frame.contains(screenPosition._x, screenPosition._y))
             {
                 continue;
             }
 
             //Get barycentric coordinates of triangle (uvw)
             Vector3 uvw(0.0);
-            if (!getBarycentricCoords(v1, v2, v3, p, uvw))
+            if (!getBarycentricCoords(v1, v2, v3, screenPosition, uvw))
             {
                 // If the total != 1.0, or all of the coord axes are less than 0,
                 // we'll skip this (it's not in the triangle!)
@@ -161,7 +179,7 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             }
 
             // Calculate depth
-            double z = getDepth(&v1, &v2, &v3, &p);
+            double z = getDepth(&v1, &v2, &v3, &screenPosition);
 
             // If the z-depth is greater (further back) than what's currently at this pixel, we'll
             // skip it. Also skip if we're outside of the near/far clip.
@@ -175,7 +193,9 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             getChannel(CHANNEL_Z)->setPixel(pixelOffset, z); // Otherwise we'll set the current pixel Z to this depth
 
             // Compile pixel shader
-            Vector3 finalColor = m_pixelShader->process(p, worldNormal, viewNormal, lightDirection); // p, worldNormal, viewNormal, lightDirection
+            Vector3 worldPosition = screenToWorld(x, y, z);
+            Vector3 viewPosition = m_camera.getTranslation();
+            Vector3 finalColor = m_pixelShader->process(screenPosition, viewPosition, worldPosition, worldNormal, viewNormal, lightPosition);
 
             // Set final color in RGB buffer
             getChannel(CHANNEL_R)->setPixel(pixelOffset, finalColor._x);
@@ -201,7 +221,7 @@ void Framebuffer::render()
     m_proj = m_camera.getProjectionMatrix(m_width, m_height);                         // Projection matrix
 
     // Update MVP matrix
-    m_mvp = m_proj * m_view;// * m_model;
+    m_mvp = m_proj * m_view;
 
     int count = 0;
     for (auto t : m_triangles)

@@ -19,7 +19,7 @@ class PixelShader
 	std::string m_filename = "";
 
 	// Shader components
-	Vector3 m_color = Vector3(0.5, 0.30, 0.25);
+	Vector3 m_color = Vector3(0.5, 0.5, 0.5);
 	Vector3 m_emission = Vector3(0.0);
 	double m_ior = 1.52;
 
@@ -36,25 +36,31 @@ public:
 	/// https://dev.opencascade.org/doc/overview/html/specification__pbr_math.html
 	/// </summary>
 	/// <returns>The final Vector3 (RGB) pixel value.</returns>
-	inline Vector3 process(Vector3& position,
+	inline Vector3 process(Vector3& screenPosition,
+						   Vector3& viewPosition,
+						   Vector3& worldPosition,
 						   Vector3& worldNormal,
 						   Vector3& viewNormal,
-						   Vector3& lightDirection)
+						   Vector3& lightPosition)
 	{
-		// Lighting component
-		double lightHit = dot(lightDirection, worldNormal);
+		Vector3 lightDirection = lightPosition - worldPosition;
+		lightDirection.normalize();
+
+		Vector3 viewDirection = viewPosition - worldPosition;
+		viewDirection.normalize();
+
+		// Angle between surface normal (in world space) and light direction
+		double cosLightDirection = MAX(0.0, dot(worldNormal, lightDirection));
+
+		// Specular reflection vector
+		Vector3 specularReflection((worldNormal * 2.0 * cosLightDirection) - lightDirection);
+
+		//// Lighting component
+		double lightHit = dot(lightPosition, worldNormal);
 		double lighting = lightHit * m_lightIntensity;
 
-		// Specular component
-		double specularIntensity = 0.0;
-
 		// Compute final color
-		Vector3 finalColor = (m_color * lighting) + specularIntensity;
-
-		// Clamp final values so they're within the 0 => 1 range.
-		finalColor._x = clamp(finalColor._x, 0.0, 1.0);
-		finalColor._y = clamp(finalColor._y, 0.0, 1.0);
-		finalColor._z = clamp(finalColor._z, 0.0, 1.0);
+		Vector3 finalColor = (m_color * lighting) + specularReflection;
 
 		return finalColor;
 	}
