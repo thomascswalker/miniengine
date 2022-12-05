@@ -1,137 +1,42 @@
-#include "meshloader.h"
+#include "fileloader.h"
 
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
 
-// https://github.com/taurreco/sr/blob/6257fc7776a7fdf087d1fe782e6acf72eabfb70f/src/sr_obj.c
+#define T(x) L##x
 
-static std::vector<const char*> INVALID_VERTEX_TOKENS = {"v", "vn", "vt", "", " "};
-static std::vector<const char*> INVALID_FACE_TOKENS = {"f", "", " "};
-
-std::istream&
-readLine(std::istream& stream, std::string& line)
+bool getOpenFilename(const char* filter, std::string& filename)
 {
-	// Clear the content of the line
-	line.clear();
+    OPENFILENAME ofn = { 0 };
+    TCHAR szFile[256] = { 0 };
 
-	// Prepare stream for input
-	std::istream::sentry sentry(stream, true);
-	if (!sentry)
-	{
-		return stream;
-	}
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = 0;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = T(filter);
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-	// Create a new buffer from our stream
-	std::streambuf* streamBuffer = stream.rdbuf();
-
-	
-	// Switch on current char
-	while (true)
-	{
-		// Read the current character
-		int currentChar = streamBuffer->sbumpc();
-		switch (currentChar)
-		{
-			// For \n
-			case '\n':
-			{
-				return stream;
-			}
-			// For \r\n
-			case '\r':
-			{
-				// If the next character is a new line, we'll bump to that next line
-				if (streamBuffer->sgetc() == '\n')
-				{
-					streamBuffer->sbumpc();
-				}
-				return stream;
-			}
-			// For \r
-			case EOF: // -1
-			{
-				if (line.empty())
-				{
-					stream.setstate(std::ios::eofbit);
-				}
-				return stream;
-			}
-			// All other cases, the rest of the line
-			default:
-			{
-				line += (char)currentChar;
-			}
-		}
-	}
-
-	return stream;
-}
-
-static bool
-doesStringContainAny(std::string str, std::string value)
-{
-	if (str == "")
-	{
-		return false;
-	}
-	bool result = false;
-	for (const char s : str)
-	{
-		for (const char v : value)
-		{
-			if (s == v)
-			{
-				result = true;
-			}
-		}
-	}
-	return result;
-}
-
-static bool
-isStringANumber(std::string str)
-{
-	return doesStringContainAny(str, "0123456789");
-}
-
-static std::vector<std::string> splitString(std::string string, const char del)
-{
-	std::stringstream stream(string);
-	std::vector<std::string> list;
-	std::string segment;
-
-	while (std::getline(stream, segment, del))
-	{
-		list.push_back(segment);
-	}
-
-	return list;
-}
-
-/*Given a string, attempt to parse a number from it.*/
-template <typename T>
-static bool
-parseNumber(std::string value, T *result)
-{
-	if constexpr (std::is_floating_point_v<T>)
-	{
-		*result = std::stod(value);
+    if (GetOpenFileName(&ofn) == TRUE)
+    {
+        std::wstring source = (std::wstring) ofn.lpstrFile;
+        std::string dest(source.begin(), source.end());
+		filename = dest;
 		return true;
-	}
-	else if (std::is_integral_v<T>)
-	{
-		*result = std::stoi(value);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    }
+    else
+    {
+        return false;
+    }
 }
 
-void
-MeshLoader::load(std::string filename, Mesh* mesh)
+Mesh* loadMeshFile(std::string filename)
 {
+	Mesh* mesh = new Mesh();
 	std::vector<Vertex> vertices;	// Empty vertex array
 	std::vector<int> indices;		// Empty index array
 
@@ -254,6 +159,14 @@ MeshLoader::load(std::string filename, Mesh* mesh)
 	mesh->setVertices(vertices);
 	mesh->setIndices(indices);
 	mesh->bindTris();
+
+	return mesh;
+}
+
+PixelShader* loadShaderFile(std::string filename)
+{
+	PixelShader* shader = new PixelShader();
+	return shader;
 }
 
 MINI_NAMESPACE_CLOSE

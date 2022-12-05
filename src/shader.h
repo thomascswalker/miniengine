@@ -28,14 +28,6 @@ class PixelShader
 
 public:
 	PixelShader() { };
-	PixelShader(std::string filename)
-		: m_filename(filename)
-	{
-		if (!readShaderFile())
-		{
-			throw std::invalid_argument("Failed to read file.");
-		}
-	}
 
 	/// <summary>
 	/// Simple PBR shader.
@@ -63,12 +55,6 @@ public:
 		finalColor._z = clamp(finalColor._z, 0.0, 1.0);
 
 		return finalColor;
-	}
-
-private:
-	bool readShaderFile()
-	{
-		return true;
 	}
 };
 

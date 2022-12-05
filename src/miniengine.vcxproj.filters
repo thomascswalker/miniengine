@@ -61,7 +61,7 @@
     <ClCompile Include="object.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
-    <ClCompile Include="meshloader.cpp">
+    <ClCompile Include="fileloader.cpp">
       <Filter>Source Files\assets</Filter>
     </ClCompile>
     <ClCompile Include="printbuffer.cpp">
@@ -120,7 +120,7 @@
     <ClInclude Include="api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="meshloader.h">
+    <ClInclude Include="fileloader.h">
       <Filter>Header Files\assets</Filter>
     </ClInclude>
     <ClInclude Include="triangle.h">
