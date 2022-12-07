@@ -19,12 +19,13 @@ class PixelShader
 	std::string m_filename = "";
 
 	// Shader components
-	Vector3 m_color = Vector3(0.5, 0.5, 0.5);
+	Vector3 m_color = Vector3(0.85, 0.4, 0.3);
 	Vector3 m_emission = Vector3(0.0);
 	double m_ior = 1.52;
 
 	// Light
 	double m_lightIntensity = 1.0;
+	Vector3 m_lightColor = Vector3(1.0);
 
 public:
 	PixelShader() { };
@@ -43,26 +44,26 @@ public:
 						   Vector3& viewNormal,
 						   Vector3& lightPosition)
 	{
+		// Calculate ambient contribution
+		double ambientStrength = 0.1;
+		Vector3 ambientContribution = m_lightColor * ambientStrength;
+
+		// Calculate lighting contribution
 		Vector3 lightDirection = lightPosition - worldPosition;
 		lightDirection.normalize();
+		double diff = MAX(dot(worldNormal, lightDirection), 0.0);
+		Vector3 lightingContribution = m_lightColor * diff;
 
+		// Calculate specular contribution
+		double specularStrength = 2.0;
 		Vector3 viewDirection = viewPosition - worldPosition;
 		viewDirection.normalize();
+		Vector3 reflectDirection = reflect(-lightDirection, worldNormal);
+		double spec = pow((MAX(dot(viewDirection, reflectDirection), 0.0)), 32);
+		Vector3 specularContribution = specularStrength * spec;
 
-		// Angle between surface normal (in world space) and light direction
-		double cosLightDirection = MAX(0.0, dot(worldNormal, lightDirection));
-
-		// Specular reflection vector
-		Vector3 specularReflection((worldNormal * 2.0 * cosLightDirection) - lightDirection);
-
-		//// Lighting component
-		double lightHit = dot(lightPosition, worldNormal);
-		double lighting = lightHit * m_lightIntensity;
-
-		// Compute final color
-		Vector3 finalColor = (m_color * lighting) + specularReflection;
-
-		return finalColor;
+		// Return final color
+		return (ambientContribution + lightingContribution + specularContribution) * m_color;
 	}
 };
 

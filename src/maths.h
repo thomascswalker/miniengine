@@ -222,6 +222,15 @@ inline Vector3 rotateAround(const Vector3& p1, const Vector3& p2,
     
 }
 
+inline double saturate(double value)
+{
+    return clamp(value, 0.0, 1.0);
+}
+
+inline Vector3 reflect(Vector3 incident, Vector3 normal)
+{
+    return incident - (normal * 2.0 * dot(incident, normal));
+}
 
 MINI_NAMESPACE_CLOSE
 
