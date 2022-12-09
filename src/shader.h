@@ -7,6 +7,9 @@
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
 
+#define BLINN_MODEL false
+#define BLINN_PHONG_MODEL true
+
 class VertexShader
 {
 public:
@@ -19,56 +22,92 @@ class PixelShader
 	std::string m_filename = "";
 
 	// Shader components
-	Vector3 m_diffuse = Vector3(0.5, 0.30, 0.25);
+	Vector3 m_color = Vector3(0.5, 0.5, 0.5);
 	Vector3 m_emission = Vector3(0.0);
+	Vector3 m_specularColor = Vector3(1.0, 1.0, 1.0);
 	double m_ior = 1.52;
+	double m_shininess = 16.0;
 
 	// Light
 	double m_lightIntensity = 1.0;
+	Vector3 m_lightColor = Vector3(1.0, 1.0, 1.0);
+	Vector3 m_ambientColor = Vector3(0.0, 0.0, 0.0);
 
 public:
 	PixelShader() { };
-	PixelShader(std::string filename)
-		: m_filename(filename)
-	{
-		if (!readShaderFile())
-		{
-			throw std::invalid_argument("Failed to read file.");
-		}
-	}
+
+	void setColor(Vector3& color) { m_color = color; }
 
 	/// <summary>
 	/// Simple PBR shader.
 	/// https://dev.opencascade.org/doc/overview/html/specification__pbr_math.html
 	/// </summary>
 	/// <returns>The final Vector3 (RGB) pixel value.</returns>
-	inline Vector3 process(Vector3& position,
+	inline Vector3 process(Vector3& screenPosition,
+						   Vector3& viewPosition,
+						   Vector3& worldPosition,
 						   Vector3& worldNormal,
 						   Vector3& viewNormal,
-						   Vector3& lightDirection)
+						   Vector3& lightPosition)
 	{
-		// Lighting component
-		double lightHit = dot(lightDirection, worldNormal);
-		double lighting = lightHit * m_lightIntensity;
+#if BLINN_MODEL
+		// Calculate ambient contribution
+		double ambientStrength = 0.25;
+		Vector3 ambientContribution = m_ambientColor * ambientStrength;
 
-		// Specular component
-		double specularIntensity = 0.0;
+		// Calculate lighting contribution
+		Vector3 lightDirection = lightPosition - worldPosition;
+		lightDirection.normalize();
+		double diff = MAX(dot(worldNormal, lightDirection), 0.0);
+		Vector3 lightingContribution = m_lightColor * diff;
 
-		// Compute final color
-		Vector3 finalColor = (m_diffuse * lighting) + specularIntensity;
+		// Calculate specular contribution
+		double specularStrength = 4.0;
+		Vector3 viewDirection = viewPosition - worldPosition;
+		viewDirection.normalize();
+		Vector3 reflectDirection = reflect(-lightDirection, worldNormal);
+		double spec = pow((MAX(dot(viewDirection, reflectDirection), 0.0)), 32);
+		Vector3 specularContribution = m_specularColor * specularStrength * spec;
 
-		// Clamp final values so they're within the 0 => 1 range.
-		finalColor._x = clamp(finalColor._x, 0.0, 1.0);
-		finalColor._y = clamp(finalColor._y, 0.0, 1.0);
-		finalColor._z = clamp(finalColor._z, 0.0, 1.0);
+		// Return final color
+		return (ambientContribution + (m_color * lightingContribution) + specularContribution);
+#elif BLINN_PHONG_MODEL
 
-		return finalColor;
-	}
+		// Calculate normalized view direction
+		Vector3 viewDirection = viewPosition - worldPosition;
+		viewDirection.normalize();
 
-private:
-	bool readShaderFile()
-	{
-		return true;
+		// Calculate normalized light direction to pixel position
+		Vector3 lightDirection = lightPosition - worldPosition;
+		lightDirection.normalize();
+
+		// Inverse falloff distance
+		double distance = pow(lightDirection.length(), 2.0);
+
+		// Calculate lighting contribution
+		double lighting = MAX(dot(lightDirection, worldNormal), 0.0);
+		double specular = 0.0;
+
+		// If lighting contribution is greater than 0, we can calculate specular contribution
+		if (lighting > 0.0)
+		{
+			// Get half direction between light normal and view normal
+			Vector3 halfDirection = lightDirection + viewDirection;
+			halfDirection.normalize();
+
+			// Calculate specular contribution
+			double specularAngle = MAX(dot(halfDirection, worldNormal), 0.0);
+			specular = pow(specularAngle, m_shininess);
+		}
+
+		// Add lighting + specular components
+		Vector3 linearColor = m_color * lighting * m_lightColor * m_lightIntensity / distance +
+							  m_specularColor * specular * m_lightColor * m_lightIntensity / distance;
+
+		return linearColor;
+#else
+		return Vector3(1.0);
+#endif
 	}
 };
 

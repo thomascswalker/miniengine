@@ -137,7 +137,7 @@ class Channel
     /// <param name="value">The value to set at the position.</param>
     void setPixel(int offset, double value)
     {
-        m_pixels[offset] = value;
+        m_pixels[offset] = clamp(value, 0.0, 1.0);
     }
 
     double setPixel(int x, int y, double value)

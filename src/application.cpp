@@ -368,64 +368,28 @@ void Application::setSize(int width, int height)
 
 bool Application::loadModel()
 {
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[256] = { 0 };
-
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = m_hwnd;
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = TEXT("Wavefront OBJ\0*.obj\0");
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-    if (GetOpenFileName(&ofn) == TRUE)
-    {
-        std::wstring source = (std::wstring) ofn.lpstrFile;
-        std::string dest(source.begin(), source.end());
-
-        Mesh* mesh = new Mesh();
-        MeshLoader::load(dest, mesh);
-        m_staticMesh->setMesh(mesh);
-    }
-    else
+    std::string filename;
+    if (!getOpenFilename(FILE_FILTER_OBJ, filename))
     {
         return false;
     }
+
+    Mesh* mesh = loadMeshFile(filename);
+    m_staticMesh->setMesh(mesh);
 
     return true;
 }
 
 bool Application::loadShader()
 {
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[256] = { 0 };
-
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = m_hwnd;
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = TEXT("Shader File\0*.ini\0");
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-    if (GetOpenFileName(&ofn) == TRUE)
-    {
-        std::wstring source = (std::wstring) ofn.lpstrFile;
-        std::string dest(source.begin(), source.end());
-        PixelShader* shader = new PixelShader(dest);
-        m_buffer->setPixelShader(shader);
-    }
-    else
+    std::string filename;
+    if (!getOpenFilename(FILE_FILTER_SHADER, filename))
     {
         return false;
     }
+
+    PixelShader* shader = loadShaderFile(filename);
+    m_buffer->setPixelShader(shader);
 
     return true;
 }

@@ -6,7 +6,7 @@
 #include <string>
 
 #include "framebuffer.h"
-#include "meshloader.h"
+#include "fileloader.h"
 #include "staticmesh.h"
 
 MINI_NAMESPACE_OPEN

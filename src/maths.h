@@ -6,6 +6,10 @@
 #include "core.h"
 #include "triangle.h"
 
+// Comparison
+#define     MAX(x, y)                   x > y ? x : y
+#define     MIN(x, y)                   x < y ? x : y
+
 // Constants
 #define     PI                          3.14159265359
 #define     EPSILON                     DBL_EPSILON
@@ -212,12 +216,26 @@ inline bool getBarycentricCoords(Vector3& v1,
     return !isOutsideTriangle;
 }
 
-inline Vector3 rotateAround(const Vector3& p1, const Vector3& p2,
-                            double x, double y, double z)
+/// <summary>
+/// Clamps the given value between 0 and 1.
+/// </summary>
+/// <param name="value">The value to clamp.</param>
+/// <returns>The clamped value.</returns>
+inline double saturate(double value)
 {
-    
+    return clamp(value, 0.0, 1.0);
 }
 
+/// <summary>
+/// Calculate the reflection direction for an incident vector. `n` should be normalized.
+/// </summary>
+/// <param name="i">The incident vector.</param>
+/// <param name="n">The normal vector.</param>
+/// <returns>The reflection vector.</returns>
+inline Vector3 reflect(Vector3 i, Vector3 n)
+{
+    return i - (n * 2.0 * dot(i, n));
+}
 
 MINI_NAMESPACE_CLOSE
 

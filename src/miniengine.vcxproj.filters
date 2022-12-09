@@ -20,6 +20,9 @@
     <Filter Include="Source Files\assets">
       <UniqueIdentifier>{5b654f31-33ec-410d-a79a-d8760e0dd604}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\shaders">
+      <UniqueIdentifier>{ec3e097c-f3dc-41ba-954a-9c2e7334e176}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -61,7 +64,7 @@
     <ClCompile Include="object.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
-    <ClCompile Include="meshloader.cpp">
+    <ClCompile Include="fileloader.cpp">
       <Filter>Source Files\assets</Filter>
     </ClCompile>
     <ClCompile Include="printbuffer.cpp">
@@ -120,7 +123,7 @@
     <ClInclude Include="api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="meshloader.h">
+    <ClInclude Include="fileloader.h">
       <Filter>Header Files\assets</Filter>
     </ClInclude>
     <ClInclude Include="triangle.h">
@@ -138,5 +141,10 @@
     <ClInclude Include="staticmesh.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\models\shader.pxl">
+      <Filter>Header Files\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
