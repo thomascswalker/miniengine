@@ -104,7 +104,7 @@ Rect<int> Framebuffer::getBoundingBox(Vector3* v1, Vector3* v2, Vector3* v3)
 
 bool Framebuffer::drawTriangle(Triangle* worldTriangle)
 {
-    auto lightPosition = Vector3(250.0, 250.0, 0.0);
+    auto lightPosition = Vector3(5.0, 5.0, 0.0);
 
     // Get model-space vertex positions of the triangle
     Vector3 v1 = m_model * worldTriangle->v1()->getTranslation();
