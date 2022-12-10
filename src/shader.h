@@ -43,8 +43,7 @@ public:
 	/// https://dev.opencascade.org/doc/overview/html/specification__pbr_math.html
 	/// </summary>
 	/// <returns>The final Vector3 (RGB) pixel value.</returns>
-	inline Vector3 process(Vector3& screenPosition,
-						   Vector3& viewPosition,
+	inline Vector3 process(Vector3& viewPosition,
 						   Vector3& worldPosition,
 						   Vector3& worldNormal,
 						   Vector3& viewNormal,

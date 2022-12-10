@@ -40,6 +40,14 @@ void Mesh::setIndices(const std::vector<int> data)
     m_indices = data;
 }
 
+void Mesh::setNormals(const std::vector<Vector3> data)
+{
+    for (int i = 0; i < m_vertices.size(); i++)
+    {
+        m_vertices[i].setNormal(data[i]);
+    }
+}
+
 void Mesh::bindTris()
 {
     for (int i = 0; i < m_indices.size(); i++)

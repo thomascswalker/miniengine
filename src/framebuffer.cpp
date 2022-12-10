@@ -195,7 +195,7 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             // Compile pixel shader
             Vector3 worldPosition = screenToWorld(x, y, z);
             Vector3 viewPosition = m_camera.getTranslation();
-            Vector3 finalColor = m_pixelShader->process(screenPosition, viewPosition, worldPosition, worldNormal, viewNormal, lightPosition);
+            Vector3 finalColor = m_pixelShader->process(viewPosition, worldPosition, worldNormal, viewNormal, lightPosition);
 
             // Set final color in RGB buffer
             getChannel(CHANNEL_R)->setPixel(pixelOffset, finalColor._x);

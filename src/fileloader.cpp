@@ -35,6 +35,7 @@ Mesh* loadMeshFile(std::string filename)
 	Mesh* mesh = new Mesh();
 	std::vector<Vertex> vertices;	// Empty vertex array
 	std::vector<int> indices;		// Empty index array
+	std::vector<Vector3> normals;
 
 	std::ifstream file(filename);	// New filestream
 	if (file)
@@ -95,6 +96,39 @@ Mesh* loadMeshFile(std::string filename)
 				// Create a new Vertex and append it to the vertices array
 				Vertex vtx(values[0], values[1], values[2]);
 				vertices.push_back(vtx);
+			}
+
+			if (*token == 'vn')
+			{
+				std::istringstream istream(line);
+				std::string str;
+				std::vector<double> values;
+
+				// Split the line by spaces
+				while (std::getline(istream, str, ' '))
+				{
+					if (std::count(INVALID_VERTEX_TOKENS.begin(), INVALID_VERTEX_TOKENS.end(), str))
+					{
+						continue;
+					}
+
+					// Attempt to parse the result to a double
+					double result = 0.0;
+					if (parseNumber(str, &result))
+					{
+						// If it is a valid double, we'll append to our values array
+						values.push_back(result);
+					}
+				}
+
+				if (values.size() != 3)
+				{
+					throw std::runtime_error("Incorrect vertex normal definition.");
+				}
+
+				// Create a new Vertex and append it to the vertices array
+				Vector3 normal(values[0], values[1], values[2]);
+				normals.push_back(normal);
 			}
 
 			// Indices

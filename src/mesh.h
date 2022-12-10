@@ -26,6 +26,7 @@ public:
 
 	void setVertices(const std::vector<Vertex> data);
 	void setIndices(const std::vector<int> data);
+	void setNormals(const std::vector<Vector3> data);
 	void bindTris();
 
 private:
