@@ -142,6 +142,13 @@ public:
         }
     }
 
+    inline std::string toString()
+    {
+        int mx = x + width;
+        int my = y + height;
+        return std::format("[{}, {}, {}, {}]", x, y, mx, my);
+    }
+
     // Properties
     T x;
     T y;

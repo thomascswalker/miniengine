@@ -18,6 +18,12 @@ Framebuffer::Framebuffer(HWND hwnd)
 
     // Create a new default camera
     m_camera = Camera();
+
+    // Create our grid points
+    m_gridPoints.push_back(Vector3(-2.0, 0.0, -2.0));
+    m_gridPoints.push_back(Vector3(-2.0, 0.0, 2.0));
+    m_gridPoints.push_back(Vector3(2.0, 0.0, -2.0));
+    m_gridPoints.push_back(Vector3(2.0, 0.0, 2.0));
 }
 
 Framebuffer::~Framebuffer()
@@ -35,7 +41,7 @@ void Framebuffer::bindTriangleBuffer(std::vector<Triangle*> data)
     m_triangles = data;
 }
 
-bool Framebuffer::worldToScreen(Vector3* v)
+Vector3 Framebuffer::worldToScreen(Vector3* v)
 {
     // Convert to normalized device coords
     Vector4 ndc = m_mvp * Vector4(*v, 1.0);          // m_mvp is precalculated in Framebuffer::render()
@@ -47,7 +53,7 @@ bool Framebuffer::worldToScreen(Vector3* v)
     v->_y = y;
     v->_z = 1.0 / ndc._z;                          // Invert Z
 
-    return true;
+    return Vector3(*v);
 }
 
 Vector3 Framebuffer::screenToWorld(double x, double y, double depth)
@@ -88,7 +94,17 @@ double Framebuffer::getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p)
     return w1 * v1->_z + w2 * v2->_z + w3 * v3->_z;
 }
 
+Rect<int> Framebuffer::getBoundingBox(Vector3* v1, Vector3* v2)
+{
+    int x0 = std::min({v1->_x, v2->_x});
+    int y0 = std::min({v1->_y, v2->_y});
+    int x1 = std::max({v1->_x, v2->_x});
+    int y1 = std::max({v1->_y, v2->_y});
 
+    int width = x1 - x0;
+    int height = y1 - y0;
+    return Rect<int>(x0, y0, width, height);
+}
 
 Rect<int> Framebuffer::getBoundingBox(Vector3* v1, Vector3* v2, Vector3* v3)
 {
@@ -100,6 +116,122 @@ Rect<int> Framebuffer::getBoundingBox(Vector3* v1, Vector3* v2, Vector3* v3)
     int width = x1 - x0;
     int height = y1 - y0;
     return Rect<int>(x0, y0, width, height);
+}
+
+bool Framebuffer::drawLine(Vector3* v1, Vector3* v2)
+{
+    Vector3 sv1 = worldToScreen(&*v1);
+    Vector3 sv2 = worldToScreen(&*v2);
+
+    Rect bounds = getBoundingBox(&sv1, &sv2);
+    if (!m_frame.contains(bounds))
+    {
+        return false;
+    }
+
+    bounds.trim(m_frame);
+
+    bool steep = false;
+
+    double x0 = sv1._x;
+    double y0 = sv1._y;
+    double x1 = sv2._x;
+    double y1 = sv2._y;
+
+    if (std::abs(x0 - x1) < std::abs(y0 - y1))
+    {
+        std::swap(x0, y0);
+        std::swap(x1, y1);
+        steep = true;
+    }
+
+    if (x0 > x1)
+    {
+        std::swap(x0, x1);
+        std::swap(y0, y1);
+    }
+
+    double dx = x1 - x0;
+    double dy = y1 - y0;
+
+    double e0 = std::abs(dy) * 2.0;
+    double e1 = 0.0;
+
+    int y = y0;
+    for (int x = x0; x <= x1; x++)
+    {
+        int pixelOffset = 0;
+        if (steep)
+        {
+            pixelOffset = y + (x * m_width);
+        }
+        else
+        {
+            pixelOffset = x + (y * m_width);
+        }
+
+        if (pixelOffset < 0 || pixelOffset > m_width * m_height)
+        {
+            continue;
+        }
+        getChannel(CHANNEL_R)->setPixel(pixelOffset, 0);
+        getChannel(CHANNEL_G)->setPixel(pixelOffset, 0);
+        getChannel(CHANNEL_B)->setPixel(pixelOffset, 255);
+
+        e1 += e0;
+        if (e1 > dx)
+        {
+            y += (y1 > y0 ? 1 : -1);
+            e1 -= dx * 2;
+        }
+    }
+
+    return true;
+}
+
+bool Framebuffer::drawCircle(Vector3* v, double r)
+{
+    int cx = v->_x;
+    int cy = v->_y;
+
+    // Top left
+    int x0 = cx - r;
+    int y0 = cy - r;
+
+    // Bottom right
+    int x1 = cx + r;
+    int y1 = cy + r;
+
+    // Clamp based on buffer width/height
+    x0 = clamp(x0, 0, m_width);
+    y0 = clamp(y0, 0, m_height);
+
+    x1 = clamp(x1, 0, m_width);
+    y1 = clamp(y1, 0, m_height);
+
+    auto rsqr = pow(r, 2);
+
+    for (int y = y0; y < y1; y++)
+    {
+        int rowOffset = y * m_width;
+
+        for (int x = x0; x < x1; x++)
+        {
+            int pixelOffset = rowOffset + x;
+
+            auto dx = x - cx;
+            auto dy = y - cy;
+
+            if (pow(dx, 2) + pow(dy, 2) <= rsqr)
+            {
+                getChannel(CHANNEL_R)->setPixel(pixelOffset, 255);
+                getChannel(CHANNEL_G)->setPixel(pixelOffset, 0);
+                getChannel(CHANNEL_B)->setPixel(pixelOffset, 0);
+            }
+        }
+    }
+
+    return true;
 }
 
 bool Framebuffer::drawTriangle(Triangle* worldTriangle)
@@ -201,8 +333,12 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             getChannel(CHANNEL_R)->setPixel(pixelOffset, finalColor._x);
             getChannel(CHANNEL_G)->setPixel(pixelOffset, finalColor._y);
             getChannel(CHANNEL_B)->setPixel(pixelOffset, finalColor._z);
-        }   
+        }
     }
+
+    //drawLine(&v1, &v2);
+    //drawLine(&v2, &v3);
+    //drawLine(&v3, &v1);
 
     return true;
 }
@@ -223,16 +359,27 @@ void Framebuffer::render()
     // Update MVP matrix
     m_mvp = m_proj * m_view;
 
+    // Draw geometry
     int count = 0;
     for (auto t : m_triangles)
     {
-        if (drawTriangle(t))
-        {
-            count++;
-        }
+        //if (drawTriangle(t))
+        //{
+        //    count++;
+        //}
+        //else
+        //{
+        //    continue;
+        //}
+
+        Vector3 v1 = t->v1()->getTranslation();
+        Vector3 v2 = t->v2()->getTranslation();
+        Vector3 v3 = t->v3()->getTranslation();
+
+        drawLine(&v2, &v1);
+        drawLine(&v3, &v2);
+        drawLine(&v1, &v3);
     }
-    PrintBuffer::debugPrintToScreen("Visible tris: %i", count);
-    PrintBuffer::debugPrintToScreen("Pixel count: %i", m_width * m_height);
 }
 
 

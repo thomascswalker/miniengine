@@ -6,3 +6,4 @@
 #define     DEFAULT_WINDOW_HEIGHT   480
 
 #define		BACKFACE_CULL
+#define     DEPTH_TEST
