@@ -56,6 +56,9 @@ class Framebuffer
     Matrix4 m_mvp = Matrix4();
     Matrix4 m_model = Matrix4();
 
+    // Grid
+    std::vector<Vector3> m_gridPoints;
+
 public:
     // Constructor
     Framebuffer(HWND hwnd);
@@ -145,7 +148,7 @@ public:
     /// matrix has already been computed.
     /// </summary>
     /// <param name="v">The vertex to get screens-space coordinates of.</param>
-    bool worldToScreen(Vector3* v);
+    Vector3 worldToScreen(Vector3* v);
 
     Vector3 screenToWorld(double x, double y, double z);
 
@@ -160,7 +163,7 @@ public:
     /// <returns>The z-depth value. Higher values mean further away.</returns>
     double getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p);
     
-    
+    Rect<int> getBoundingBox(Vector3* v1, Vector3* v2);
 
     /// <summary>
     /// Constructs a bounding box of the min and max points of a screen-space triangle.
@@ -172,11 +175,21 @@ public:
     Rect<int> getBoundingBox(Vector3* v1, Vector3* v2, Vector3* v3);
 
     /// <summary>
+    /// Based on Bresenham’s Line Drawing Algorithm.
+    /// </summary>
+    /// <param name="v1"></param>
+    /// <param name="v2"></param>
+    /// <returns></returns>
+    bool drawLine(Vector3* v1, Vector3* v2);
+
+    bool drawCircle(Vector3* v, double r);
+
+    /// <summary>
     /// Renders the given triangle, through its world-space vertices, to the RGB/Z buffer(s).
     /// </summary>
     /// <param name="t">The triangle to draw.</param>
     /// <returns>Whether the triangle was drawn on the buffer (screen) or not.</returns>
-    bool drawTriangle(Triangle* t);
+    bool drawTriangle(Triangle* worldTriangle);
 
     /// <summary>
     /// Renders all triangles in the scene (triangle buffer).
