@@ -382,14 +382,14 @@ bool Application::loadModel()
 
 bool Application::loadShader()
 {
-    std::string filename;
-    if (!getOpenFilename(FILE_FILTER_SHADER, filename))
-    {
-        return false;
-    }
+    //std::string filename;
+    //if (!getOpenFilename(FILE_FILTER_SHADER, filename))
+    //{
+    //    return false;
+    //}
 
-    PixelShader* shader = loadShaderFile(filename);
-    m_buffer->setPixelShader(shader);
+    //StandardShader* shader = loadShaderFile(filename);
+    //m_buffer->setPixelShader(shader);
 
     return true;
 }

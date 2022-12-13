@@ -11,6 +11,7 @@ class Vertex
 public:
 	Vertex() : m_translation(Vector3()) {};
 	Vertex(double x, double y, double z) : m_translation(Vector3(x, y, z)) {};
+	Vertex(Vector3* v) : m_translation(*v) {};
 	Vertex(Vector3& v) : m_translation(v) {};
 	Vertex(const Vector3& v) : m_translation(v) {};
 

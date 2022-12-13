@@ -234,44 +234,49 @@ bool Framebuffer::drawCircle(Vector3* v, double r)
     return true;
 }
 
-bool Framebuffer::drawTriangle(Triangle* worldTriangle)
+bool Framebuffer::drawTriangle(Triangle* triangle)
 {
-    auto lightPosition = Vector3(5.0, 5.0, 0.0);
+    // Construct a new shader for this triangle
+    StandardShader* shader = new StandardShader();
+
+    shader->width = m_width;
+    shader->height = m_height;
+    shader->matrix = m_mvp;
+    shader->viewPosition = m_camera.getTranslation();
 
     // Get model-space vertex positions of the triangle
-    Vector3 v1 = m_model * worldTriangle->v1()->getTranslation();
-    Vector3 v2 = m_model * worldTriangle->v2()->getTranslation();
-    Vector3 v3 = m_model * worldTriangle->v3()->getTranslation();
+    Vector3 v1 = triangle->v1()->getTranslation();
+    Vector3 v2 = triangle->v2()->getTranslation();
+    Vector3 v3 = triangle->v3()->getTranslation();
 
     // Calculate world normal
     Vector3 worldNormal = getNormal(v1, v2, v3);
     worldNormal.normalize();
+    shader->worldNormal = worldNormal;
 
+    // Convert world normal to view normal
     Vector3 viewNormal = m_proj * m_view * worldNormal;
     viewNormal.normalize();
+    shader->viewNormal = viewNormal;
 
     // Backface culling
     if (viewNormal._z < -1.0 || viewNormal._z > 1.0)
     {
         return false;
     }
+
     // Rescale from -1 => 1 to 0 => 1
     viewNormal.rescale(-1.0, 1.0, 0.0, 1.0);
 
-    // Convert world-space to screenspace
-    worldToScreen(&v1);
-    worldToScreen(&v2);
-    worldToScreen(&v3);
+    // Convert world-space to screenspace by running through the vertex shader
+    shader->vertex(&v1);
+    shader->vertex(&v2);
+    shader->vertex(&v3);
 
     // Get the bounding box of the screen triangle
     // If the entire triangle is out of frame, skip
     // Clip vertices which are off screen
     Rect bounds = getBoundingBox(&v1, &v2, &v3);
-
-    // TODO: This should be overlap, but overlap fails on backside tris
-    // OR contains tris which should be clipped or are too big for whatever
-    // reason. Perhaps tris need to be clipped after being determined they're
-    // overlapping?
     if (!m_frame.contains(bounds))
     {
         return false;
@@ -280,38 +285,40 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
     // Trim the size of the bounds rect to clip anything outside the frame.
     bounds.trim(m_frame);
 
-    int minX = bounds.getMin().x;
-    int minY = bounds.getMin().y;
-    int maxX = bounds.getMax().x;
-    int maxY = bounds.getMax().y;
+    int x0 = bounds.getMin().x;
+    int y0 = bounds.getMin().y;
+    int x1 = bounds.getMax().x;
+    int y1 = bounds.getMax().y;
 
     // Draw each pixel within the bounding box
-    for (int y = minY; y < maxY; y++)
+    for (int y = y0; y < y1; y++)
     {
         int rowOffset = y * m_width;
-        for (int x = minX; x < maxX; x++)
+        for (int x = x0; x < x1; x++)
         {
             // Current pixel index
             int pixelOffset = rowOffset + x;
 
             // If the pixel is outside the frame entirely, we'll skip it
-            Vector3 screenPosition(x + 1, y + 1, 0);
-            if (!m_frame.contains(screenPosition._x, screenPosition._y))
+            Vector3 pixelPosition(x + 1, y + 1, 0);
+            shader->pixelPosition = pixelPosition;
+            if (!m_frame.contains(pixelPosition._x, pixelPosition._y))
             {
                 continue;
             }
 
             //Get barycentric coordinates of triangle (uvw)
             Vector3 uvw(0.0);
-            if (!getBarycentricCoords(v1, v2, v3, screenPosition, uvw))
+            if (!getBarycentricCoords(v1, v2, v3, pixelPosition, uvw))
             {
                 // If the total != 1.0, or all of the coord axes are less than 0,
                 // we'll skip this (it's not in the triangle!)
                 continue;
             }
+            shader->uvw = uvw;
 
             // Calculate depth
-            double z = getDepth(&v1, &v2, &v3, &screenPosition);
+            double z = getDepth(&v1, &v2, &v3, &pixelPosition);
 
             // If the z-depth is greater (further back) than what's currently at this pixel, we'll
             // skip it. Also skip if we're outside of the near/far clip.
@@ -322,12 +329,13 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             }
 
             // Store z-depth in channel
-            getChannel(CHANNEL_Z)->setPixel(pixelOffset, z); // Otherwise we'll set the current pixel Z to this depth
+            getChannel(CHANNEL_Z)->setPixel(pixelOffset, z);
 
-            // Compile pixel shader
-            Vector3 worldPosition = screenToWorld(x, y, z);
-            Vector3 viewPosition = m_camera.getTranslation();
-            Vector3 finalColor = m_pixelShader->process(viewPosition, worldPosition, worldNormal, viewNormal, lightPosition);
+            // Get world position from the current pixel, given the current depth
+            shader->worldPosition = screenToWorld(x, y, z);
+
+            // Compute fragment shader to get the final pixel color
+            Vector3 finalColor = shader->fragment();
 
             // Set final color in RGB buffer
             getChannel(CHANNEL_R)->setPixel(pixelOffset, finalColor._x);
@@ -335,10 +343,6 @@ bool Framebuffer::drawTriangle(Triangle* worldTriangle)
             getChannel(CHANNEL_B)->setPixel(pixelOffset, finalColor._z);
         }
     }
-
-    //drawLine(&v1, &v2);
-    //drawLine(&v2, &v3);
-    //drawLine(&v3, &v1);
 
     return true;
 }
@@ -363,22 +367,14 @@ void Framebuffer::render()
     int count = 0;
     for (auto t : m_triangles)
     {
-        //if (drawTriangle(t))
-        //{
-        //    count++;
-        //}
-        //else
-        //{
-        //    continue;
-        //}
-
-        Vector3 v1 = t->v1()->getTranslation();
-        Vector3 v2 = t->v2()->getTranslation();
-        Vector3 v3 = t->v3()->getTranslation();
-
-        drawLine(&v2, &v1);
-        drawLine(&v3, &v2);
-        drawLine(&v1, &v3);
+        if (drawTriangle(t))
+        {
+            count++;
+        }
+        else
+        {
+            continue;
+        }
     }
 }
 
