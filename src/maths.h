@@ -66,6 +66,21 @@ inline T rescale(T* value,
 }
 
 /// <summary>
+/// Function implementation of Vector3::normalize().
+/// </summary>
+/// <param name="v">The vector to normalize.</param>
+/// <returns>The normalized vector.</returns>
+inline Vector3 normalize(Vector3 v)
+{
+	double l = v.length();
+	double x = v._x / l;
+	double y = v._y / l;
+	double z = v._z / l;
+    return Vector3(x, y, z);
+}
+
+
+/// <summary>
 /// 2D dot product.
 /// </summary>
 inline double dot(Vector2 v1, Vector2 v2)

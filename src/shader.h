@@ -2,7 +2,7 @@
 #define SHADER_H
 
 #include "api.h"
-#include "maths.h"
+#include "matrix.h"
 
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
@@ -10,75 +10,65 @@ MINI_USING_DIRECTIVE
 #define BLINN_MODEL false
 #define BLINN_PHONG_MODEL true
 
-class VertexShader
+/// <summary>
+/// Base class for all shaders.
+/// </summary>
+class IShader
 {
 public:
-	VertexShader() { };
+	IShader() { };
+
+	virtual void vertex(Vector3* v) = 0;
+	virtual Vector3 fragment() = 0;
+
+	int width = 0;
+	int height = 0;
+
+	Matrix4 matrix = Matrix4();
+
+	Vector3 worldPosition;
+	Vector3 worldNormal;
+	Vector3 viewPosition;
+	Vector3 viewNormal;
+	Vector3 pixelPosition;
+	Vector3 uvw;
 };
 
-class PixelShader
+/// <summary>
+/// Standard Blinn-Phong shader.
+/// </summary>
+class StandardShader
+	: public IShader
 {
-	// Shader file
-	std::string m_filename = "";
-
-	// Shader components
-	Vector3 m_color = Vector3(0.5, 0.5, 0.5);
-	Vector3 m_emission = Vector3(0.0);
-	Vector3 m_specularColor = Vector3(1.0, 1.0, 1.0);
-	double m_ior = 1.52;
-	double m_shininess = 16.0;
-
-	// Light
-	double m_lightIntensity = 1.0;
-	Vector3 m_lightColor = Vector3(1.0, 1.0, 1.0);
-	Vector3 m_ambientColor = Vector3(0.0, 0.0, 0.0);
-
 public:
-	PixelShader() { };
-
-	void setColor(Vector3& color) { m_color = color; }
-
-	/// <summary>
-	/// Simple PBR shader.
-	/// https://dev.opencascade.org/doc/overview/html/specification__pbr_math.html
-	/// </summary>
-	/// <returns>The final Vector3 (RGB) pixel value.</returns>
-	inline Vector3 process(Vector3& viewPosition,
-						   Vector3& worldPosition,
-						   Vector3& worldNormal,
-						   Vector3& viewNormal,
-						   Vector3& lightPosition)
+	void vertex(Vector3* v)
 	{
-#if BLINN_MODEL
-		// Calculate ambient contribution
-		double ambientStrength = 0.25;
-		Vector3 ambientContribution = m_ambientColor * ambientStrength;
+		// Convert to normalized device coords
+		Vector4 ndc = matrix * Vector4(*v, 1.0);
 
-		// Calculate lighting contribution
-		Vector3 lightDirection = lightPosition - worldPosition;
-		lightDirection.normalize();
-		double diff = MAX(dot(worldNormal, lightDirection), 0.0);
-		Vector3 lightingContribution = m_lightColor * diff;
+		double x = ((ndc._x + 1.0) * width) / 2.0;
+		double y = ((ndc._y + 1.0) * height) / 2.0;
 
-		// Calculate specular contribution
-		double specularStrength = 4.0;
-		Vector3 viewDirection = viewPosition - worldPosition;
-		viewDirection.normalize();
-		Vector3 reflectDirection = reflect(-lightDirection, worldNormal);
-		double spec = pow((MAX(dot(viewDirection, reflectDirection), 0.0)), 32);
-		Vector3 specularContribution = m_specularColor * specularStrength * spec;
+		v->_x = x;
+		v->_y = y;
+		v->_z = 1.0 / ndc._z;
+	}
 
-		// Return final color
-		return (ambientContribution + (m_color * lightingContribution) + specularContribution);
-#elif BLINN_PHONG_MODEL
+	Vector3 fragment()
+	{
+		Vector3 ambient(0.1);
+		Vector3 color(0.5, 0.25, 0.5);
+		Vector3 lightPosition(25.0, 25.0, 0.0);
+		Vector3 lightColor(1.0, 0.5, 0.25);
+		double shininess = 16.0;
+		double lightIntensity = 1.0;
+		Vector3 specularColor(1.0, 1.0, 1.0);
 
 		// Calculate normalized view direction
-		Vector3 viewDirection = viewPosition - worldPosition;
-		viewDirection.normalize();
+		Vector3 viewDirection = normalize(viewPosition - worldPosition);
 
 		// Calculate normalized light direction to pixel position
-		Vector3 lightDirection = lightPosition - worldPosition;
-		lightDirection.normalize();
+		Vector3 lightDirection = normalize(lightPosition - worldPosition);
 
 		// Inverse falloff distance
 		double distance = pow(lightDirection.length(), 2.0);
@@ -91,22 +81,19 @@ public:
 		if (lighting > 0.0)
 		{
 			// Get half direction between light normal and view normal
-			Vector3 halfDirection = lightDirection + viewDirection;
-			halfDirection.normalize();
+			Vector3 halfDirection = normalize(lightDirection + viewDirection);
 
 			// Calculate specular contribution
 			double specularAngle = MAX(dot(halfDirection, worldNormal), 0.0);
-			specular = pow(specularAngle, m_shininess);
+			specular = pow(specularAngle, shininess);
 		}
 
 		// Add lighting + specular components
-		Vector3 linearColor = m_color * lighting * m_lightColor * m_lightIntensity / distance +
-							  m_specularColor * specular * m_lightColor * m_lightIntensity / distance;
+		Vector3 linearColor = ambient + 
+							  color * lighting * lightColor * lightIntensity / distance +
+							  specularColor * specular * lightColor * lightIntensity / distance;
 
 		return linearColor;
-#else
-		return Vector3(1.0);
-#endif
 	}
 };
 

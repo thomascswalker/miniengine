@@ -46,7 +46,7 @@ class Framebuffer
     std::vector<Triangle*> m_triangles;
 
     // Shaders
-    PixelShader* m_pixelShader = new PixelShader();
+    //PixelShader* m_pixelShader = new PixelShader();
 
     // Camera and matrices
     Camera m_camera;
@@ -118,7 +118,7 @@ public:
     HBITMAP getBitmap();
     void bindTriangleBuffer(std::vector<Triangle*> data);
 
-    void setPixelShader(PixelShader* shader) { m_pixelShader = shader; }
+    //void setPixelShader(PixelShader* shader) { m_pixelShader = shader; }
 
     Vector3 getTargetTranslation() { return m_targetPosition; }
 
@@ -164,15 +164,14 @@ public:
     double getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p);
     
     Rect<int> getBoundingBox(Vector3* v1, Vector3* v2);
-
-    /// <summary>
-    /// Constructs a bounding box of the min and max points of a screen-space triangle.
-    /// </summary>
-    /// <param name="v1">First point in the triangle.</param>
-    /// <param name="v2">Second point in the triangle.</param>
-    /// <param name="v3">Third point in the triangle.</param>
-    /// <returns>The bounding box rectangle.</returns>
     Rect<int> getBoundingBox(Vector3* v1, Vector3* v2, Vector3* v3);
+    Rect<int> getBoundingBox(Triangle* t)
+    {
+        Vector3 v1 = t->v1()->getTranslation();
+        Vector3 v2 = t->v2()->getTranslation();
+        Vector3 v3 = t->v3()->getTranslation();
+        return getBoundingBox(&v1, &v2, &v3);
+    };
 
     /// <summary>
     /// Based on Bresenham’s Line Drawing Algorithm.
@@ -187,9 +186,9 @@ public:
     /// <summary>
     /// Renders the given triangle, through its world-space vertices, to the RGB/Z buffer(s).
     /// </summary>
-    /// <param name="t">The triangle to draw.</param>
+    /// <param name="triangle">The triangle to draw.</param>
     /// <returns>Whether the triangle was drawn on the buffer (screen) or not.</returns>
-    bool drawTriangle(Triangle* worldTriangle);
+    bool drawTriangle(Triangle* triangle);
 
     /// <summary>
     /// Renders all triangles in the scene (triangle buffer).

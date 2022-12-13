@@ -191,9 +191,9 @@ Mesh* loadMeshFile(std::string filename)
 	return mesh;
 }
 
-PixelShader* loadShaderFile(std::string filename)
+StandardShader* loadShaderFile(std::string filename)
 {
-	PixelShader* shader = new PixelShader();
+	StandardShader* shader = new StandardShader();
 
 	std::ifstream file(filename);	// New filestream
 	if (file)

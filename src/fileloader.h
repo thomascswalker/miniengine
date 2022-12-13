@@ -144,7 +144,7 @@ static bool parseNumber(std::string value, T *result)
 bool getOpenFilename(const wchar_t* filter, std::string& filename);
 
 Mesh* loadMeshFile(std::string filename);
-PixelShader* loadShaderFile(std::string filename);
+StandardShader* loadShaderFile(std::string filename);
 
 MINI_NAMESPACE_CLOSE
 
