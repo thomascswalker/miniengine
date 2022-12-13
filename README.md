@@ -12,7 +12,7 @@ This is primarily a learning project for myself. My goal was to build a real-tim
 Follow this [link](https://github.com/thomascswalker/miniengine/wiki) to view the wiki.
 
 ## Example
-![](https://github.com/thomascswalker/miniengine/blob/af18643c20aff401325ff25a2ff8983e489b1999/images/example.gif)
+![](https://github.com/thomascswalker/miniengine/blob/4571c44146d34d21794b308a2b0ba6626d20f377/images/example.gif)
 
 ## Progress
 - [x] Launch window
