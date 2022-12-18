@@ -19,18 +19,19 @@ public:
 
 	// Constructors
 	Vector2() : _x(0), _y(0) {};
-	Vector2(double x, double y) : _x(x), _y(y) {};
+	Vector2(double x, double y)
+		: _x(x), _y(y) {};
 
-	// Methods
-	double x() const { return _x; }
-	void setX(double x) { _x = x; }
-	double y() const { return _y; }
-	void setY(double y) { _y = y; }
-
-	Vector2 copy() { return Vector2(_x, _y); }
+	Vector2 copy()
+	{
+		return Vector2(_x, _y);
+	}
 
 	// Converts the X, Y values to a string
-	std::string toString();
+	std::string toString()
+	{
+		return std::format("[{:.2f}, {:.2f}]", _x, _y);;
+	}
 
 	// Operators
 	Vector2 operator + (Vector2& v) const
@@ -69,9 +70,11 @@ public:
 	}
 };
 
-class Vector3 : public Vector2
+class Vector3
 {
 public:
+	double _x = 0;
+	double _y = 0;
 	double _z = 0;
 
 	// Constructors
@@ -86,6 +89,26 @@ public:
 	static Vector3 forward() { return Vector3(0.0, 0.0, 1.0); }
 	static Vector3 up() { return Vector3(0.0, 1.0, 0.0); }
 	static Vector3 right() { return Vector3(1.0, 0.0, 0.0); }
+
+	// Converts the X, Y, Z values to a string
+	std::string toString();
+
+	// Normalizes the length of the vector so length == 1
+	void normalize();
+
+	template <typename T>
+	inline void rescale(T amin, T amax, T bmin, T bmax)
+	{
+		_x = (((_x - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
+		_y = (((_y - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
+		_z = (((_z - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
+	}
+	static Vector3 identity();
+	double length()
+	{
+		return sqrt(_x * _x + _y * _y + _z * _z);
+	}
+	void set(double x, double y, double z) { _x = x, _y = y, _z = z; }
 
 	// Operators
 	double operator [] (int i) const
@@ -190,10 +213,10 @@ public:
 
 	bool operator == (Vector3& v) const
 	{
-		return _x - v._x < 0.0001f && _y - v._y < 0.0001f && _z - v._z < 0.0001f;
+		return _x - v._x < DBL_EPSILON && _y - v._y < DBL_EPSILON&& _z - v._z < DBL_EPSILON;
 	}
 
-	Vector3 operator -() const
+	Vector3 operator - () const
 	{
 		return Vector3(-_x, -_y, -_z);
 	}
@@ -207,35 +230,14 @@ public:
 	{	
 		return (*this * d);
 	}
-
-	// Methods
-	double z() const { return _z; }
-	void setZ(double z) { _z = z; }
-
-	// Converts the X, Y, Z values to a string
-	std::string toString();
-
-	// Normalizes the length of the vector so length == 1
-	void normalize();
-
-	template <typename T>
-	inline void rescale(T amin, T amax, T bmin, T bmax)
-	{
-		_x = (((_x - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
-		_y = (((_y - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
-		_z = (((_z - amin) * (bmax - bmin)) / (amax - amin)) + bmin;
-	}
-	static Vector3 identity();
-	double length()
-	{
-		return sqrt(_x * _x + _y * _y + _z * _z);
-	}
-	void set(double x, double y, double z) {_x = x, _y = y, _z = z;}
 };
 
-class Vector4 : public Vector3
+class Vector4
 {
 public:
+	double _x = 0;
+	double _y = 0;
+	double _z = 0;
 	double _w = 0;
 
 	Vector4();
@@ -245,22 +247,30 @@ public:
 
 	Vector4 copy() { return Vector4(_x, _y, _z, _w); }
 
+	// Converts the X, Y, Z, W values to a string
+	std::string toString();
+
+	void normalize();
+	static Vector4 identity();
+	double length() { return sqrt(_x * _x + _y * _y + _z * _z + _w * _w); }
+	void set(double x, double y, double z, double w) {_x = x, _y = y, _z = z, _w = w;}
+	
 	// Operators
 	Vector4 operator + (Vector4& v) const
 	{
 		return Vector4(_x + v._x, _y + v._y, _z + v._z, _w + v._w);
 	}
-	
+
 	Vector4 operator - (Vector4& v) const
 	{
 		return Vector4(_x - v._x, _y - v._y, _z - v._z, _w - v._w);
 	}
-	
+
 	Vector4 operator * (Vector4& v) const
 	{
 		return Vector4(_x * v._x, _y * v._y, _z * v._z, _w * v._w);
 	}
-	
+
 	Vector4 operator / (Vector4& v) const
 	{
 		return Vector4(_x / v._x, _y / v._y, _z / v._z, _w / v._w);
@@ -268,7 +278,7 @@ public:
 
 	bool operator < (Vector4& v) const
 	{
-		return _x < v._x && _y < v._y && _z < v._z && _w < v._w;
+		return _x < v._x&& _y < v._y&& _z < v._z&& _w < v._w;
 	}
 
 	bool operator > (Vector4& v) const
@@ -278,25 +288,14 @@ public:
 
 	bool operator == (Vector4& v) const
 	{
-		return _x - v._x < DBL_EPSILON && _y - v._y < DBL_EPSILON && _z - v._z < DBL_EPSILON && _w - v._w < DBL_EPSILON;
+		return _x - v._x < DBL_EPSILON&& _y - v._y < DBL_EPSILON&& _z - v._z < DBL_EPSILON&& _w - v._w < DBL_EPSILON;
 	}
 
 	Vector4 operator *= (Vector4& v)
-	{	
+	{
 		return (*this * v);
 	}
 
-	// Methods
-	double w() const { return _w; }
-	void setW(double w) { _w = w; }
-
-	// Converts the X, Y, Z, W values to a string
-	std::string toString();
-
-	void normalize();
-	static Vector4 identity();
-	double length() { return sqrt(_x * _x + _y * _y + _z * _z + _w * _w); }
-	void set(double x, double y, double z, double w) {_x = x, _y = y, _z = z, _w = w;}
 };
 
 MINI_NAMESPACE_CLOSE
