@@ -98,10 +98,10 @@ public:
     {
         double x, y, z, w;
 
-        x = v.x() * m.m_mtx[0][0] + v.y() * m.m_mtx[0][1] + v.z() * m.m_mtx[0][2];
-        y = v.x() * m.m_mtx[1][0] + v.y() * m.m_mtx[1][1] + v.z() * m.m_mtx[1][2];
-        z = v.x() * m.m_mtx[2][0] + v.y() * m.m_mtx[2][1] + v.z() * m.m_mtx[2][2];
-        w = v.x() * m.m_mtx[3][0] + v.y() * m.m_mtx[3][1] + v.z() * m.m_mtx[3][2];
+        x = v._x * m.m_mtx[0][0] + v._y * m.m_mtx[0][1] + v._z * m.m_mtx[0][2];
+        y = v._x * m.m_mtx[1][0] + v._y * m.m_mtx[1][1] + v._z * m.m_mtx[1][2];
+        z = v._x * m.m_mtx[2][0] + v._y * m.m_mtx[2][1] + v._z * m.m_mtx[2][2];
+        w = v._x * m.m_mtx[3][0] + v._y * m.m_mtx[3][1] + v._z * m.m_mtx[3][2];
 
         if (w != 0.0)
         {
@@ -118,10 +118,10 @@ public:
     {
         double x, y, z, w;
 
-        x = v.x() * m.m_mtx[0][0] + v.y() * m.m_mtx[0][1] + v.z() * m.m_mtx[0][2] + v.w() * m.m_mtx[0][3];
-        y = v.x() * m.m_mtx[1][0] + v.y() * m.m_mtx[1][1] + v.z() * m.m_mtx[1][2] + v.w() * m.m_mtx[1][3];
-        z = v.x() * m.m_mtx[2][0] + v.y() * m.m_mtx[2][1] + v.z() * m.m_mtx[2][2] + v.w() * m.m_mtx[2][3];
-        w = v.x() * m.m_mtx[3][0] + v.y() * m.m_mtx[3][1] + v.z() * m.m_mtx[3][2] + v.w() * m.m_mtx[3][3];
+        x = v._x * m.m_mtx[0][0] + v._y * m.m_mtx[0][1] + v._z * m.m_mtx[0][2] + v._w * m.m_mtx[0][3];
+        y = v._x * m.m_mtx[1][0] + v._y * m.m_mtx[1][1] + v._z * m.m_mtx[1][2] + v._w * m.m_mtx[1][3];
+        z = v._x * m.m_mtx[2][0] + v._y * m.m_mtx[2][1] + v._z * m.m_mtx[2][2] + v._w * m.m_mtx[2][3];
+        w = v._x * m.m_mtx[3][0] + v._y * m.m_mtx[3][1] + v._z * m.m_mtx[3][2] + v._w * m.m_mtx[3][3];
 
         if (w != 0.0)
         {

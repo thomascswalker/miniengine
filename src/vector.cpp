@@ -3,11 +3,6 @@
 MINI_NAMESPACE_OPEN
 MINI_USING_DIRECTIVE
 
-std::string Vector2::toString()
-{
-	return std::format("[{:.2f}, {:.2f}]", _x, _y);;
-}
-
 Vector3::Vector3()
 {
 	_x = 0;

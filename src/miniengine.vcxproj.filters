@@ -37,9 +37,6 @@
     <ClCompile Include="vector.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
-    <ClCompile Include="pixel.cpp">
-      <Filter>Source Files\engine</Filter>
-    </ClCompile>
     <ClCompile Include="color.cpp">
       <Filter>Source Files\engine</Filter>
     </ClCompile>
@@ -94,9 +91,6 @@
       <Filter>Header Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="mesh.h">
-      <Filter>Header Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="pixel.h">
       <Filter>Header Files\engine</Filter>
     </ClInclude>
     <ClInclude Include="vector.h">
