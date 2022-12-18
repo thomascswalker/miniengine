@@ -28,7 +28,7 @@ Framebuffer::Framebuffer(HWND hwnd)
 
 Framebuffer::~Framebuffer()
 {
-    
+
 }
 
 HBITMAP Framebuffer::getBitmap()
@@ -191,8 +191,8 @@ bool Framebuffer::drawLine(Vector3* v1, Vector3* v2)
 
 bool Framebuffer::drawCircle(Vector3* v, double r)
 {
-    int cx = v->_x;
-    int cy = v->_y;
+    int cx = (int) v->_x;
+    int cy = (int) v->_y;
 
     // Top left
     int x0 = cx - r;

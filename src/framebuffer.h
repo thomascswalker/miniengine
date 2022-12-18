@@ -45,9 +45,6 @@ class Framebuffer
     // Vertex memory
     std::vector<Triangle*> m_triangles;
 
-    // Shaders
-    //PixelShader* m_pixelShader = new PixelShader();
-
     // Camera and matrices
     Camera m_camera;
     Vector3 m_targetPosition;
@@ -144,12 +141,19 @@ public:
     Matrix4 getModelViewProjMatrix() { return m_mvp; }
 
     /// <summary>
-    /// Converts the given vertex from world-space to screen-space. This assumes the MVP
+    /// Projects the given world position from world-space to screen-space. This assumes the MVP
     /// matrix has already been computed.
     /// </summary>
     /// <param name="v">The vertex to get screens-space coordinates of.</param>
     Vector3 worldToScreen(Vector3* v);
 
+    /// <summary>
+    /// Deprojects the given screen coordinates from screen-space to world-space. where X and Y make up the X/Y position on screen and Z
+    /// makes up the depth to project.
+    /// </summary>
+    /// <param name="x">The X screen coordinate.</param>
+    /// <param name="y">The Y screen coordinate.</param>
+    /// <param name="z">The world depth to project.</param>
     Vector3 screenToWorld(double x, double y, double z);
 
     /// <summary>
@@ -163,8 +167,19 @@ public:
     /// <returns>The z-depth value. Higher values mean further away.</returns>
     double getDepth(Vector3* v1, Vector3* v2, Vector3* v3, Vector3* p);
     
+    /// <summary>
+    /// Get the bounding box between two points.
+    /// </summary>
     Rect<int> getBoundingBox(Vector3* v1, Vector3* v2);
+
+    /// <summary>
+    /// Returns the bounding box between three points.
+    /// </summary>
     Rect<int> getBoundingBox(Vector3* v1, Vector3* v2, Vector3* v3);
+
+    /// <summary>
+    /// Returns the bounding box of the given triangle.
+    /// </summary>
     Rect<int> getBoundingBox(Triangle* t)
     {
         Vector3 v1 = t->v1()->getTranslation();
@@ -176,11 +191,17 @@ public:
     /// <summary>
     /// Based on Bresenham’s Line Drawing Algorithm.
     /// </summary>
-    /// <param name="v1"></param>
-    /// <param name="v2"></param>
-    /// <returns></returns>
+    /// <param name="v1">Point 1 of the line.</param>
+    /// <param name="v2">Point 2 of the line.</param>
+    /// <returns>Whether the line was drawn or not.</returns>
     bool drawLine(Vector3* v1, Vector3* v2);
 
+    /// <summary>
+    /// Given a screen point, draw a circle with the given radius 'r'.
+    /// </summary>
+    /// <param name="v">The screen point to draw a circle at.</param>
+    /// <param name="r">The circle's radius.</param>
+    /// <returns>Whether the circle was drawn or not.</returns>
     bool drawCircle(Vector3* v, double r);
 
     /// <summary>

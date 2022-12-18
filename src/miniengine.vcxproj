@@ -164,7 +164,6 @@
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="fileloader.cpp" />
     <ClCompile Include="object.cpp" />
-    <ClCompile Include="pixel.cpp" />
     <ClCompile Include="printbuffer.cpp" />
     <ClCompile Include="quaternion.cpp" />
     <ClCompile Include="transform.cpp" />
@@ -184,7 +183,6 @@
     <ClInclude Include="mesh.h" />
     <ClInclude Include="fileloader.h" />
     <ClInclude Include="object.h" />
-    <ClInclude Include="pixel.h" />
     <ClInclude Include="printbuffer.h" />
     <ClInclude Include="quaternion.h" />
     <ClInclude Include="rotation.h" />
