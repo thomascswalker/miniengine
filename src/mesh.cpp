@@ -1,7 +1,7 @@
 #include "mesh.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<int> indices)
     : m_vertices(vertices), m_indices(indices)
@@ -64,4 +64,4 @@ void Mesh::bindTris()
     }
 }
 
-MINI_NAMESPACE_CLOSE
+}

@@ -1,7 +1,7 @@
 #include "matrix.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 Matrix4& Matrix4::set(double m00, double m01, double m02, double m03,
                       double m10, double m11, double m12, double m13,
@@ -50,7 +50,7 @@ Matrix4& Matrix4::setTransform(const Vector3& t, const Rotation& r)
     return *this;
 }
 
-Vector3& Matrix4::getTranslation() const
+Vector3 Matrix4::getTranslation() const
 {
     auto t = Vector3(m_mtx[0][3], m_mtx[1][3], m_mtx[2][3]);
     return t;
@@ -210,15 +210,16 @@ Matrix4 Matrix4::getInverse(double* detPtr)
     }
     else
     {
-	    inverse.setScale(FLT_MAX);
+	    inverse.setScale(CC_MAX);
     }
 
     return inverse;
-};
+}
 
-Matrix4& Matrix4::getTranspose()
+Matrix4 Matrix4::getTranspose()
 {
     Matrix4 m;
+
     m[0][0] = m_mtx[0][0];
     m[1][0] = m_mtx[0][1];
     m[2][0] = m_mtx[0][2];
@@ -239,7 +240,7 @@ Matrix4& Matrix4::getTranspose()
     return m;
 }
 
-Rotation& Matrix4::getRotation() const
+Rotation Matrix4::getRotation() const
 {
     int i;
 
@@ -281,11 +282,16 @@ Rotation& Matrix4::getRotation() const
 
 std::string Matrix4::toString()
 {
-    return std::format("[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n[{:.2f}, {:.2f}, {:.2f}, {:.2f}]\n[{:.2f}, {:.2f}, {:.2f}, {:.2f}]",
-                        m_mtx[0][0], m_mtx[0][1], m_mtx[0][2], m_mtx[0][3],
-                        m_mtx[1][0], m_mtx[1][1], m_mtx[1][2], m_mtx[1][3],
-                        m_mtx[2][0], m_mtx[2][1], m_mtx[2][2], m_mtx[2][3],
-                        m_mtx[3][0], m_mtx[3][1], m_mtx[3][2], m_mtx[3][3]);
+    std::string string;
+    for (int y = 0; y < 4; y++)
+    {
+        for (int x = 0; x < 4; x++)
+        {
+            double value = m_mtx[y][x];
+            string += std::to_string(value) + ",";
+        }
+    }
+    return string;
 }
 
 bool Matrix4::operator == (const Matrix4& m) const
@@ -579,26 +585,6 @@ Matrix4 makeRotation(double x, double y, double z)
     m[2][2] = axis._z * axis._z * (1.0 - c) + c;
 
     return m;
-    //Matrix4 r = Matrix4();
-    //r.setIdentity();
-
-    //r[0][0] = cos(y) * cos(z);
-    //r[1][0] = -cos(x) * sin(z) + sin(x) * sin(y) * cos(z);
-    //r[2][0] = sin(x) * sin(z) + cos(x) * sin(y) * cos(z);
-
-    //r[0][1] = cos(y) * cos(z);
-    //r[1][1] = cos(x) * cos(z) + sin(x) * sin(y) * sin(z);
-    //r[2][1] = -sin(x) * cos(z) + cos(x) * sin(y) * sin(z);
-
-    //r[0][2] = -sin(y);
-    //r[1][2] = sin(x) * cos(y);
-    //r[2][2] = cos(x) * cos(y);
-
-    //auto rx = makeRotationX(x);
-    //auto ry = makeRotationY(y); 
-    //auto rz = makeRotationZ(z);
-
-    //return rz * ry * rx;
 }
 
 Matrix4 makeRotation(const Rotation& rotation)
@@ -639,4 +625,4 @@ Matrix4 makeScale(const Vector3& scale)
     return s;
 }
 
-MINI_NAMESPACE_CLOSE
+}

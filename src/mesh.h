@@ -6,8 +6,8 @@
 #include "coordinates.h"
 #include "triangle.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 class Mesh
 {
@@ -36,6 +36,6 @@ private:
 	std::vector<Triangle*> m_triangles;
 };
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif

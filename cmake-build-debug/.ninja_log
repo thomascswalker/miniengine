@@ -1,0 +1,18 @@
+# ninja log v5
+21	1065	6947340614979735	CMakeFiles/miniengine.dir/src/color.cpp.obj	dfdbe90577a97df4
+49	1053	6947340614859543	CMakeFiles/miniengine.dir/src/vector.cpp.obj	270bfbda7bcedd4d
+5	2668	6947340631014480	CMakeFiles/miniengine.dir/src/camera.cpp.obj	d1dfd63db80335b1
+39	2377	6947340628091832	CMakeFiles/miniengine.dir/src/printbuffer.cpp.obj	1ce9cc5c435a32bb
+30	2881	6947340633126396	CMakeFiles/miniengine.dir/src/mesh.cpp.obj	d7156b7a7cbd26d7
+9	2678	6947340631114569	CMakeFiles/miniengine.dir/src/core.cpp.obj	7bc0f6608a9a938
+55	2759	6947340631925313	CMakeFiles/miniengine.dir/src/quaternion.cpp.obj	7d4186cd2f1de203
+59	2700	6947340631344783	CMakeFiles/miniengine.dir/src/triangle.cpp.obj	a74b8219f7db1a66
+25	2708	6947340631414835	CMakeFiles/miniengine.dir/src/object.cpp.obj	d0b61faf97c657c9
+44	2709	6947340631424853	CMakeFiles/miniengine.dir/src/transform.cpp.obj	6ab9f74044e9d0ae
+34	2868	6947340633016378	CMakeFiles/miniengine.dir/src/matrix.cpp.obj	395bc8041fdfef4
+25	3500	6947338300855953	CMakeFiles/miniengine.dir/src/main.cpp.obj	11f7354b15cbd3f2
+13	2834	6947352764094270	CMakeFiles/miniengine.dir/main.cpp.obj	dbeef347d5d9084c
+17	3513	6947340639446167	CMakeFiles/miniengine.dir/src/framebuffer.cpp.obj	1ed6840bb9725ff0
+4	2714	6947358405420061	CMakeFiles/miniengine.dir/src/fileloader.cpp.obj	db1a9517f3ea9ac9
+5	2966	6947354009790017	CMakeFiles/miniengine.dir/src/application.cpp.obj	d309a8603af8df1d
+2715	3118	6947358409413692	miniengine.exe	bb38cb2f4b01b225

@@ -9,13 +9,13 @@
 #include "fileloader.h"
 #include "staticmesh.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 class Application
 {
-    HWND m_hwnd = 0;
-    HINSTANCE m_hInstance = 0;
+    HWND m_hwnd = nullptr;
+    HINSTANCE m_hInstance = nullptr;
 
     Framebuffer* m_buffer {};
 
@@ -59,7 +59,7 @@ public:
 
 protected:
     static Application *instance;
-    Application() {};
+    Application() = default;;
 
 private:
     bool loadModel();
@@ -73,6 +73,6 @@ private:
     void displayFps();
 };
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif

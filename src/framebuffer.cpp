@@ -1,7 +1,7 @@
 #include "framebuffer.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 Framebuffer::Framebuffer(HWND hwnd)
     : m_hwnd(hwnd)
@@ -266,7 +266,7 @@ bool Framebuffer::drawTriangle(Triangle* triangle)
     }
 
     // Rescale from -1 => 1 to 0 => 1
-    viewNormal.rescale(-1.0, 1.0, 0.0, 1.0);
+    viewNormal.rescale<double>(-1.0, 1.0, 0.0, 1.0);
 
     // Convert world-space to screenspace by running through the vertex shader
     shader->vertex(&v1);
@@ -439,4 +439,4 @@ void Framebuffer::allocateDisplayPtr()
     }
 }
 
-MINI_NAMESPACE_CLOSE
+}

@@ -3,8 +3,8 @@
 
 #include "maths.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 class Quaternion
 {
@@ -94,6 +94,6 @@ private:
 	}
 };
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif

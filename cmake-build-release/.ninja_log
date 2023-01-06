@@ -1,0 +1,27 @@
+# ninja log v5
+16	1225	6947358837370726	CMakeFiles/miniengine.dir/src/color.cpp.obj	888ec8c32328e3
+66	1414	6947358839252440	CMakeFiles/miniengine.dir/src/vector.cpp.obj	cf8dda2178a02d29
+59	2839	6947358853525408	CMakeFiles/miniengine.dir/src/printbuffer.cpp.obj	699bdf0c7258548e
+1	3027	6947358855397116	CMakeFiles/miniengine.dir/src/camera.cpp.obj	13ff7739a4e3bcfa
+46	3067	6947358855802581	CMakeFiles/miniengine.dir/src/object.cpp.obj	265df7f216cc965c
+72	3105	6947358856174939	CMakeFiles/miniengine.dir/src/triangle.cpp.obj	af7d8e3ef93a3197
+80	3138	6947358856506235	CMakeFiles/miniengine.dir/src/transform.cpp.obj	b4970393d76efbd9
+53	3142	6947358856546272	CMakeFiles/miniengine.dir/src/quaternion.cpp.obj	88b54a5048d583fb
+13	3143	6947358856546272	CMakeFiles/miniengine.dir/src/core.cpp.obj	7a61f84ca9ad6aa9
+25	3318	6947358858318590	CMakeFiles/miniengine.dir/src/mesh.cpp.obj	6d8a57b8e3920c47
+20	3399	6947358859129326	CMakeFiles/miniengine.dir/src/matrix.cpp.obj	fd8f1754d8453b8d
+41	3630	6947358861441435	CMakeFiles/miniengine.dir/main.cpp.obj	c9a81b663d6acfac
+5	3965	6947358864794564	CMakeFiles/miniengine.dir/src/application.cpp.obj	e0d4070fdcd69953
+9	4055	6947358865685295	CMakeFiles/miniengine.dir/src/fileloader.cpp.obj	66597c8c34508874
+29	4111	6947358866245805	CMakeFiles/miniengine.dir/src/framebuffer.cpp.obj	29412cb627ce3a47
+4111	4280	6947358867877284	miniengine.exe	196028b04fe5e977
+5	3012	6947361949913836	CMakeFiles/miniengine.dir/src/application.cpp.obj	e0d4070fdcd69953
+3013	3161	6947361951365078	miniengine.exe	196028b04fe5e977
+10	2645	6947363353573941	CMakeFiles/miniengine.dir/main.cpp.obj	c9a81b663d6acfac
+9	2769	6947363740727809	CMakeFiles/miniengine.dir/main.cpp.obj	c9a81b663d6acfac
+4	3137	6947363744423462	CMakeFiles/miniengine.dir/src/application.cpp.obj	e0d4070fdcd69953
+3138	3277	6947363745781331	miniengine.exe	196028b04fe5e977
+5	2968	6947364617370330	CMakeFiles/miniengine.dir/src/application.cpp.obj	e0d4070fdcd69953
+2968	3108	6947364618731565	miniengine.exe	196028b04fe5e977
+5	3040	6947364805601644	CMakeFiles/miniengine.dir/src/application.cpp.obj	e0d4070fdcd69953
+3040	3178	6947364806941915	miniengine.exe	196028b04fe5e977

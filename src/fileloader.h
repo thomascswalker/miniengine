@@ -12,140 +12,146 @@
 #include "mesh.h"
 #include "shader.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
-
-#define FILE_FILTER_OBJ L"Wavefront OBJ (.obj)\0*.obj\0"
+constexpr auto FILE_FILTER_OBJ = "Wavefront OBJ (.obj)\0*.obj\0";
+#define FILE_FILTER_GLB L"GLB (.glb)\0*.glb\0"
 #define FILE_FILTER_SHADER L"Pixel Shader File (.ini)\0*.pxl\0"
 
-static std::vector<const char*> INVALID_VERTEX_TOKENS = {"v", "vn", "vt", "", " "};
-static std::vector<const char*> INVALID_FACE_TOKENS = {"f", "", " "};
-
-static std::istream& readLine(std::istream& stream, std::string& line)
+namespace Graphics
 {
-	// Clear the content of the line
-	line.clear();
+    enum FileTypes
+    {
+        Obj,
+        Gltf
+    };
 
-	// Prepare stream for input
-	std::istream::sentry sentry(stream, true);
-	if (!sentry)
-	{
-		return stream;
-	}
+    static std::vector<const char*> INVALID_VERTEX_TOKENS = { "v", "vn", "vt", "", " " };
+    static std::vector<const char*> INVALID_FACE_TOKENS = { "f", "", " " };
 
-	// Create a new buffer from our stream
-	std::streambuf* streamBuffer = stream.rdbuf();
+    static std::istream& readLine(std::istream& stream, std::string& line)
+    {
+        // Clear the content of the line
+        line.clear();
 
-	
-	// Switch on current char
-	while (true)
-	{
-		// Read the current character
-		int currentChar = streamBuffer->sbumpc();
-		switch (currentChar)
-		{
-			// For \n
-			case '\n':
-			{
-				return stream;
-			}
-			// For \r\n
-			case '\r':
-			{
-				// If the next character is a new line, we'll bump to that next line
-				if (streamBuffer->sgetc() == '\n')
-				{
-					streamBuffer->sbumpc();
-				}
-				return stream;
-			}
-			// For \r
-			case EOF: // -1
-			{
-				if (line.empty())
-				{
-					stream.setstate(std::ios::eofbit);
-				}
-				return stream;
-			}
-			// All other cases, the rest of the line
-			default:
-			{
-				line += (char)currentChar;
-			}
-		}
-	}
+        // Prepare stream for input
+        std::istream::sentry sentry(stream, true);
+        if (!sentry)
+        {
+            return stream;
+        }
 
-	return stream;
-}
+        // Create a new buffer from our stream
+        std::streambuf* streamBuffer = stream.rdbuf();
 
-static bool doesStringContainAny(std::string str, std::string value)
-{
-	if (str == "")
-	{
-		return false;
-	}
-	bool result = false;
-	for (const char s : str)
-	{
-		for (const char v : value)
-		{
-			if (s == v)
-			{
-				result = true;
-			}
-		}
-	}
-	return result;
-}
 
-static bool isStringANumber(std::string str)
-{
-	return doesStringContainAny(str, "0123456789");
-}
+        // Switch on current char
+        while (true)
+        {
+            // Read the current character
+            int currentChar = streamBuffer->sbumpc();
+            switch (currentChar)
+            {
+                // For \n
+            case '\n':
+            {
+                return stream;
+            }
+                // For \r\n
+            case '\r':
+            {
+                // If the next character is a new line, we'll bump to that next line
+                if (streamBuffer->sgetc() == '\n')
+                {
+                    streamBuffer->sbumpc();
+                }
+                return stream;
+            }
+                // For \r
+            case EOF: // -1
+            {
+                if (line.empty())
+                {
+                    stream.setstate(std::ios::eofbit);
+                }
+                return stream;
+            }
+                // All other cases, the rest of the line
+            default:
+            {
+                line += (char)currentChar;
+            }
+            }
+        }
 
-static std::vector<std::string> splitString(std::string string, const char del)
-{
-	std::stringstream stream(string);
-	std::vector<std::string> list;
-	std::string segment;
+        return stream;
+    }
 
-	while (std::getline(stream, segment, del))
-	{
-		list.push_back(segment);
-	}
+    static bool doesStringContainAny(const std::string& str, const std::string& value)
+    {
+        if (str.empty())
+        {
+            return false;
+        }
+        bool result = false;
+        for (const char s : str)
+        {
+            for (const char v : value)
+            {
+                if (s == v)
+                {
+                    result = true;
+                }
+            }
+        }
+        return result;
+    }
 
-	return list;
-}
+    static bool isStringANumber(std::string str)
+    {
+        return doesStringContainAny(str, "0123456789");
+    }
+
+    static std::vector<std::string> splitString(const std::string& string, const char delim)
+    {
+        std::stringstream stream(string);
+        std::vector<std::string> list;
+        std::string segment;
+
+        while (std::getline(stream, segment, delim))
+        {
+            list.push_back(segment);
+        }
+
+        return list;
+    }
 
 /*Given a string, attempt to parse a number from it.*/
-template <typename T>
-static bool parseNumber(std::string value, T *result)
-{
-	if constexpr (std::is_floating_point_v<T>)
-	{
-		*result = std::stod(value);
-		return true;
-	}
-	else if (std::is_integral_v<T>)
-	{
-		*result = std::stoi(value);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
+    template<typename T>
+    static bool parseNumber(const std::string& value, T* result)
+    {
+        if constexpr (std::is_floating_point_v<T>)
+        {
+            *result = std::stod(value);
+            return true;
+        }
+        else if (std::is_integral_v<T>)
+        {
+            *result = std::stoi(value);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
 /// <summary>
 /// Wrapper for GetOpenFileNameW to simplify the parameter inputs.
 /// </summary>
-bool getOpenFilename(const wchar_t* filter, std::string& filename);
+    bool getOpenFilename(FileTypes type, std::string& filename);
 
-Mesh* loadMeshFile(std::string filename);
-StandardShader* loadShaderFile(std::string filename);
-
-MINI_NAMESPACE_CLOSE
+    Mesh* loadGlbFile(const std::string& filename);
+    Mesh* loadObjFile(const std::string& filename);
+    StandardShader* loadShaderFile(const std::string& filename);
+}
 
 #endif

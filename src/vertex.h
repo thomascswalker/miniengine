@@ -3,8 +3,8 @@
 
 #include "vector.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 class Vertex
 {
@@ -31,6 +31,6 @@ private:
 	Vector3 m_normal;
 };
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif
