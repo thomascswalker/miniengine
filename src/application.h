@@ -14,8 +14,8 @@ using namespace Graphics;
 
 class Application
 {
-    HWND m_hwnd = 0;
-    HINSTANCE m_hInstance = 0;
+    HWND m_hwnd = nullptr;
+    HINSTANCE m_hInstance = nullptr;
 
     Framebuffer* m_buffer {};
 
@@ -59,7 +59,7 @@ public:
 
 protected:
     static Application *instance;
-    Application() {};
+    Application() = default;;
 
 private:
     bool loadModel();

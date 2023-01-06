@@ -30,7 +30,8 @@ namespace Graphics
     static bool E_DOWN = false;
     static bool Q_DOWN = false;
     static bool O_DOWN = false;
-    static bool SPACEBAR_DOWN = false;
+    static bool ESC_DOWN = false;
+    static bool SPACE_BAR_DOWN = false;
     static float MOUSE_WHEEL_DELTA = 0.0;
 
     static double CAMERA_SPEED = 0.0025;
@@ -53,7 +54,7 @@ namespace Graphics
             // Window
         case WM_CREATE:
         {
-            SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, 1, NULL);
+            SetTimer(hwnd, MAIN_WINDOW_TIMER_ID, 1, nullptr);
             ShowCursor(TRUE);
             return 0;
         }
@@ -137,7 +138,9 @@ namespace Graphics
                 bDisplayFps = !bDisplayFps;
                 break;
             case VK_ESCAPE:
-                bIsRunning = false;
+                ESC_DOWN = true;
+                break;
+            default:
                 break;
             }
             break;
@@ -174,6 +177,8 @@ namespace Graphics
             case VK_ESCAPE:
                 bIsRunning = false;
                 break;
+            default:
+                break;
             }
             break;
         }
@@ -185,10 +190,10 @@ namespace Graphics
             int height = HIWORD(lParam);
 
             app->setSize(width, height);
-            InvalidateRect(hwnd, NULL, FALSE);
+            InvalidateRect(hwnd, nullptr, FALSE);
             UpdateWindow(hwnd);
 
-            auto cursor = LoadCursor(NULL, IDC_SIZENESW);
+            auto cursor = LoadCursor(nullptr, IDC_SIZENESW);
             SetCursor(cursor);
 
             break;
@@ -197,8 +202,12 @@ namespace Graphics
             // Timer called every ms to update
         case WM_TIMER:
         {
-            InvalidateRect(hwnd, NULL, FALSE);
+            InvalidateRect(hwnd, nullptr, FALSE);
             UpdateWindow(hwnd);
+            break;
+        }
+        default:
+        {
             break;
         }
         }
@@ -248,21 +257,21 @@ namespace Graphics
     void Application::init()
     {
         // Register the window class.
-        const wchar_t CLASS_NAME[] = L"Sample Window Class";
+        const char* CLASS_NAME = "Sample Window Class";
 
         WNDCLASS wc = {};
 
         wc.lpfnWndProc = windowProcessMessage;
         wc.style = CS_HREDRAW | CS_VREDRAW;
         wc.hInstance = m_hInstance;
-        wc.lpszClassName = reinterpret_cast<LPCSTR>(CLASS_NAME);
+        wc.lpszClassName = CLASS_NAME;
 
         RegisterClass(&wc);
 
         // Create the window.
         m_hwnd = CreateWindow(
-            reinterpret_cast<LPCSTR>(CLASS_NAME),       // Window class
-            reinterpret_cast<LPCSTR>(L"MiniEngine"),    // Window text
+            CLASS_NAME,       // Window class
+            "MiniEngine",    // Window text
             WS_OVERLAPPEDWINDOW | WS_VISIBLE,           // Window style
 
             CW_USEDEFAULT,
@@ -288,7 +297,10 @@ namespace Graphics
         m_currentTime = getCurrentTime();
 
         // Move the camera to the default position
-        m_buffer->getCamera()->move(Vector3(0, 0, 5.0));
+        if (m_buffer != nullptr)
+        {
+            m_buffer->getCamera()->move(Vector3(0, 0, 5.0));
+        }
 
         // Run the message loop.
         while (!bIsRunning)
@@ -318,6 +330,11 @@ namespace Graphics
             {
                 TranslateMessage(&message);
                 DispatchMessage(&message);
+            }
+
+            if (ESC_DOWN)
+            {
+                bIsRunning = false;
             }
 
             // Load our mesh
@@ -404,8 +421,6 @@ namespace Graphics
 
         if (!getOpenFilename(FileTypes::Obj, filename))
         {
-
-//            PrintBuffer::debugPrintToScreen("Failed to load file.");
             return false;
         }
 
@@ -421,20 +436,15 @@ namespace Graphics
 
     bool Application::loadShader()
     {
-        //std::string filename;
-        //if (!getOpenFilename(FILE_FILTER_SHADER, filename))
-        //{
-        //    return false;
-        //}
-
-        //StandardShader* shader = loadShaderFile(filename);
-        //m_buffer->setPixelShader(shader);
-
         return true;
     }
 
     void Application::onMouseDown()
     {
+        if (m_buffer == nullptr)
+        {
+            return;
+        }
         Vector3 position = m_buffer->getCamera()->getTranslation();
         Vector3 target = m_buffer->getCamera()->getTarget();
 
@@ -494,7 +504,7 @@ namespace Graphics
         Vector3 newPosition = cameraPosition + (normal * delta);
         double dist = distance(newPosition, cameraTarget);
 
-        // Handle minimum zoom so we can't go past the origin
+        // Handle minimum zoom,so we can't go past the origin
         if (dist < MIN_ZOOM_DISTANCE)
         {
             return;
