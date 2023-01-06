@@ -10,10 +10,6 @@
 #define     MAX(x, y)                   x > y ? x : y
 #define     MIN(x, y)                   x < y ? x : y
 
-// Constants
-#define     PI                          3.14159265359
-#define     EPSILON                     DBL_EPSILON
-
 // Trigonometry
 #define     RADIANS(x)                  x * PI / 180.0
 #define     DEGREES(x)                  x * 180.0 / PI
@@ -22,8 +18,8 @@
 #define     INVERSE_GAMMA               1.0 / 2.2
 #define     GAMMA_CORRECT(x)            255.0 * pow((x / 255.0), INVERSE_GAMMA)
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 /// <summary>
 /// Clamps value within the given min/max range.
@@ -252,6 +248,6 @@ inline Vector3 reflect(Vector3 i, Vector3 n)
     return i - (n * 2.0 * dot(i, n));
 }
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif

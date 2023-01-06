@@ -3,8 +3,8 @@
 
 #include "transform.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 class Object
 {
@@ -42,6 +42,6 @@ protected:
 	Transform m_transform = Transform();
 };
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif

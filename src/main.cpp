@@ -1,6 +1,6 @@
 #include "application.h"
 
-MINI_USING_DIRECTIVE
+using namespace Graphics;
 
 int WINAPI wWinMain(
     _In_ HINSTANCE hInstance,

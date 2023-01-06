@@ -4,8 +4,8 @@
 #include "api.h"
 #include "matrix.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 #define BLINN_MODEL false
 #define BLINN_PHONG_MODEL true
@@ -97,6 +97,6 @@ public:
 	}
 };
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif

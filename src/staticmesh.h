@@ -5,8 +5,8 @@
 #include "mesh.h"
 #include "object.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 /// <summary>
 /// Encapsulation class of raw mesh data so we can control one object's transformation while preserving
@@ -26,6 +26,6 @@ public:
 	void setMesh(Mesh* mesh) { m_mesh = mesh; }
 };
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif // !STATICMESH_H

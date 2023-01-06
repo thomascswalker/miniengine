@@ -7,10 +7,10 @@
 
 #include <windows.h>
 #include <windowsx.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <time.h>
+#include <cstdio>
+#include <cstdarg>
+#include <cctype>
+#include <ctime>
 #include <tuple>
 #include <chrono>
 
@@ -32,13 +32,13 @@ using std::chrono::milliseconds;
 using std::chrono::seconds;
 using std::chrono::system_clock;
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 class Size
 {
 public:
-    Size() {};
+    Size() = default;;
     Size(double _width, double _height)
         : width(_width), height(_height) {};
 
@@ -50,7 +50,7 @@ template <typename T>
 class Point
 {
 public:
-    Point() {};
+    Point() = default;;
     Point(T _x, T _y)
         : x(_x), y(_y) {};
 
@@ -146,7 +146,17 @@ public:
     {
         int mx = x + width;
         int my = y + height;
-        return std::format("[{}, {}, {}, {}]", x, y, mx, my);
+
+        std::string string = "[";
+        string += std::to_string(x);
+        string += ",";
+        string += std::to_string(y);
+        string += ",";
+        string += std::to_string(mx);
+        string += ",";
+        string += std::to_string(my);
+        string += "]";
+        return string;
     }
 
     // Properties
@@ -164,6 +174,6 @@ int getDeltaTime(int previous, int offset);
 
 void print(const char* format, ...);
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif

@@ -3,15 +3,13 @@
 
 #include "api.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
-
-enum CoordSpace
+namespace Graphics
 {
-    Local,
-    World
-};
-
-MINI_NAMESPACE_CLOSE
+    enum CoordSpace
+    {
+        Local,
+        World
+    };
+}
 
 #endif

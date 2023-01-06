@@ -5,8 +5,8 @@
 #include "maths.h"
 
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 class Camera : public Object
 {
@@ -44,6 +44,6 @@ private:
 	Matrix4 m_viewMatrix = Matrix4();
 };
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif

@@ -9,8 +9,8 @@
 #include "fileloader.h"
 #include "staticmesh.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 class Application
 {
@@ -73,6 +73,6 @@ private:
     void displayFps();
 };
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif

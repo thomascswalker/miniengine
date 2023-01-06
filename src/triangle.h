@@ -4,8 +4,8 @@
 #include "maths.h"
 #include "vertex.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 class Triangle
 {
@@ -27,6 +27,6 @@ private:
 	Vector3 normal;
 };
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif

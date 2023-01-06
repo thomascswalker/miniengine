@@ -1,7 +1,7 @@
 #include "quaternion.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 Quaternion Quaternion::getNormalized() const
 {
@@ -17,4 +17,4 @@ Quaternion Quaternion::getNormalized() const
     }
 }
 
-MINI_NAMESPACE_CLOSE
+}

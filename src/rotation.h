@@ -4,8 +4,8 @@
 #include "quaternion.h"
 #include "vector.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 class Rotation
 {
@@ -98,7 +98,7 @@ public:
 
 	std::string toString()
 	{
-		return "Axis: " + m_axis.toString() + ", Angle: " + std::format("%d", m_angle);
+		return "Axis: " + m_axis.toString() + ", Angle: " + std::to_string(m_angle);
 	}
 
 	Rotation& operator += (const Rotation& r)
@@ -126,6 +126,6 @@ private:
 	double m_angle;
 };
 
-MINI_NAMESPACE_CLOSE
+}
 
 #endif

@@ -1,7 +1,7 @@
 #include "color.h"
 
-MINI_NAMESPACE_OPEN
-MINI_USING_DIRECTIVE
+namespace Graphics {
+using namespace Graphics;
 
 Color::Color(int r, int g, int b)
 {
@@ -17,4 +17,4 @@ Color Color::random()
     return Color(dist6(rng), dist6(rng), dist6(rng));
 }
 
-MINI_NAMESPACE_CLOSE
+}
