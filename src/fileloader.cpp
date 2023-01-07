@@ -1,6 +1,7 @@
 #include "fileloader.h"
 
-namespace Graphics {
+namespace Graphics
+{
     constexpr uint32 GLTF_MAGIC = 0x46546C67;
     constexpr size_t GLTF_HEADER_SIZE = sizeof(uint32);
 
@@ -10,9 +11,11 @@ namespace Graphics {
         switch (type)
         {
         case Obj:
-        {
             typeFilter = FILE_FILTER_OBJ;
-        }
+        case Glb:
+            typeFilter = FILE_FILTER_GLB;
+        default:
+            break;
         }
 
         OPENFILENAME ofn = { 0 };
@@ -42,35 +45,38 @@ namespace Graphics {
     Mesh* loadGlbFile(const std::string& filename)
     {
         Mesh* mesh = new Mesh();
-        std::vector<Vertex> vertices;	// Empty vertex array
-        std::vector<int> indices;		// Empty index array
+        std::vector<Vertex> vertices;    // Empty vertex array
+        std::vector<int> indices;        // Empty index array
         std::vector<Vector3> normals;
 
         /// Open file
-        std::ifstream file(filename, std::ios::binary);	// Read as binary file
-        if (!file)
-        {
-            throw std::runtime_error("Failed to read file.");
-        }
+        std::cout << "Opening file " << filename << "..." << std::endl;
+        std::ifstream file(filename, std::ios::binary);    // Read as binary file
 
         // Get file size
-        file.seekg(0, std::ios::end);				// Move to end
-        std::streamsize fileSize = file.tellg();	// Get byte position at this point
-        std::vector<char> buffer(fileSize);			// Construct new char buffer
-        file.seekg(0, std::ios::beg);				// Move back to beginning
-        file.read(&buffer.at(0), fileSize);			// Read all contents into memory into the address at the
-                                                    // beginning of the buffer
-        file.close();								// Close the file
+        file.seekg(0, std::ios::end);                // Move to end
+        std::streamsize fileSize = file.tellg();    // Get byte position at this point
+        std::vector<char> buffer(fileSize);            // Construct new char buffer
+        file.seekg(0, std::ios::beg);                // Move back to beginning
+        file.read(&buffer.at(0), fileSize);            // Read all contents into memory into the address at the
+
+        std::cout << "File is " << fileSize << " bytes" << std::endl;
+
+        // beginning of the buffer
+        std::cout << "Closing file " << filename << std::endl;
+        file.close();                                // Close the file
 
         // Convert file memory into unsigned char pointer
-        auto* bytes = reinterpret_cast<unsigned char*>(&buffer.at(0));
+        auto* binary = reinterpret_cast<void*>(&buffer.at(0));
 
         /// Start reading the first 12-byte header
         // Validate the magic number header at the top of the file. This should read as 'glTF', 1 byte per letter.
         // 4 bytes total.
-        if (bytes[0] == 'g' && bytes[1] == 'l' && bytes[2] == 'T' && bytes[3] == 'F')
+        auto header = reinterpret_cast<unsigned int*>(&buffer.at(0));
+        std::string magicString(reinterpret_cast<const char*>(header), 4);
+        if (magicString == "glTF")
         {
-            // This is a valid magic header
+            std::cout << "Valid magic header found." << std::endl;
         }
         else
         {
@@ -78,30 +84,100 @@ namespace Graphics {
         }
 
         // Read the version and validate it is version 2
-        uint32 version;
-        memcpy(&version, bytes + GLTF_HEADER_SIZE,  GLTF_HEADER_SIZE);
-        if (version != 2)
+        header++; // Go 4 bytes forward
+        if (*header != 2)
         {
+            std::cout << "Found version: " << *header << std::endl;
             throw std::runtime_error("Invalid version number. Only supports version 2.");
         }
+        std::cout << "Valid version found." << std::endl;
 
         // Read the length, which is the file size, and compare to the actual file size
-        uint32 length;
-        memcpy(&length, bytes + (GLTF_HEADER_SIZE * 2), GLTF_HEADER_SIZE);
-        if (length != fileSize)
+        header++; // Go 4 bytes forward
+        if (*header != fileSize)
         {
             throw std::runtime_error("Invalid file size; does not match actual file size.");
         }
 
         // Read the JSON content length
-        uint32 jsonLength;
-        memcpy(&jsonLength, bytes + (GLTF_HEADER_SIZE * 3), GLTF_HEADER_SIZE);
+        header++; // Go 4 bytes forward
+        auto jsonLength = *header;
+        std::cout << "JSON length is " << jsonLength << std::endl;
 
         // Extract JSON content as a string
-        std::string jsonString(reinterpret_cast<const char*>(&bytes[20]), jsonLength);
+        auto* chunk0 = reinterpret_cast<const char*>(&buffer.at(20));
 
-        /// Parse JSON string
-        //JSON::JsonObject gltfJson = JSON::loadString(jsonString);
+        // Extract JSON string from bytes.
+        std::string jsonString(chunk0, jsonLength);
+
+        // Parse the JSON string
+        JSON::JsonObject json;
+        try
+        {
+            json = JSON::loadString(jsonString);
+        }
+        catch (const std::runtime_error& e)
+        {
+            std::cout << e.what() << std::endl;
+        }
+
+        std::cout << "JSON loaded successfully" << std::endl;
+
+        // Jump to binary data start
+//        bytes += *jsonLength;
+
+        // https://computergraphics.stackexchange.com/questions/7519/how-mesh-geometry-data-vertex-coordinates-stored-in-gltf
+        // Loop through meshes
+        auto* chunk1 = reinterpret_cast<const char*>(&buffer.at(20 + jsonLength));
+        for (int i = 0; i < json["meshes"].size(); i++)
+        {
+            auto m = json["meshes"][i];
+            // Loop through primitives
+            for (int j = 0; j < m["primitives"].size(); j++)
+            {
+                auto p = m["primitives"][j];
+
+                // Parse vertex indices
+                std::cout << "INDICES" << std::endl;
+                int indicesIndex = p["indices"].asInt().value();
+                auto indicesAccessor = json["accessors"][indicesIndex];
+                std::cout << indicesAccessor << std::endl;
+
+                int indicesOffset = indicesAccessor["byteOffset"].asInt().value();
+                int indicesCount = indicesAccessor["max"][0].asInt().value();
+                int indicesType = indicesAccessor["componentType"].asInt().value();
+
+                std::cout << "Type: " << indicesType << std::endl;
+
+                auto* indicesPtr = reinterpret_cast<unsigned short*>(&buffer.at(20 + jsonLength + indicesOffset));
+                for (int k = 0; k < indicesCount; k++)
+                {
+                    auto index = *indicesPtr++;
+                    std::cout << index << std::endl;
+                }
+
+                // Parse vertex positions
+                std::cout << "POSITIONS" << std::endl;
+                int positionIndex = p["attributes"]["POSITION"].asInt().value();
+                auto positionAccessor = json["accessors"][positionIndex];
+
+                int positionOffset = positionAccessor["byteOffset"].asInt().value();
+                int positionCount = positionAccessor["count"].asInt().value();
+                int positionType = positionAccessor["componentType"].asInt().value();
+
+                std::cout << positionType << std::endl;
+
+                auto* positionPtr = reinterpret_cast<float*>(&buffer.at(20 + jsonLength + indicesOffset));
+                for (int k = 0; k < positionCount; k++)
+                {
+                    auto x = *positionPtr++;
+                    auto y = *positionPtr++;
+                    auto z = *positionPtr++;
+                    Vector3 pos(x, y, z);
+                    std::cout << pos.toString() << std::endl;
+                }
+            }
+        }
 
         return mesh;
     }
@@ -109,19 +185,19 @@ namespace Graphics {
     Mesh* loadObjFile(const std::string& filename)
     {
         Mesh* mesh = new Mesh();
-        std::vector<Vertex> vertices;	// Empty vertex array
-        std::vector<int> indices;		// Empty index array
+        std::vector<Vertex> vertices;    // Empty vertex array
+        std::vector<int> indices;        // Empty index array
         std::vector<Vector3> normals;
 
-        std::ifstream file(filename);	// New filestream
+        std::ifstream file(filename);    // New filestream
         if (!file)
         {
             throw std::runtime_error("Invalid file: " + filename);
         }
-        std::stringstream stream;	// New string stream
-        stream << file.rdbuf();		// Read data
+        std::stringstream stream;    // New string stream
+        stream << file.rdbuf();        // Read data
 
-        std::string line;			// New buffer for the current line
+        std::string line;            // New buffer for the current line
 
         std::cout << "Reading file contents..." << std::endl;
 
@@ -132,12 +208,12 @@ namespace Graphics {
             readLine(stream, line);
             std::cout << line << std::endl;
 
-            if (line.starts_with('\0'))			// Skip if line is empty
+            if (line.starts_with('\0'))            // Skip if line is empty
             {
                 continue;
             }
 
-            if (line.starts_with('#'))			// Skip if the line is commented
+            if (line.starts_with('#'))            // Skip if the line is commented
             {
                 continue;
             }
@@ -146,7 +222,7 @@ namespace Graphics {
             const char* token = line.c_str();
 
             // Vertices
-            if (*token == 'v')	// v 0.5 2.32843 -1.23
+            if (*token == 'v')    // v 0.5 2.32843 -1.23
             {
                 std::istringstream istream(line);
                 std::string str;
@@ -213,7 +289,7 @@ namespace Graphics {
             }
 
             // Indices
-            if (*token == 'f')	// f 0 2 3 ... n
+            if (*token == 'f')    // f 0 2 3 ... n
             {
                 std::istringstream istream(line);
                 std::string str;
@@ -250,7 +326,7 @@ namespace Graphics {
                 }
 
                 // Append each index to the indices array
-                int triCount = (int) values.size() - 2;
+                int triCount = (int)values.size() - 2;
                 for (int i = 0; i < triCount; i++)
                 {
                     int i1 = 0;
@@ -275,32 +351,32 @@ namespace Graphics {
     {
         auto* shader = new StandardShader();
 
-        std::ifstream file(filename);	// New filestream
+        std::ifstream file(filename);    // New filestream
         if (file)
         {
-            std::stringstream stream;	// New string stream
-            stream << file.rdbuf();		// Read data
+            std::stringstream stream;    // New string stream
+            stream << file.rdbuf();        // Read data
 
-            std::string line;			// New buffer for the current line
+            std::string line;            // New buffer for the current line
 
             // Keep reading until end-of-file
             while (stream.peek() != -1)
             {
-                readLine(stream, line);				// Read current line
-                const char* token = line.c_str();	// Pointer to first character in line
+                readLine(stream, line);                // Read current line
+                const char* token = line.c_str();    // Pointer to first character in line
 
-                if (line.starts_with('\0'))			// Skip if line is empty
+                if (line.starts_with('\0'))            // Skip if line is empty
                 {
                     continue;
                 }
 
-                if (line.starts_with('#'))			// Skip if the line is commented
+                if (line.starts_with('#'))            // Skip if the line is commented
                 {
                     continue;
                 }
 
                 auto equalsIndex = line.find('=');
-                if (equalsIndex == std::string::npos)	// If there's no = found
+                if (equalsIndex == std::string::npos)    // If there's no = found
                 {
                     continue;
                 }

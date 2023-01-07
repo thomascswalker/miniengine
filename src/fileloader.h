@@ -12,16 +12,35 @@
 #include "mesh.h"
 #include "shader.h"
 
+#include "json.h"
+
 constexpr auto FILE_FILTER_OBJ = "Wavefront OBJ (.obj)\0*.obj\0";
-#define FILE_FILTER_GLB L"GLB (.glb)\0*.glb\0"
-#define FILE_FILTER_SHADER L"Pixel Shader File (.ini)\0*.pxl\0"
+constexpr auto FILE_FILTER_GLB = "GLB (.glb)\0*.glb\0";
+
+// https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#meshes-overview
+constexpr auto GLB_PRIM_POINTS = 0;
+constexpr auto GLB_PRIM_LINE_STRIPS = 1;
+constexpr auto GLB_PRIM_LINE_LOOPS = 2;
+constexpr auto GLB_PRIM_LINES = 3;
+constexpr auto GLB_PRIM_TRIANGLES = 4;
+constexpr auto GLB_PRIM_TRIANGLE_STRIPS = 5;
+constexpr auto GLB_PRIM_TRIANGLE_FANS = 6;
+
+// https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#accessor-data-types
+typedef signed char GLB_ACC_TYPE_SB;
+typedef unsigned char GLB_ACC_TYPE_UB;
+typedef signed short GLB_ACC_TYPE_SS;
+typedef unsigned short GLB_ACC_TYPE_US;
+typedef unsigned int GLB_ACC_TYPE_UI;
+typedef float GLB_ACC_TYPE_F;
+
 
 namespace Graphics
 {
     enum FileTypes
     {
         Obj,
-        Gltf
+        Glb
     };
 
     static std::vector<const char*> INVALID_VERTEX_TOKENS = { "v", "vn", "vt", "", " " };
@@ -144,9 +163,9 @@ namespace Graphics
         }
     }
 
-/// <summary>
-/// Wrapper for GetOpenFileNameW to simplify the parameter inputs.
-/// </summary>
+    /// <summary>
+    /// Wrapper for GetOpenFileNameW to simplify the parameter inputs.
+    /// </summary>
     bool getOpenFilename(FileTypes type, std::string& filename);
 
     Mesh* loadGlbFile(const std::string& filename);

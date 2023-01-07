@@ -10,7 +10,6 @@
 25	2708	6947340631414835	CMakeFiles/miniengine.dir/src/object.cpp.obj	d0b61faf97c657c9
 44	2709	6947340631424853	CMakeFiles/miniengine.dir/src/transform.cpp.obj	6ab9f74044e9d0ae
 34	2868	6947340633016378	CMakeFiles/miniengine.dir/src/matrix.cpp.obj	395bc8041fdfef4
-25	3500	6947338300855953	CMakeFiles/miniengine.dir/src/main.cpp.obj	11f7354b15cbd3f2
 13	2834	6947352764094270	CMakeFiles/miniengine.dir/main.cpp.obj	dbeef347d5d9084c
 17	3513	6947340639446167	CMakeFiles/miniengine.dir/src/framebuffer.cpp.obj	1ed6840bb9725ff0
 4	2714	6947358405420061	CMakeFiles/miniengine.dir/src/fileloader.cpp.obj	db1a9517f3ea9ac9

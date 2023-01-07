@@ -52,105 +52,112 @@ build cmake_object_order_depends_target_miniengine: phony || CMakeFiles/miniengi
 build CMakeFiles/miniengine.dir/src/application.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/application.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\application.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/camera.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/camera.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\camera.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/color.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/color.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\color.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/core.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/core.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\core.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/fileloader.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/fileloader.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\fileloader.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/framebuffer.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/framebuffer.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\framebuffer.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/matrix.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/matrix.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\matrix.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/mesh.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/mesh.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\mesh.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/object.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/object.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\object.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/printbuffer.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/printbuffer.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\printbuffer.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/quaternion.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/quaternion.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\quaternion.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/transform.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/transform.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\transform.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/triangle.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/triangle.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\triangle.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
 
 build CMakeFiles/miniengine.dir/src/vector.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/src/vector.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\src\vector.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\src
+
+build CMakeFiles/miniengine.dir/include/json.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/include/json.cpp || cmake_object_order_depends_target_miniengine
+  DEP_FILE = CMakeFiles\miniengine.dir\include\json.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always -std=gnu++20
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
+  OBJECT_DIR = CMakeFiles\miniengine.dir
+  OBJECT_FILE_DIR = CMakeFiles\miniengine.dir\include
 
 build CMakeFiles/miniengine.dir/main.cpp.obj: CXX_COMPILER__miniengine_Debug C$:/Users/Tom/Documents/GitHub/miniengine/main.cpp || cmake_object_order_depends_target_miniengine
   DEP_FILE = CMakeFiles\miniengine.dir\main.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu++20
-  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src
+  INCLUDES = -IC:/Users/Tom/Documents/GitHub/miniengine/src -IC:/Users/Tom/Documents/GitHub/miniengine/include
   OBJECT_DIR = CMakeFiles\miniengine.dir
   OBJECT_FILE_DIR = CMakeFiles\miniengine.dir
 
@@ -162,7 +169,7 @@ build CMakeFiles/miniengine.dir/main.cpp.obj: CXX_COMPILER__miniengine_Debug C$:
 #############################################
 # Link the executable miniengine.exe
 
-build miniengine.exe: CXX_EXECUTABLE_LINKER__miniengine_Debug CMakeFiles/miniengine.dir/src/application.cpp.obj CMakeFiles/miniengine.dir/src/camera.cpp.obj CMakeFiles/miniengine.dir/src/color.cpp.obj CMakeFiles/miniengine.dir/src/core.cpp.obj CMakeFiles/miniengine.dir/src/fileloader.cpp.obj CMakeFiles/miniengine.dir/src/framebuffer.cpp.obj CMakeFiles/miniengine.dir/src/matrix.cpp.obj CMakeFiles/miniengine.dir/src/mesh.cpp.obj CMakeFiles/miniengine.dir/src/object.cpp.obj CMakeFiles/miniengine.dir/src/printbuffer.cpp.obj CMakeFiles/miniengine.dir/src/quaternion.cpp.obj CMakeFiles/miniengine.dir/src/transform.cpp.obj CMakeFiles/miniengine.dir/src/triangle.cpp.obj CMakeFiles/miniengine.dir/src/vector.cpp.obj CMakeFiles/miniengine.dir/main.cpp.obj
+build miniengine.exe: CXX_EXECUTABLE_LINKER__miniengine_Debug CMakeFiles/miniengine.dir/src/application.cpp.obj CMakeFiles/miniengine.dir/src/camera.cpp.obj CMakeFiles/miniengine.dir/src/color.cpp.obj CMakeFiles/miniengine.dir/src/core.cpp.obj CMakeFiles/miniengine.dir/src/fileloader.cpp.obj CMakeFiles/miniengine.dir/src/framebuffer.cpp.obj CMakeFiles/miniengine.dir/src/matrix.cpp.obj CMakeFiles/miniengine.dir/src/mesh.cpp.obj CMakeFiles/miniengine.dir/src/object.cpp.obj CMakeFiles/miniengine.dir/src/printbuffer.cpp.obj CMakeFiles/miniengine.dir/src/quaternion.cpp.obj CMakeFiles/miniengine.dir/src/transform.cpp.obj CMakeFiles/miniengine.dir/src/triangle.cpp.obj CMakeFiles/miniengine.dir/src/vector.cpp.obj CMakeFiles/miniengine.dir/include/json.cpp.obj CMakeFiles/miniengine.dir/main.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\miniengine.dir
