@@ -9,10 +9,13 @@ namespace Graphics {
         switch (type) {
             case Obj:
                 typeFilter = FILE_FILTER_OBJ;
+                break;
             case Glb:
                 typeFilter = FILE_FILTER_GLB;
+                break;
             case Gltf:
                 typeFilter = FILE_FILTER_GLTF;
+                break;
             default:
                 break;
         }
@@ -70,6 +73,66 @@ namespace Graphics {
         return buffer.str();
     }
 
+    // https://computergraphics.stackexchange.com/questions/7519/how-mesh-geometry-data-vertex-coordinates-stored-in-gltf
+    // Loop through meshes
+    Mesh *parseGltfBinary(JSON::JsonObject &json, std::vector<char> &buffer, int bufferByteSize) {
+        Mesh *mesh = new Mesh();
+
+        for (int i = 0; i < json["meshes"].size(); i++) {
+            std::cout << "Mesh " << i << std::endl;
+            auto m = json["meshes"][i];
+            // Loop through primitives
+            for (int j = 0; j < m["primitives"].size(); j++) {
+                std::cout << "Prim " << i << std::endl;
+                auto p = m["primitives"][j];
+
+                // Parse vertex indices
+                std::cout << "INDICES" << std::endl;
+                int indicesIndex = p["indices"].asInt().value();
+                auto indicesAccessor = json["accessors"][indicesIndex];
+
+                int indicesOffset = indicesAccessor["byteOffset"].asInt().value();
+                int indicesCount = indicesAccessor["count"].asInt().value();
+                int indicesType = indicesAccessor["componentType"].asInt().value();
+
+                auto *indicesPtr = reinterpret_cast<unsigned short *>(&buffer.at(indicesOffset));
+                std::vector<int> indices;
+                for (int k = 0; k < indicesCount; k++) {
+                    auto index = *indicesPtr++;
+                    std::cout << ">>> " << index << std::endl;
+                    indices.push_back(index);
+                }
+                mesh->setIndices(indices);
+
+                // Parse vertex positions
+                std::cout << "POSITIONS" << std::endl;
+                int positionIndex = p["attributes"]["POSITION"].asInt().value();
+                auto positionAccessor = json["accessors"][positionIndex];
+
+                int positionOffset = positionAccessor["byteOffset"].asInt().value();
+                int positionCount = positionAccessor["count"].asInt().value();
+                int positionType = positionAccessor["componentType"].asInt().value();
+
+                std::cout << positionType << std::endl;
+
+                auto *positionPtr = reinterpret_cast<float *>(&buffer.at(positionOffset));
+                std::vector<Vector3> vertices;
+                for (int k = 0; k < positionCount; k++) {
+                    auto x = *positionPtr++;
+                    auto y = *positionPtr++;
+                    auto z = *positionPtr++;
+                    Vector3 pos(x, y, z);
+                    vertices.push_back(pos);
+                    std::cout << ">>> " << pos.toString() << std::endl;
+                }
+                mesh->setVertices(vertices);
+            }
+        }
+
+        mesh->bindTris();
+        return mesh;
+    }
+
     Mesh *loadGlbFile(const std::string &filename) {
         Mesh *mesh = new Mesh();
         std::vector<Vertex> vertices;    // Empty vertex array
@@ -99,9 +162,6 @@ namespace Graphics {
 
         // Read the length, which is the file size, and compare to the actual file size
         header++; // Go 4 bytes forward
-//        if (*header != fileSize) {
-//            throw std::runtime_error("Invalid file size; does not match actual file size.");
-//        }
 
         // Read the JSON content length
         header++; // Go 4 bytes forward
@@ -124,57 +184,12 @@ namespace Graphics {
         }
 
         std::cout << "JSON loaded successfully" << std::endl;
+        std::cout << json << std::endl;
 
-        // https://computergraphics.stackexchange.com/questions/7519/how-mesh-geometry-data-vertex-coordinates-stored-in-gltf
-        // Loop through meshes
-        auto *chunk1 = reinterpret_cast<const char *>(&buffer.at(20 + jsonLength));
-        for (int i = 0; i < json["meshes"].size(); i++) {
-            auto m = json["meshes"][i];
-            // Loop through primitives
-            for (int j = 0; j < m["primitives"].size(); j++) {
-                auto p = m["primitives"][j];
+        auto bufferSize = json["buffers"][0]["byteLength"].asInt().value();
 
-                // Parse vertex indices
-                std::cout << "INDICES" << std::endl;
-                int indicesIndex = p["indices"].asInt().value();
-                auto indicesAccessor = json["accessors"][indicesIndex];
-                std::cout << indicesAccessor << std::endl;
-
-                int indicesOffset = indicesAccessor["byteOffset"].asInt().value();
-                int indicesCount = indicesAccessor["max"][0].asInt().value();
-                int indicesType = indicesAccessor["componentType"].asInt().value();
-
-                std::cout << "Type: " << indicesType << std::endl;
-
-                auto *indicesPtr = reinterpret_cast<unsigned short *>(&buffer.at(20 + jsonLength + indicesOffset));
-                for (int k = 0; k < indicesCount; k++) {
-                    auto index = *indicesPtr++;
-                    std::cout << index << std::endl;
-                }
-
-                // Parse vertex positions
-                std::cout << "POSITIONS" << std::endl;
-                int positionIndex = p["attributes"]["POSITION"].asInt().value();
-                auto positionAccessor = json["accessors"][positionIndex];
-
-                int positionOffset = positionAccessor["byteOffset"].asInt().value();
-                int positionCount = positionAccessor["count"].asInt().value();
-                int positionType = positionAccessor["componentType"].asInt().value();
-
-                std::cout << positionType << std::endl;
-
-                auto *positionPtr = reinterpret_cast<float *>(&buffer.at(20 + jsonLength + indicesOffset));
-                for (int k = 0; k < positionCount; k++) {
-                    auto x = *positionPtr++;
-                    auto y = *positionPtr++;
-                    auto z = *positionPtr++;
-                    Vector3 pos(x, y, z);
-                    std::cout << pos.toString() << std::endl;
-                }
-            }
-        }
-
-        return mesh;
+        std::vector<char> chunk(buffer.begin() + 20 + jsonLength, buffer.end());
+        return parseGltfBinary(json, chunk, bufferSize);
     }
 
     Mesh *loadGltfFile(const std::string &filename) {
@@ -184,11 +199,11 @@ namespace Graphics {
         std::cout << "Reading .gltf file: " << filename << std::endl;
         JSON::JsonObject json = JSON::loadFile(filename);
         auto binBasename = json["buffers"][0]["uri"].asString().value();
+        auto bufferSize = json["buffers"][0]["byteLength"].asInt().value();
         auto binFilename = directory + "\\" + binBasename;
         std::cout << "Found .bin file: " << binFilename << std::endl;
-
-        Mesh *mesh = new Mesh();
-        return mesh;
+        auto buffer = openBinaryFile(binFilename);
+        return parseGltfBinary(json, buffer, bufferSize);
     }
 
     Mesh *loadObjFile(const std::string &filename) {

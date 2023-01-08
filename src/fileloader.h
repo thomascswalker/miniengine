@@ -149,6 +149,8 @@ namespace Graphics {
 
     std::string openAsciiFile(const std::string &filename);
 
+    Mesh* parseGltfBinary(JSON::JsonObject& json, std::vector<char>& buffer, int bufferByteSize);
+
     Mesh *loadGlbFile(const std::string &filename);
 
     Mesh *loadGltfFile(const std::string &filename);

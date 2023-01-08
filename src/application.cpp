@@ -341,7 +341,7 @@ namespace Graphics
             if (O_DOWN)
             {
                 O_DOWN = false;
-                loadModel(Gltf);
+                loadModel(FileTypes::Glb);
             }
 
             // Arcball rotation
@@ -434,7 +434,6 @@ namespace Graphics
         case Gltf:
             mesh = loadGltfFile(filename);
             break;
-
         default:
             std::cout << "Invalid filetype" << std::endl;
             return false;

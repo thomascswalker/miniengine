@@ -24,9 +24,10 @@ public:
 	std::vector<int> getIndices() { return m_indices; }
 	std::vector<Triangle*> getTris() { return m_triangles; }
 
-	void setVertices(const std::vector<Vertex> data);
-	void setIndices(const std::vector<int> data);
-	void setNormals(const std::vector<Vector3> data);
+	void setVertices(const std::vector<Vertex>& data);
+    void setVertices(const std::vector<Vector3>& data);
+	void setIndices(const std::vector<int>& data);
+	void setNormals(const std::vector<Vector3>& data);
 	void bindTris();
 
 private:
