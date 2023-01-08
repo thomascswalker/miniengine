@@ -340,11 +340,8 @@ namespace Graphics
             // Load our mesh
             if (O_DOWN)
             {
-                if (!loadModel())
-                {
-                    continue;
-                }
                 O_DOWN = false;
+                loadModel(FileTypes::Glb);
             }
 
             // Arcball rotation
@@ -395,7 +392,7 @@ namespace Graphics
             ReleaseDC(m_hwnd, hdc);
 
             setMouseLastPos(m_mousePos.x, m_mousePos.y);
-        };
+        }
 
         return 0;
     }
@@ -415,27 +412,37 @@ namespace Graphics
         }
     }
 
-    bool Application::loadModel()
+    bool Application::loadModel(FileTypes type)
     {
         std::string filename;
 
-        if (!getOpenFilename(FileTypes::Obj, filename))
+        if (!getOpenFilename(type, filename))
         {
             return false;
         }
 
         std::cout << "Loading file..." << std::endl;
-        Mesh* mesh = loadObjFile(filename);
+        Mesh* mesh;
+        switch (type)
+        {
+        case Obj:
+            mesh = loadObjFile(filename);
+            break;
+        case Glb:
+            mesh = loadGlbFile(filename);
+            break;
+        case Gltf:
+            mesh = loadGltfFile(filename);
+            break;
+        default:
+            std::cout << "Invalid filetype" << std::endl;
+            return false;
+        }
+
         std::cout << "File loaded." << std::endl;
-        std::cout << mesh->numVertices() << std::endl;
 
         m_staticMesh->setMesh(mesh);
 
-        return true;
-    }
-
-    bool Application::loadShader()
-    {
         return true;
     }
 

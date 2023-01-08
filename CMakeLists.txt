@@ -4,6 +4,7 @@ project(miniengine)
 set(CMAKE_CXX_STANDARD 20)
 
 include_directories(src)
+include_directories(include)
 
 add_executable(miniengine
         src/api.h
@@ -42,5 +43,7 @@ add_executable(miniengine
         src/vector.cpp
         src/vector.h
         src/vertex.h
+        include/json.cpp
+        include/json.h
         main.cpp
         )
